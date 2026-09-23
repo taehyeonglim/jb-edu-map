@@ -5,14 +5,8 @@ import { describe, expect, it } from "vitest";
 
 import { contrastRatio, relativeLuminance, THEME } from "@/lib/theme";
 
-/**
- * The KPI tile background is `bg-ink/5` over the page's `bg-paper`, i.e.
- * THEME.ink at 5% alpha composited onto THEME.paper — which resolves to
- * #eae8e2 (per channel: round(0.05·ink + 0.95·paper)). Pinned as a literal
- * here so the small-text contrast checks below run against the SAME
- * surface the 10px delta text actually sits on, not an idealized white.
- */
-const KPI_TILE_BG = "#eae8e2";
+/** KPI cards use the same opaque surface token as the sidebar panels. */
+const KPI_TILE_BG = THEME.surface;
 
 describe("THEME contrast (WCAG 2.1)", () => {
   it("body text pairs reach 4.5:1", () => {
@@ -46,6 +40,8 @@ describe("THEME contrast (WCAG 2.1)", () => {
     expect(contrastRatio(THEME.accentText, THEME.accentSoft)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(THEME.positiveText, KPI_TILE_BG)).toBeGreaterThanOrEqual(4.5);
     expect(contrastRatio(THEME.positiveText, THEME.accentSoft)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(THEME.warningText, KPI_TILE_BG)).toBeGreaterThanOrEqual(4.5);
+    expect(contrastRatio(THEME.warningText, THEME.warningSoft)).toBeGreaterThanOrEqual(4.5);
   });
 
   it("relativeLuminance: white 1, black 0", () => {
@@ -71,6 +67,9 @@ describe("globals.css @theme tokens mirror THEME", () => {
     ["accent-text", THEME.accentText],
     ["positive", THEME.positive],
     ["positive-text", THEME.positiveText],
+    ["warning", THEME.warning],
+    ["warning-soft", THEME.warningSoft],
+    ["warning-text", THEME.warningText],
   ] as const)("--color-%s equals THEME", (name, hex) => {
     // Guard first so a token missing from BOTH sides can't pass as
     // `undefined === undefined`.

@@ -22,7 +22,7 @@ export function makeFlatRegionsLayer(
     stroked: true,
     getFillColor: issueModel ? (feature) => issueModel.regions.find((row) => row.code === feature.properties.code)?.color ?? [255, 255, 255, 0] : [255, 255, 255, 0],
     getLineColor: (feature) =>
-      feature.properties.code === selectedCode ? [28, 35, 49, 230] : [85, 100, 118, 110],
+      feature.properties.code === selectedCode ? [131, 230, 239, 255] : [104, 144, 172, 190],
     getLineWidth: (feature) => feature.properties.code === selectedCode ? 2 : 1,
     lineWidthUnits: "pixels",
     pickable: true,
@@ -55,7 +55,7 @@ export function makeFlatSchoolsLayer(
     stroked: true,
     lineWidthUnits: "pixels",
     getLineWidth: (school) => school.id === highlightedId ? 3 : 1.5,
-    getLineColor: [255, 255, 255, 255],
+    getLineColor: [8, 20, 33, 255],
     getFillColor: (school) => SCHOOL_LEVEL_COLORS[school.level],
     getPosition: (school) => [school.lng, school.lat, 1],
     parameters: { depthCompare: "always", depthWriteEnabled: false },

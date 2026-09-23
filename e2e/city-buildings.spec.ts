@@ -57,14 +57,14 @@ test("city tiles are gated, reused, non-pickable and recover from failures", asy
   await expect.poll(() => page.evaluate(() => {
     const deck = window.__jbmap!.deck as unknown as {layerManager:{getLayers:()=>{id:string,props:{getFillColor?:number[]}}[]}};
     const volumes = deck.layerManager.getLayers().filter(l=>l.id.endsWith("-volume"));
-    return volumes.length > 0 && volumes.every(l=>l.props.getFillColor?.[3]===38);
+    return volumes.length > 0 && volumes.every(l=>l.props.getFillColor?.[3]===76);
   })).toBe(true);
   expect(requests).toBe(loaded);
   await page.getByRole("tab", {name:"학교 탐색",exact:true}).click();
   await expect.poll(() => page.evaluate(() => {
     const deck = window.__jbmap!.deck as unknown as {layerManager:{getLayers:()=>{id:string,props:{getFillColor?:number[]}}[]}};
     const volumes = deck.layerManager.getLayers().filter(l=>l.id.endsWith("-volume"));
-    return volumes.length > 0 && volumes.every(l=>l.props.getFillColor?.[3]===38);
+    return volumes.length > 0 && volumes.every(l=>l.props.getFillColor?.[3]===76);
   })).toBe(true);
   expect(requests).toBe(loaded);
   fail=true;

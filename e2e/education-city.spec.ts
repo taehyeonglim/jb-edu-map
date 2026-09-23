@@ -96,6 +96,10 @@ test("mobile topic selector, complete metric menu and selected school card fit",
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await ready(page);
+  const issueButton = page.getByRole("button", { name: "교육문제 탐색" });
+  await expect(issueButton).toBeVisible();
+  const issueBox = await issueButton.boundingBox();
+  expect(issueBox!.x + issueBox!.width).toBeLessThanOrEqual(390);
   await page
     .getByRole("combobox", { name: "교육현황 빠른 선택" })
     .selectOption("small_schools");

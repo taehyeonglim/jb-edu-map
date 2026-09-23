@@ -43,6 +43,7 @@ describe("makeBasemapLayer", () => {
   });
 
   it("satellite mode requests Satellite jpeg tiles; base mode requests Base png tiles", () => {
+    expect(makeBasemapLayer("k", "night").props.data).toBe(vworldTileUrl("k", "midnight", "png"));
     expect(makeBasemapLayer("k", "satellite").props.data).toBe(
       vworldTileUrl("k", "Satellite", "jpeg"),
     );
@@ -152,11 +153,12 @@ describe("makeBasemapWashLayer", () => {
     expect(layer.props.shadowEnabled).toBe(false);
     expect(layer.props.extruded).toBe(false);
     expect(layer.props.parameters).toMatchObject({ depthWriteEnabled: false });
-    expect(layer.props.getFillColor).toEqual([255, 255, 255, 110]);
+    expect(layer.props.getFillColor).toEqual([8, 20, 33, 158]);
   });
 
   it("uses a lighter wash for the base map", () => {
-    expect(makeBasemapWashLayer("base").props.getFillColor).toEqual([255, 255, 255, 100]);
+    expect(makeBasemapWashLayer("base").props.getFillColor).toEqual([8, 20, 33, 182]);
+    expect(makeBasemapWashLayer("night").props.getFillColor).toEqual([8, 20, 33, 210]);
   });
 
   // Task 3 fix round 1 (review ruling) — the wash is ONE fixed oversized

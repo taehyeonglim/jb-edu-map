@@ -48,9 +48,9 @@ describe("makeRegionLabelLayer", () => {
       characterSet: ["a"],
     });
     expect(layer.props.background).toBe(true);
-    expect(layer.props.getBackgroundColor).toEqual([255, 255, 255, 225]);
-    expect(layer.props.getColor).toEqual([28, 35, 49, 255]);
-    expect(layer.props.outlineColor).toEqual([255, 255, 255, 255]);
+    expect(layer.props.getBackgroundColor).toEqual([18, 36, 56, 235]);
+    expect(layer.props.getColor).toEqual([235, 245, 252, 255]);
+    expect(layer.props.outlineColor).toEqual([18, 36, 56, 255]);
     expect(layer.props.backgroundPadding).toEqual([6, 3]);
     expect(layer.props.backgroundBorderRadius).toBe(6);
   });

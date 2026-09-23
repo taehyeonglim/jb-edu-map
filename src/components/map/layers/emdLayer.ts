@@ -97,7 +97,7 @@ export function makeEmdBoundaryLayer(fc: FeatureCollection, opts: EmdBoundaryLay
     getWidth: 1,
     // 밝은 디오라마 (spec §4) — translucent gray on the pastel top face (the
     // dark theme's translucent white would vanish on it).
-    getColor: [60, 60, 70, 110] as RGBA,
+    getColor: [131, 230, 239, 150] as RGBA,
     jointRounded: true,
     // Same rationale as makeRegionTopRingsLayer's own shadowEnabled: false —
     // not part of PathLayer's public TS prop type (deck.gl's shadow pass

@@ -31,6 +31,7 @@ const TILE_SOURCE: Record<
   BasemapTiles,
   { layer: string; ext: string; desaturate: number }
 > = {
+  night: { layer: "midnight", ext: "png", desaturate: 0 },
   satellite: { layer: "Satellite", ext: "jpeg", desaturate: 0 },
   base: { layer: "Base", ext: "png", desaturate: 1 },
 };
@@ -93,7 +94,7 @@ export function makeBasemapLayer(key: string, tiles: BasemapTiles) {
     // level coarser is invisible but loads ~4× fewer tiles (≈4× less texture
     // memory), and the cache is capped so panning around cannot pile up
     // 100 MB+ of tile textures (measured before: 58 → 101 MB after a pan).
-    zoomOffset: tiles === "base" ? 0 : -1,
+    zoomOffset: tiles === "base" || tiles === "night" ? 0 : -1,
     maxCacheSize: 64,
     // REQUIRED: TileLayer's own default onTileError is console.error — 8 of
     // this suite's e2e specs assert zero console errors (see
@@ -146,13 +147,8 @@ export function makeBasemapLayer(key: string, tiles: BasemapTiles) {
   });
 }
 
-/**
- * Wash alpha per tile source (spec §2: satellite 110, base 60; screenshot
- * tuning may move either by ±30). The satellite photo needs the heavier
- * wash to read as a bright printed map; the already-light `Base` map only
- * needs a touch so its remaining color doesn't compete with the blocks.
- */
-const WASH_ALPHA: Record<BasemapTiles, number> = { satellite: 110, base: 100 };
+/** Navy wash strength per source; the night wash blends tile edges into the HUD floor. */
+const WASH_ALPHA: Record<BasemapTiles, number> = { night: 210, satellite: 158, base: 182 };
 
 /** One datum: a single closed ring (deck.gl `Position[]`, i.e. `[lng, lat]` tuples). */
 type WashDatum = { polygon: [number, number][] };
@@ -177,8 +173,8 @@ const WASH_RING: [number, number][] = [
 const WASH_DATA: WashDatum[] = [{ polygon: WASH_RING }];
 
 /**
- * The translucent white wash drawn right on top of the tiles — what turns
- * the satellite photo into something like a bright printed map (spec §2).
+ * A translucent navy wash drawn over the tiles to keep map labels and data
+ * symbols legible against the HUD floor.
  * It's a polygon, not a `tintColor` on the BitmapLayer, because `tintColor`
  * is multiplicative and can only darken (spec "검증된 사실"). Flat (not
  * extruded → no lighting applied, so the color is exactly the literal
@@ -191,7 +187,7 @@ export function makeBasemapWashLayer(tiles: BasemapTiles) {
     id: "basemap-wash",
     data: WASH_DATA,
     getPolygon: (d) => d.polygon,
-    getFillColor: [255, 255, 255, WASH_ALPHA[tiles]],
+    getFillColor: [8, 20, 33, WASH_ALPHA[tiles]],
     filled: true,
     extruded: false,
     pickable: false,

@@ -37,7 +37,7 @@ import type {
   ViewStateChangeParameters,
   Viewport,
 } from "@deck.gl/core";
-import { LightGlassTheme, ResetViewWidget, ZoomWidget } from "@deck.gl/widgets";
+import { DarkGlassTheme, ResetViewWidget, ZoomWidget } from "@deck.gl/widgets";
 import "@deck.gl/widgets/stylesheet.css";
 
 import {
@@ -50,6 +50,7 @@ import { declutterLabels, type LabelCandidate } from "./declutterLabels";
 import type { EducationIssuesFile, IssueMapModel, IssueResource } from "@/lib/issues/types";
 import type { School } from "@/lib/schools/types";
 import { readEmdPref, writeEmdPref } from "@/components/map/emdPref";
+import { readBasemapPref, writeBasemapPref } from "@/components/map/basemapPref";
 import { CONTROLLER, VIEW_LIMITS } from "@/components/map/camera";
 import { makeBuildingLayer } from "./layers/buildingLayer";
 import { buildingsActive, scenePitch } from "./scene";
@@ -156,16 +157,14 @@ function nameOf(code: string): string {
 const VIEW = new MapView();
 
 // 추가 요구 #4: 16px margin (deck.gl/widgets' own default is 12px);
-// LightGlassTheme (Task 1 — swapped from DarkGlassTheme for the light UI
-// theme) keeps the 전체보기/줌 buttons' chrome consistent with the app's own
-// (now light) panels; its translucent, blurred buttons still match the
-// glass-widget aesthetic (light theme — spec §1). A MODULE constant,
+// DarkGlassTheme keeps the 전체보기/줌 buttons consistent with the HUD panels.
+// A MODULE constant,
 // not an inline object literal inside the component — Task 6, Section C.3
 // ("widgetThemeStyle 등 매 렌더 새 객체를 모듈 상수로"): an inline literal would be
 // a NEW object reference every render, pointlessly changing the wrapper
 // div's `style` prop identity every time.
 const WIDGET_THEME_STYLE: CSSProperties = {
-  ...LightGlassTheme,
+  ...DarkGlassTheme,
   "--widget-margin": "16px",
 } as CSSProperties;
 
@@ -776,6 +775,7 @@ export default function DeckMap({
   );
 
   const [emdEnabled, setEmdEnabled] = useState(() => readEmdPref());
+  const [basemap, setBasemap] = useState(() => readBasemapPref());
   const handleEmdToggle = useCallback(() => {
     setEmdEnabled((prev) => {
       const next = !prev;
@@ -786,6 +786,23 @@ export default function DeckMap({
 
   const overlayItems = useMemo<MapOverlayItem[]>(() => {
     const items: MapOverlayItem[] = [];
+    if (VWORLD_KEY) items.push({
+      kind: "segmented",
+      id: "basemap",
+      label: "배경 지도",
+      value: basemap,
+      options: [
+        { value: "night", label: "야간" },
+        { value: "satellite", label: "위성" },
+        { value: "base", label: "일반" },
+        { value: "off", label: "끄기" },
+      ],
+      onChange: (value) => {
+        const next = value as typeof basemap;
+        setBasemap(next);
+        writeBasemapPref(next);
+      },
+    });
     if (buildingsEnabled)
       items.push({
         kind: "segmented",
@@ -834,12 +851,13 @@ export default function DeckMap({
     buildingsEnabled,
     schoolChart,
     setSchoolChart,
+    basemap,
   ]);
 
-  const basemapOn = !!VWORLD_KEY;
+  const basemapOn = !!VWORLD_KEY && basemap !== "off";
   const basemapLayer = useMemo(
-    () => (VWORLD_KEY ? makeBasemapLayer(VWORLD_KEY, "base") : null),
-    [],
+    () => (VWORLD_KEY && basemap !== "off" ? makeBasemapLayer(VWORLD_KEY, basemap) : null),
+    [basemap],
   );
 
   // Only ever fetches while emdEnabled AND a 시군 is selected (see
@@ -865,7 +883,7 @@ export default function DeckMap({
     const transitionDuration = 0;
     const layerList: LayersList = [
       basemapLayer,
-      basemapLayer ? makeBasemapWashLayer("base") : null,
+      basemapLayer && basemap !== "off" ? makeBasemapWashLayer(basemap) : null,
       makeFlatRegionsLayer(
         bundle.regions,
         selectedCode,
@@ -876,7 +894,7 @@ export default function DeckMap({
           (metricModel.kind === "region" || metricModel.regionOverlay)
             ? metricModel.regionColor(f.properties.code)
             : [255, 255, 255, 0],
-        getLineColor: (f) => f.properties.code === selectedCode ? [28,35,49,255] : f.properties.code === compareCode ? [153,66,182,255] : [85,100,118,110],
+        getLineColor: (f) => f.properties.code === selectedCode ? [131,230,239,255] : f.properties.code === compareCode ? [176,185,255,255] : [104,144,172,190],
         getLineWidth: (f) => f.properties.code === selectedCode || f.properties.code === compareCode ? 3 : 1,
         updateTriggers: {
           getFillColor: [metricModel],
@@ -896,7 +914,7 @@ export default function DeckMap({
           ).clone({
             id: "region-boundaries",
             filled: false,
-            getLineColor: (f) => f.properties.code === selectedCode ? [28,35,49,255] : f.properties.code === compareCode ? [153,66,182,255] : [85,100,118,110],
+            getLineColor: (f) => f.properties.code === selectedCode ? [131,230,239,255] : f.properties.code === compareCode ? [176,185,255,255] : [104,144,172,190],
             getLineWidth: (f) => f.properties.code === selectedCode || f.properties.code === compareCode ? 3 : 1,
             updateTriggers: { getLineColor: [selectedCode, compareCode], getLineWidth: [selectedCode, compareCode] },
             pickable: false,
@@ -935,7 +953,7 @@ export default function DeckMap({
           const c = metricModel.color(s);
           return issueModel && selectedCode && s.regionCode !== selectedCode && s.regionCode !== compareCode ? [c[0],c[1],c[2],65] : c;
         },
-        getLineColor: (s) => s.id === highlightedSchoolId ? [28,35,49,255] : emphasizeZero && issueModel?.metric === "decline-small" && schoolFacts?.schools[s.id]?.entrants === 0 ? [222,110,39,255] : [255,255,255,255],
+        getLineColor: (s) => s.id === highlightedSchoolId ? [131,230,239,255] : emphasizeZero && issueModel?.metric === "decline-small" && schoolFacts?.schools[s.id]?.entrants === 0 ? [242,140,98,255] : [8,20,33,255],
         getLineWidth: (s) => s.id === highlightedSchoolId || (emphasizeZero && issueModel?.metric === "decline-small" && schoolFacts?.schools[s.id]?.entrants === 0) ? 3 : 1.5,
         getRadius:
           schoolChart === "auto" &&
@@ -975,8 +993,8 @@ export default function DeckMap({
             getPosition: (resource) => [resource.lng!, resource.lat!],
             getRadius: 6,
             radiusUnits: "pixels",
-            getFillColor: [15, 136, 177, 225],
-            getLineColor: [255, 255, 255, 255],
+            getFillColor: [67, 207, 224, 225],
+            getLineColor: [8, 20, 33, 255],
             lineWidthUnits: "pixels",
             getLineWidth: 2,
             stroked: true,
@@ -1025,6 +1043,7 @@ export default function DeckMap({
     return layerList;
   }, [
     basemapLayer,
+    basemap,
     metricModel,
     compareCode, emphasizeZero, schoolFacts,
     densityVisible,
@@ -1146,7 +1165,7 @@ export default function DeckMap({
     <div
       id="school-map"
       ref={containerRef}
-      className="relative h-full w-full bg-paper outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+      className="hud-map relative h-full w-full bg-paper outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
       style={WIDGET_THEME_STYLE}
       tabIndex={0}
       aria-label={`${ACTIVE_PROFILE.province.shortName} 학교 위치 지도`}

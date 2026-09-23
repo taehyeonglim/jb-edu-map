@@ -10,8 +10,8 @@ import type { IndicatorDef, Polarity } from "./indicators/types";
 export type RGB = [number, number, number];
 export type RGBA = [number, number, number, number];
 
-/** Fixed warm gray for a missing (null) value — never taken from a data palette, and darker than every ramp's lightest step so it never reads as "low", only as "no data". */
-export const NULL_COLOR: RGB = [205, 200, 192];
+/** Slate for missing data, distinct from every metric ramp. */
+export const NULL_COLOR: RGB = [96, 116, 134];
 
 const RGB_FUNC_PATTERN = /^rgba?\((\d+),\s*(\d+),\s*(\d+)/;
 const HEX_PATTERN = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/;
@@ -34,19 +34,16 @@ export function parseColor(css: string): RGB {
 }
 
 /**
- * 라이트 테마 파스텔 램프(스펙 4절). 정지점 5개가 곧 5단계라 보간·샘플링이
- * 필요 없다. 밝기(luminance)는 단조 감소 — tests/unit/colors.test.ts 가 검사.
- * 1단계는 종이 바닥(#f5f2eb)·바닥판([255,252,246])보다 눈에 띄게 진하다(Task 2
- * fix round 1 룰링: 원래의 #fdf3e1/#e9f6ef/#f2eef7 은 낮 조명 아래 흰색으로
- * 클리핑돼 바닥과 구분되지 않았다).
+ * 야간 현황판용 5단계 팔레트. 값이 높을수록 밝아지며
+ * tests/unit/colors.test.ts 가 명도 순서를 검증한다.
  */
 const PALETTE_STOPS: Record<Polarity, readonly string[]> = {
-  higherWorse: ["#f9e5c8", "#f9d9b0", "#f3b27f", "#e8865a", "#d9572b"],
-  higherBetter: ["#d9efe3", "#bfe6d2", "#8fd1b6", "#5cb59a", "#2f8f7a"],
-  neutral: ["#e6dff0", "#d8cfe9", "#b8a9d6", "#9282bf", "#6d5ba3"],
+  higherWorse: ["#633744", "#8b4350", "#b9564d", "#e5754b", "#ffad66"],
+  higherBetter: ["#174b55", "#1e6c69", "#228f7b", "#2bb99b", "#72e5bd"],
+  neutral: ["#303a6c", "#46579a", "#5f74c4", "#8398e6", "#b0b9ff"],
 };
 
-/** 5-step palette for a polarity: the ramp's stops, lightest first. */
+/** 5-step palette for a polarity: the ramp's stops, darkest first. */
 export function paletteFor(polarity: Polarity): RGB[] {
   return PALETTE_STOPS[polarity].map(parseColor);
 }

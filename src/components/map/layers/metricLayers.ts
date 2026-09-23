@@ -56,7 +56,7 @@ export function makeSpecialSchoolLayer(
     data: schools.filter((s) => s.level === "special"),
     getIcon: () => DIAMOND,
     getPosition: (s) => [s.lng, s.lat, 2],
-    getColor: metric.kind === "region" ? [124,77,189,255] : (s) => metric.value(s) === null ? [124,77,189,255] : metric.color(s),
+    getColor: metric.kind === "region" ? [176,185,255,255] : (s) => metric.value(s) === null ? [176,185,255,255] : metric.color(s),
     getSize: 16,
     sizeUnits: "pixels",
     billboard: true,

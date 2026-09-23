@@ -8,14 +8,14 @@ import { DEFAULT_INDICATOR_ID } from "@/lib/indicators/registry";
  * prerendering — this is the static shell Next renders in that gap, before
  * Dashboard itself takes over client-side.
  *
- * Layout skeleton only, light theme, no data: reuses TopBar with `bundle={null}`
+ * Layout skeleton only, no data: reuses TopBar with `bundle={null}`
  * (its own loading state — indicator menu + KPI tiles render as skeleton
  * bars) rather than duplicating that markup here. `indicatorId` is never
  * displayed in the bundle-less state, so any valid id works.
  */
 export default function DashboardSkeleton() {
   return (
-    <div className="grid h-full grid-rows-[56px_1fr] bg-paper text-ink">
+    <div className="grid h-full w-full min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-paper text-ink">
       <TopBar indicatorId={DEFAULT_INDICATOR_ID} bundle={null} />
       <div className="flex items-center justify-center text-sm text-ink-muted">지도 준비 중</div>
     </div>

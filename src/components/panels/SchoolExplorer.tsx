@@ -61,7 +61,7 @@ export function SchoolDetail({
           type="button"
           aria-label="학교 선택 해제"
           onClick={onClose}
-          className="min-h-9 min-w-9 rounded hover:bg-white/60"
+          className="min-h-9 min-w-9 rounded hover:bg-ink/10"
         >
           ✕
         </button>
@@ -273,7 +273,7 @@ export default function SchoolExplorer({
                   )}
                   {school.branch && <span>분교장</span>}
                   {school.small && (
-                    <span className="text-accent-text">소규모</span>
+                    <span className="text-warning-text">소규모</span>
                   )}
                   {school.lat === null && <span>위치 없음</span>}
                 </span>

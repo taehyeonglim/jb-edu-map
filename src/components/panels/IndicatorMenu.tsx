@@ -242,7 +242,8 @@ export default function IndicatorMenu({ series = {} }: IndicatorMenuProps) {
         onClick={() => setOpen((v) => !v)}
         className="flex shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 py-1.5 text-sm text-ink hover:bg-ink/10"
       >
-        <span className="max-w-32 truncate sm:max-w-none">{`전체 지표 · ${label} ▾`}</span>
+        <span className="sm:hidden">전체 지표 ▾</span>
+        <span className="hidden truncate sm:inline sm:max-w-none">{`전체 지표 · ${label} ▾`}</span>
       </button>
 
       {open && (
@@ -254,7 +255,7 @@ export default function IndicatorMenu({ series = {} }: IndicatorMenuProps) {
           onClick={handlePopoverClick}
           onKeyDown={handlePopoverKeyDown}
           onKeyUp={handlePopoverKeyUp}
-          className="fixed left-3 right-3 top-14 z-50 mt-2 max-h-[70vh] xl:absolute xl:left-auto xl:right-0 xl:top-full xl:w-[640px] overflow-y-auto rounded-lg border border-line bg-surface p-3 shadow-xl"
+          className="fixed left-3 right-3 top-[112px] z-50 mt-2 max-h-[70vh] overflow-y-auto rounded-lg border border-line bg-surface p-3 shadow-xl sm:top-14 xl:absolute xl:left-auto xl:right-0 xl:top-full xl:w-[640px]"
         >
           <IndicatorPicker
             value={issueId ? "" : indicatorId}

@@ -87,7 +87,7 @@ describe("makeEmdBoundaryLayer", () => {
   it("literal getWidth (1px) and getColor ([60,60,70,110]) — not per-datum accessors", () => {
     const layer = makeEmdBoundaryLayer(fixture(), { elevation: 100, triggerKey: "v1" });
     expect(layer.props.getWidth).toBe(1);
-    expect(layer.props.getColor).toEqual([60, 60, 70, 110]);
+    expect(layer.props.getColor).toEqual([131, 230, 239, 150]);
   });
 
   it("flattens every Polygon/MultiPolygon ring (outer + holes) into {path} data, one entry per ring", () => {

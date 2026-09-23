@@ -66,8 +66,8 @@ describe("paletteFor", () => {
 });
 
 describe("NULL_COLOR", () => {
-  it("is the fixed warm gray [205,200,192]", () => {
-    expect(NULL_COLOR).toEqual([205, 200, 192]);
+  it("is a fixed slate color distinct from data values", () => {
+    expect(NULL_COLOR).toEqual([96, 116, 134]);
   });
 
   it("differs from every stop of every ramp (never mistaken for a data step)", () => {
@@ -81,44 +81,44 @@ describe("NULL_COLOR", () => {
 // visibly darker than the paper floor (#f5f2eb) and the footprint plate
 // ([255,252,246]); the original near-white stops clipped to white under the
 // daylight lighting and could not be told from the floor.
-describe("paletteFor — pastel ramps (light theme)", () => {
-  it("higherWorse is cream → coral, exactly the spec stops", () => {
+describe("paletteFor — night HUD ramps", () => {
+  it("higherWorse is dark coral → bright amber", () => {
     expect(paletteFor("higherWorse")).toEqual([
-      [249, 229, 200],
-      [249, 217, 176],
-      [243, 178, 127],
-      [232, 134, 90],
-      [217, 87, 43],
+      [99, 55, 68],
+      [139, 67, 80],
+      [185, 86, 77],
+      [229, 117, 75],
+      [255, 173, 102],
     ]);
   });
 
-  it("higherBetter is mint → teal, exactly the spec stops", () => {
+  it("higherBetter is dark teal → bright mint", () => {
     expect(paletteFor("higherBetter")).toEqual([
-      [217, 239, 227],
-      [191, 230, 210],
-      [143, 209, 182],
-      [92, 181, 154],
-      [47, 143, 122],
+      [23, 75, 85],
+      [30, 108, 105],
+      [34, 143, 123],
+      [43, 185, 155],
+      [114, 229, 189],
     ]);
   });
 
-  it("neutral is lilac → violet, exactly the spec stops", () => {
+  it("neutral is dark indigo → bright violet", () => {
     expect(paletteFor("neutral")).toEqual([
-      [230, 223, 240],
-      [216, 207, 233],
-      [184, 169, 214],
-      [146, 130, 191],
-      [109, 91, 163],
+      [48, 58, 108],
+      [70, 87, 154],
+      [95, 116, 196],
+      [131, 152, 230],
+      [176, 185, 255],
     ]);
   });
 
-  it.each(["higherWorse", "higherBetter", "neutral"] as const)("%s step 1 is darker than the paper floor", (polarity) => {
-    expect(luminance(paletteFor(polarity)[0])).toBeLessThan(luminance([245, 242, 235]));
+  it.each(["higherWorse", "higherBetter", "neutral"] as const)("%s step 1 is lighter than the dark map floor", (polarity) => {
+    expect(luminance(paletteFor(polarity)[0])).toBeGreaterThan(luminance([8, 20, 33]));
   });
 
-  it.each(["higherWorse", "higherBetter", "neutral"] as const)("%s luminance strictly decreases (colorblind-safe)", (polarity) => {
+  it.each(["higherWorse", "higherBetter", "neutral"] as const)("%s luminance strictly increases", (polarity) => {
     const lums = paletteFor(polarity).map(luminance);
-    for (let i = 1; i < lums.length; i++) expect(lums[i]).toBeLessThan(lums[i - 1]);
+    for (let i = 1; i < lums.length; i++) expect(lums[i]).toBeGreaterThan(lums[i - 1]);
   });
 });
 

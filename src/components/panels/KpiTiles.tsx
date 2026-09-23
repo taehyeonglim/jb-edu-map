@@ -34,7 +34,7 @@ export default function KpiTiles({ indicators, series, manifest }: KpiTilesProps
   const latestYear = manifest.latestYear;
 
   return (
-    <dl className="flex shrink-0 items-center gap-2">
+    <dl className="flex min-w-max items-center gap-2 lg:min-w-0">
       {KPI_INDICATOR_IDS.map((id) => {
         const def = requireIndicator(id);
         const file = indicators[id];
@@ -64,7 +64,7 @@ export default function KpiTiles({ indicators, series, manifest }: KpiTilesProps
         // not the raw sign (spec §1, Task 1 review ruling): a change that is
         // good for the indicator (higherBetter ▲, higherWorse ▼) is teal
         // `text-positive-text`, a bad one (higherBetter ▼, higherWorse ▲) is
-        // coral `text-accent-text`, and a neutral-polarity indicator (no
+        // orange `text-warning-text`, and a neutral-polarity indicator (no
         // good/bad reading) or no/zero change is `text-ink-muted`. The
         // `*-text` variants are the darker small-text tokens (theme.ts) —
         // the plain `accent`/`positive` fills only clear 3:1 at this 10px.
@@ -84,7 +84,7 @@ export default function KpiTiles({ indicators, series, manifest }: KpiTilesProps
           delta !== null &&
           delta !== 0 &&
           ((def.polarity === "higherBetter" && delta < 0) || (def.polarity === "higherWorse" && delta > 0));
-        const deltaClass = isGoodChange ? "text-positive-text" : isBadChange ? "text-accent-text" : "text-ink-muted";
+        const deltaClass = isGoodChange ? "text-positive-text" : isBadChange ? "text-warning-text" : "text-ink-muted";
         const deltaText =
           delta === null ? "—" : delta === 0 ? "±0" : `${delta > 0 ? "▲" : "▼"} ${def.format(Math.abs(delta))}`;
         const deltaTitle = delta === 0 ? "전년과 동일" : undefined;
@@ -94,7 +94,7 @@ export default function KpiTiles({ indicators, series, manifest }: KpiTilesProps
             key={id}
             data-testid={`kpi-tile-${id}`}
             title={prevYear !== null ? `${prevYear} → ${latestYear}` : undefined}
-            className="flex w-[104px] shrink-0 flex-col gap-0.5 rounded bg-ink/5 px-2 py-1"
+            className="flex h-14 min-w-36 flex-1 shrink-0 flex-col justify-center gap-0.5 rounded-md border border-line bg-surface px-3 shadow-[inset_2px_0_0_var(--color-accent)] lg:min-w-0"
           >
             <dt className="truncate text-[10px] text-ink-muted">{def.label}</dt>
             <dd

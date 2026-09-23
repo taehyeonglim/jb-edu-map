@@ -18,18 +18,18 @@ export const DESIGNATION_LABELS: Record<Designation, string> = {
   attention: "관심지역",
   none: "해당 지정 없음",
 };
-const MISSING: IssueColor = [170, 170, 170, 85];
+const MISSING: IssueColor = [96, 116, 134, 110];
 const CATEGORY: Record<Designation, IssueColor> = {
-  decline: [109, 91, 163, 85],
-  attention: [232, 134, 90, 85],
-  none: [220, 220, 220, 45],
+  decline: [131, 152, 230, 115],
+  attention: [242, 140, 98, 115],
+  none: [57, 79, 98, 70],
 };
 const PURPLE = [
-  [230, 223, 240],
-  [216, 207, 233],
-  [184, 169, 214],
-  [146, 130, 191],
-  [109, 91, 163],
+  [48, 58, 108],
+  [70, 87, 154],
+  [95, 116, 196],
+  [131, 152, 230],
+  [176, 185, 255],
 ];
 const count = (v: number) => v.toLocaleString("ko-KR");
 const strictSum = (values: (number | null)[]) =>
@@ -177,15 +177,15 @@ export function buildIssueModel(
     if (typeof value === "string") return CATEGORY[value];
     if (metric === "student-change" || metric === "decline-small") {
       const strength = Math.min(1, Math.abs(value) / max);
-      const end = value < 0 ? [200, 105, 45] : [47, 143, 122];
+      const end = value < 0 ? [242, 140, 98] : [114, 229, 189];
       return [
-        ...end.map((v) => Math.round(245 + (v - 245) * strength)),
-        100,
+        ...end.map((v, i) => Math.round([48, 58, 82][i] + (v - [48, 58, 82][i]) * strength)),
+        130,
       ] as IssueColor;
     }
     return [
       ...PURPLE[Math.min(4, Math.floor((value / max) * 5))],
-      100,
+      130,
     ] as IssueColor;
   };
   const regions = raw.map((r) => ({

@@ -56,8 +56,8 @@ export function makeBuildingLayer(options: {
       const common = {
         ...props, data: props.data, pickable: false,
         extensions, clipBounds: [west, south, east, north] as [number, number, number, number], clipByInstance: false,
-        getFillColor: [135, 145, 153, options.issueActive ? 38 : 46] as [number, number, number, number],
-        getLineColor: [105, 115, 125, 75] as [number, number, number, number],
+        getFillColor: [57, 115, 144, options.issueActive ? 76 : 96] as [number, number, number, number],
+        getLineColor: [84, 175, 204, 140] as [number, number, number, number],
         lineWidthUnits: "pixels" as const, getLineWidth: 1,
         parameters: { depthWriteEnabled: false },
       };

@@ -24,8 +24,8 @@ function SkeletonBar({ className }: { className: string }) {
 }
 
 /**
- * The 56px-fixed status-room header: title / IndicatorMenu / (right-aligned)
- * KpiTiles / 기준일. `relative z-40` keeps this whole header — and
+ * The status-room header: title and indicator controls above a persistent
+ * KPI rail. `relative z-40` keeps this whole header — and
  * IndicatorMenu's absolutely-positioned popover inside it — painted above
  * the deck.gl canvas below (which has no z-index of its own, but sits later
  * in DOM order in the same stacking context and would otherwise paint over
@@ -49,8 +49,9 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
   const kpiFile = bundle?.indicators[KPI_INDICATOR_IDS[0]];
 
   return (
-    <header className="relative z-40 flex h-14 shrink-0 items-center gap-2 sm:gap-4 border-b border-line bg-paper px-4">
-      <span className="shrink-0 text-base font-semibold text-ink">{ACTIVE_PROFILE.province.shortName}교육지도</span>
+    <div className="relative z-40 w-full min-w-0 shrink-0 border-b border-line bg-paper shadow-[0_8px_28px_rgba(0,0,0,0.22)]">
+    <header className="flex w-full min-w-0 min-h-14 flex-col items-stretch gap-2 border-b border-line px-3 py-2 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-0">
+      <span className="flex min-h-11 shrink-0 items-center border-l-2 border-accent pl-2 text-sm font-bold tracking-wide text-ink sm:min-h-0 sm:text-base">{ACTIVE_PROFILE.province.shortName}교육지도</span>
 
       {bundle ? (
         <MapTopicMenu series={bundle.series} onExploreIssues={onExploreIssues} />
@@ -58,21 +59,25 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
         <SkeletonBar className="h-7 w-56" />
       )}
 
-      <div className="ml-auto hidden min-w-0 shrink-0 2xl:flex items-center gap-4">
+    </header>
+    <section aria-label="전북 교육 현황" className="flex h-[76px] min-w-0 items-center gap-3 px-3 sm:px-4">
+      <span className="hidden shrink-0 text-[11px] font-bold tracking-[0.08em] text-accent-text lg:block">전북 현황</span>
+      <div className="min-w-0 flex-1 overflow-x-auto overscroll-x-contain">
         {bundle ? (
           <KpiTiles indicators={bundle.indicators} series={bundle.series} manifest={bundle.manifest} />
         ) : (
-          <div className="flex shrink-0 items-center gap-2" aria-hidden>
+          <div className="flex items-center gap-2" aria-hidden>
             {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonBar key={i} className="h-10 w-[104px]" />
+              <SkeletonBar key={i} className="h-14 min-w-36 flex-1" />
             ))}
           </div>
         )}
 
-        <span data-testid="topbar-reference-date" className="shrink-0 text-xs tabular-nums text-ink-muted">
-          {bundle && kpiFile ? `기준 ${kpiFile.referenceDate}` : <SkeletonBar className="h-4 w-20" />}
-        </span>
       </div>
-    </header>
+      <span data-testid="topbar-reference-date" className="hidden shrink-0 text-[11px] tabular-nums text-ink-muted sm:block">
+        {bundle && kpiFile ? `기준 ${kpiFile.referenceDate}` : <SkeletonBar className="h-4 w-20" />}
+      </span>
+    </section>
+    </div>
   );
 }

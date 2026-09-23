@@ -111,8 +111,8 @@ export function makeRegionLabelLayer(
       // on a near-opaque white chip (the dark theme's colors inverted; padding,
       // radius, SDF and collision settings unchanged).
       outlineWidth: 0.25,
-      outlineColor: [255, 255, 255, 255],
-      getColor: [28, 35, 49, 255],
+      outlineColor: [18, 36, 56, 255],
+      getColor: [235, 245, 252, 255],
       // Task B — 라벨 칩: a near-opaque background chip behind each label so it
       // stays readable over the VWorld basemap tiles (Task C) and busy
       // top-face colors alike, not just its outline. Renders via TextLayer's
@@ -120,7 +120,7 @@ export function makeRegionLabelLayer(
       // `_subLayerProps.background` below still excludes it from shadow
       // casting.
       background: true,
-      getBackgroundColor: [255, 255, 255, 225],
+      getBackgroundColor: [18, 36, 56, 235],
       backgroundPadding: [6, 3],
       backgroundBorderRadius: 6,
       // Task B — CollisionFilterExtension: hides an overlapping label instead

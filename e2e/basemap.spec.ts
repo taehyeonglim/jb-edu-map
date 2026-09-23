@@ -1,5 +1,22 @@
 import { openPanel, openMapSettings, expect, test } from "./fixtures";
 
+test("야간 배경을 기본으로 표시하고 사용자가 고른 배경을 복원한다", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator('[data-map-ready="true"]')).toBeAttached({ timeout: 20000 });
+  await openMapSettings(page);
+  await expect(page.getByRole("radio", { name: "야간" })).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("radio", { name: "위성" }).click();
+  expect(await page.evaluate(() => localStorage.getItem("jbmap.basemap"))).toBe("satellite");
+  await page.reload();
+  await expect(page.locator('[data-map-ready="true"]')).toBeAttached({ timeout: 20000 });
+  await openMapSettings(page);
+  await expect(page.getByRole("radio", { name: "위성" })).toHaveAttribute("aria-checked", "true");
+  await page.getByRole("radio", { name: "끄기" }).click();
+  await expect.poll(() => page.evaluate(() =>
+    window.__jbmap!.deck.props.layers?.flat().some((layer) => layer && "id" in layer && layer.id === "basemap"),
+  )).toBe(false);
+});
+
 test("과거 지도 설정을 무시하고 입체 현황판을 표시하며 지형을 요청하지 않는다", async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem("jbmap.mapMode.v1", "terrain");

@@ -82,7 +82,7 @@ test("real buildings preserve school picking and both issue overlays", async ({p
     await expect.poll(()=>page.evaluate(()=>{
       const deck=window.__jbmap!.deck as unknown as {layerManager:{getLayers:()=>{id:string,props:{getFillColor?:number[]}}[]}};
       const layers=deck.layerManager.getLayers().filter(l=>l.id.endsWith("-volume"));
-      return layers.length>0 && layers.every(l=>l.props.getFillColor?.[3]===38);
+      return layers.length>0 && layers.every(l=>l.props.getFillColor?.[3]===76);
     })).toBe(true);
     await page.screenshot({path:`test-results/live-issue-${issue}.png`});
   }

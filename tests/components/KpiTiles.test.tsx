@@ -178,10 +178,10 @@ describe("KpiTiles", () => {
   describe("delta color follows indicator polarity, not sign (Task 1 fix round 1, spec §1)", () => {
     const hasToken = (token: string) => new RegExp(`(^|\\s)${token}(\\s|$)`);
 
-    it("small_schools (higherWorse) increase is a bad change -> text-accent-text", () => {
+    it("small_schools (higherWorse) increase is a bad change -> text-warning-text", () => {
       render(<KpiTiles {...fixture()} />);
       const delta = screen.getByTestId("kpi-delta-small_schools");
-      expect(delta.className).toMatch(hasToken("text-accent-text"));
+      expect(delta.className).toMatch(hasToken("text-warning-text"));
       expect(delta.className).not.toMatch(hasToken("text-positive-text"));
       expect(delta.className).not.toMatch(hasToken("text-ink-muted"));
     });

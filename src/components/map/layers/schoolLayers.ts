@@ -278,13 +278,13 @@ export function makeSchoolLabelsLayer(
     // 밝은 디오라마 (spec §5) — same white-chip/ink-text/white-outline colors
     // as region-labels (labelLayer.ts).
     outlineWidth: 0.15,
-    outlineColor: [255, 255, 255, 255],
-    getColor: [28, 35, 49, 255],
+      outlineColor: [18, 36, 56, 255],
+      getColor: [235, 245, 252, 255],
     // Task B — 칩 배경은 더 작게: same chip palette as region-labels
     // (labelLayer.ts), tighter padding/radius for the smaller (11px)
     // school-name text.
     background: true,
-    getBackgroundColor: [255, 255, 255, 225],
+      getBackgroundColor: [18, 36, 56, 235],
     backgroundPadding: [4, 2],
     backgroundBorderRadius: 4,
     // Task D, fix round 1 — CollisionFilterExtension: `collisionGroup:

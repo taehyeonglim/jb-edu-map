@@ -89,11 +89,11 @@ describe("SCHOOL_LEVEL_COLORS — 급별 색 alpha 255", () => {
 
   // 밝은 디오라마 (spec §5) — deeper, more saturated hues than the dark theme's
   // pastel-on-dark set, so a column reads against a light pastel top face.
-  it("SCHOOL_LEVEL_COLORS are the light-theme values", () => {
-    expect(SCHOOL_LEVEL_COLORS.elem).toEqual([29, 155, 209, 255]);
-    expect(SCHOOL_LEVEL_COLORS.mid).toEqual([191, 138, 16, 255]);
-    expect(SCHOOL_LEVEL_COLORS.high).toEqual([224, 89, 42, 255]);
-    expect(SCHOOL_LEVEL_COLORS.special).toEqual([90, 166, 74, 255]);
+  it("SCHOOL_LEVEL_COLORS are vivid against the dark map", () => {
+    expect(SCHOOL_LEVEL_COLORS.elem).toEqual([67, 207, 224, 255]);
+    expect(SCHOOL_LEVEL_COLORS.mid).toEqual([242, 184, 92, 255]);
+    expect(SCHOOL_LEVEL_COLORS.high).toEqual([242, 140, 98, 255]);
+    expect(SCHOOL_LEVEL_COLORS.special).toEqual([130, 226, 199, 255]);
   });
 });
 
@@ -387,9 +387,9 @@ describe("makeSchoolLabelsLayer", () => {
   it("renders a smaller white background chip than region-labels, same ink text", () => {
     const layer = makeSchoolLabelsLayer([], baseOpts);
     expect(layer.props.background).toBe(true);
-    expect(layer.props.getBackgroundColor).toEqual([255, 255, 255, 225]);
-    expect(layer.props.getColor).toEqual([28, 35, 49, 255]);
-    expect(layer.props.outlineColor).toEqual([255, 255, 255, 255]);
+    expect(layer.props.getBackgroundColor).toEqual([18, 36, 56, 235]);
+    expect(layer.props.getColor).toEqual([235, 245, 252, 255]);
+    expect(layer.props.outlineColor).toEqual([18, 36, 56, 255]);
     expect(layer.props.backgroundPadding).toEqual([4, 2]);
     expect(layer.props.backgroundBorderRadius).toBe(4);
   });

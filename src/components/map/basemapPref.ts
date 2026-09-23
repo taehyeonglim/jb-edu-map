@@ -3,9 +3,10 @@
  * MapOverlay item) is showing, across page loads. Three modes since the
  * bright-diorama redesign (2026-09-21, spec §2):
  *
- * - `off`       — no tiles; the blocks sit on the plain paper floor.
- * - `satellite` — `Satellite` jpeg tiles under a bright white wash (default).
- * - `base`      — `Base` road-map png tiles, desaturated, lighter wash.
+ * - `off`       — no tiles; the map uses the dark HUD floor.
+ * - `night`     — `midnight` road-map png tiles, the default for new visitors.
+ * - `satellite` — `Satellite` jpeg tiles under a navy wash.
+ * - `base`      — `Base` road-map png tiles, desaturated under a navy wash.
  *
  * Storage key is unchanged from the boolean era (2차 개선 Task C), so the old
  * "1"/"0" values are still read back as satellite/off — a returning user who
@@ -14,25 +15,25 @@
  * `localStorage` access is wrapped in try/catch because it can throw
  * synchronously in some private-browsing modes (notably older Safari) even
  * just on `getItem`/`setItem` — this module treats that exactly like
- * "nothing stored yet": default satellite, write silently no-ops.
+ * "nothing stored yet": default night, write silently no-ops.
  * `typeof window === "undefined"` guards SSR/non-DOM callers (DeckMap itself
  * is client-only — see MapShell.tsx's `ssr:false` — but this module makes no
  * assumption about who calls it).
  */
-export type BasemapMode = "off" | "satellite" | "base";
+export type BasemapMode = "off" | "night" | "satellite" | "base";
 
 const STORAGE_KEY = "jbmap.basemap";
-const DEFAULT_MODE: BasemapMode = "satellite";
+const DEFAULT_MODE: BasemapMode = "night";
 
 function parse(raw: string | null): BasemapMode {
   if (raw === null) return DEFAULT_MODE;
   if (raw === "1") return "satellite"; // 2차 개선(Task C) boolean-era value: ON
   if (raw === "0") return "off"; // …and OFF
-  if (raw === "off" || raw === "satellite" || raw === "base") return raw;
-  return DEFAULT_MODE; // garbage (e.g. a hand-edited "midnight") → default
+  if (raw === "off" || raw === "night" || raw === "satellite" || raw === "base") return raw;
+  return DEFAULT_MODE; // garbage → default
 }
 
-/** No stored value yet -> satellite by default. The caller (DeckMap) still gates on `NEXT_PUBLIC_VWORLD_KEY` — with no key the mode is irrelevant and nothing renders. */
+/** No stored value yet -> night by default. The caller gates on `NEXT_PUBLIC_VWORLD_KEY`. */
 export function readBasemapPref(): BasemapMode {
   if (typeof window === "undefined") return DEFAULT_MODE;
   try {

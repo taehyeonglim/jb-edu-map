@@ -28,21 +28,21 @@ export interface MapMetricSpec {
 }
 
 export const METRIC_RAMP: MetricColor[] = [
-  [201, 235, 242, 255],
-  [104, 205, 216, 255],
-  [31, 164, 201, 255],
-  [32, 107, 184, 255],
-  [69, 52, 151, 255],
+  [23, 75, 85, 255],
+  [30, 108, 105, 255],
+  [34, 143, 123, 255],
+  [43, 185, 155, 255],
+  [114, 229, 189, 255],
 ];
 const SPECIAL_RAMP: MetricColor[] = [
-  [232, 221, 247, 255],
-  [198, 173, 233, 255],
-  [159, 119, 214, 255],
-  [124, 77, 189, 255],
-  [88, 43, 151, 255],
+  [48, 58, 108, 255],
+  [70, 87, 154, 255],
+  [95, 116, 196, 255],
+  [131, 152, 230, 255],
+  [176, 185, 255, 255],
 ];
-export const MISSING_COLOR: MetricColor = [155, 163, 175, 220];
-export const ZERO_COLOR: MetricColor = [223, 229, 234, 230];
+export const MISSING_COLOR: MetricColor = [96, 116, 134, 220];
+export const ZERO_COLOR: MetricColor = [57, 79, 98, 230];
 const number = (value: number) =>
   value.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
 const DENSITY_IDS = ["students_total", "classes_total", "teachers_total"];
@@ -86,15 +86,15 @@ export function buildMapMetric(
   const regional = makeColorScale(def, map);
   const ramp = specialEducation ? SPECIAL_RAMP : METRIC_RAMP;
   const categoryColor: MetricColor = specialEducation
-    ? [124, 77, 189, 255]
+    ? [176, 185, 255, 255]
     : indicator === "schools_total" && !issue
-      ? [31, 164, 201, 255]
-      : [221, 112, 38, 255];
+      ? [67, 207, 224, 255]
+      : [242, 140, 98, 255];
   const color = (school: School): MetricColor => {
-    if (issue?.metric === "ai-focus-schools") return [43, 120, 190, 255];
+    if (issue?.metric === "ai-focus-schools") return [95, 160, 230, 255];
     if (issue?.metric === "school-size") {
       const n = school.students;
-      return n === null ? MISSING_COLOR : n === 0 ? ZERO_COLOR : n <= 60 ? [39, 137, 154, 255] : n >= 1000 ? [135, 76, 171, 255] : [101, 142, 184, 255];
+      return n === null ? MISSING_COLOR : n === 0 ? ZERO_COLOR : n <= 60 ? [43, 185, 155, 255] : n >= 1000 ? [176, 185, 255, 255] : [95, 160, 230, 255];
     }
     if (kind === "region") return MISSING_COLOR;
     const v = value(school);
@@ -110,9 +110,9 @@ export function buildMapMetric(
     ...REGION_CODES.map((code) => Math.abs(map.get(code) ?? 0)),
   );
   const changeColor = (v: number): MetricColor => {
-    const end = v < 0 ? [222, 110, 39] : [23, 148, 134];
+    const end = v < 0 ? [242, 140, 98] : [114, 229, 189];
     return [
-      ...end.map((c) => Math.round(245 + ((c - 245) * Math.abs(v)) / extent)),
+      ...end.map((c, i) => Math.round([48, 58, 82][i] + ((c - [48, 58, 82][i]) * Math.abs(v)) / extent)),
       170,
     ] as MetricColor;
   };

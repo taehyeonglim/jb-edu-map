@@ -19,9 +19,9 @@ describe("readBasemapPref/writeBasemapPref", () => {
     vi.unstubAllGlobals();
   });
 
-  it("defaults to 'satellite' when nothing is stored yet", () => {
+  it("defaults to 'night' when nothing is stored yet", () => {
     vi.stubGlobal("window", { localStorage: fakeStorage() });
-    expect(readBasemapPref()).toBe("satellite");
+    expect(readBasemapPref()).toBe("night");
   });
 
   // Task 3 (bright diorama) — the pref used to be a boolean stored as "1"/"0"
@@ -35,14 +35,14 @@ describe("readBasemapPref/writeBasemapPref", () => {
     expect(readBasemapPref()).toBe("off");
   });
 
-  it("reads the three modes back verbatim and falls back to satellite on garbage", () => {
-    for (const mode of ["off", "satellite", "base"] as const) {
+  it("reads the four modes back verbatim and falls back to night on garbage", () => {
+    for (const mode of ["off", "night", "satellite", "base"] as const) {
       vi.stubGlobal("window", { localStorage: fakeStorage({ "jbmap.basemap": mode }) });
       expect(readBasemapPref()).toBe(mode);
       vi.unstubAllGlobals();
     }
     vi.stubGlobal("window", { localStorage: fakeStorage({ "jbmap.basemap": "midnight" }) });
-    expect(readBasemapPref()).toBe("satellite");
+    expect(readBasemapPref()).toBe("night");
   });
 
   it("write stores the mode string under 'jbmap.basemap' and reads back round-trip", () => {
@@ -57,7 +57,7 @@ describe("readBasemapPref/writeBasemapPref", () => {
     expect(readBasemapPref()).toBe("off");
   });
 
-  it("defaults to 'satellite' when localStorage.getItem throws (private-mode Safari etc.)", () => {
+  it("defaults to 'night' when localStorage.getItem throws (private-mode Safari etc.)", () => {
     vi.stubGlobal("window", {
       localStorage: {
         getItem: () => {
@@ -65,7 +65,7 @@ describe("readBasemapPref/writeBasemapPref", () => {
         },
       },
     });
-    expect(readBasemapPref()).toBe("satellite");
+    expect(readBasemapPref()).toBe("night");
   });
 
   it("writeBasemapPref silently no-ops when localStorage.setItem throws", () => {
@@ -79,9 +79,9 @@ describe("readBasemapPref/writeBasemapPref", () => {
     expect(() => writeBasemapPref("off")).not.toThrow();
   });
 
-  it("defaults to 'satellite' when window/localStorage is unavailable entirely (SSR-safety)", () => {
+  it("defaults to 'night' when window/localStorage is unavailable entirely (SSR-safety)", () => {
     vi.stubGlobal("window", undefined);
-    expect(readBasemapPref()).toBe("satellite");
+    expect(readBasemapPref()).toBe("night");
     expect(() => writeBasemapPref("off")).not.toThrow();
   });
 });

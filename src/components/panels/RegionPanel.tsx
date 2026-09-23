@@ -177,7 +177,7 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
         </p>
         <p
           data-testid="region-panel-delta"
-          className={`text-xs ${isWarnDelta ? "text-accent-text" : "text-ink-muted"}`}
+          className={`text-xs ${isWarnDelta ? "text-warning-text" : "text-ink-muted"}`}
         >
           {def.kind === "count"
             ? share === null
@@ -337,7 +337,7 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
                         </span>
                       )}
                       {school.small && (
-                        <span className="ml-1 inline-block rounded bg-accent-soft px-1 text-[10px] text-accent-text">
+                        <span className="ml-1 inline-block rounded bg-warning-soft px-1 text-[10px] text-warning-text">
                           소규모
                         </span>
                       )}

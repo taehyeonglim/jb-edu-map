@@ -66,9 +66,9 @@ export default function TimeSeriesChart({ data, label, place, unit, format, onSh
     <h3 className="text-sm font-semibold">시계열 추이 · {place}</h3>
     <p className="mt-1 text-xs text-ink-muted">{label} · {first.year}–{last.year} · 연도를 눌러 값을 확인하세요</p>
     <svg role="img" aria-label={aria} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" className="mt-3 h-32 w-full" preserveAspectRatio="none">
-      <line x1={LEFT} x2={WIDTH - RIGHT} y1={HEIGHT - BOTTOM} y2={HEIGHT - BOTTOM} stroke="#dce2e7" />
+      <line x1={LEFT} x2={WIDTH - RIGHT} y1={HEIGHT - BOTTOM} y2={HEIGHT - BOTTOM} stroke={THEME.line} />
       {segments.map((segment, index) => segment.length > 1 ? <path key={index} d={segment.map((row, point) => `${point ? "L" : "M"}${x(row.year)},${y(row.value)}`).join(" ")} fill="none" stroke={THEME.accent} strokeWidth="2.5" vectorEffect="non-scaling-stroke" /> : null)}
-      {valid.map((row) => <circle key={row.year} cx={x(row.year)} cy={y(row.value)} r={row.year === active?.year ? 5 : 3.5} fill={THEME.accent} stroke="white" strokeWidth="2" vectorEffect="non-scaling-stroke" />)}
+      {valid.map((row) => <circle key={row.year} cx={x(row.year)} cy={y(row.value)} r={row.year === active?.year ? 5 : 3.5} fill={THEME.accent} stroke={THEME.paper} strokeWidth="2" vectorEffect="non-scaling-stroke" />)}
       {rows.map((row) => <text key={row.year} x={x(row.year)} y={HEIGHT - 4} textAnchor="middle" fontSize="11" fill={THEME.inkMuted}>{row.year}</text>)}
     </svg>
     <p className="mt-1 text-sm font-semibold tabular-nums" aria-live="polite">
