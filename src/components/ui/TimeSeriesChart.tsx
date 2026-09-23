@@ -41,7 +41,7 @@ export default function TimeSeriesChart({ data, label, place, unit, format, onSh
   const changeUnit = unit === "%" ? "%p" : unit;
 
   if (rows.length < 2 || valid.length < 2) {
-    return <section aria-label={`${place} ${label} 시계열 추이`} className="rounded-xl border border-line bg-paper p-3">
+    return <section aria-label={`${place} ${label} 시계열 추이`} className="cyber-frame p-3">
       <h3 className="text-sm font-semibold">시계열 추이 · {place}</h3>
       <p className="mt-2 text-xs text-ink-muted"><span>추이 없음</span> · 연도별 자료가 제공되지 않습니다.</p>
       {onShowStudents && <button type="button" onClick={onShowStudents} className="mt-2 min-h-11 text-xs font-semibold text-accent-text underline">학생수 연도별 추이 보기</button>}
@@ -62,7 +62,7 @@ export default function TimeSeriesChart({ data, label, place, unit, format, onSh
   }
   const aria = `${place} ${label} ${first.year}년부터 ${last.year}년까지의 추이`;
 
-  return <section aria-label={`${place} ${label} 시계열 추이`} className="rounded-xl border border-line bg-paper p-3">
+  return <section aria-label={`${place} ${label} 시계열 추이`} className="cyber-frame p-3">
     <h3 className="text-sm font-semibold">시계열 추이 · {place}</h3>
     <p className="mt-1 text-xs text-ink-muted">{label} · {first.year}–{last.year} · 연도를 눌러 값을 확인하세요</p>
     <svg role="img" aria-label={aria} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" className="mt-3 h-32 w-full" preserveAspectRatio="none">

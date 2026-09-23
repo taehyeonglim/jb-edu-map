@@ -127,13 +127,14 @@ function DashboardInner({
       indicatorId,
     );
   const metricPending = needsFacts && issueState.status !== "ready";
-  const [panelOpen, setPanelOpen] = useState(false);
   const [highlightedSchoolId, setHighlightedSchoolId] = useQueryState(
     "school",
     parseAsString.withOptions({ history: "push", shallow: true }),
   );
+  const initiallyUnlocated = bundle.schools.schools.some((s) => s.id === highlightedSchoolId && !hasCoordinates(s));
+  const [panelOpen, setPanelOpen] = useState(() => (tab !== "schools" || initiallyUnlocated) && typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches);
   const [collapsed, setCollapsed] = useState(
-    !regionCode && tab === "schools" && !highlightedSchoolId,
+    tab === "schools" && !initiallyUnlocated,
   );
   const [handledExplore, setHandledExplore] = useState(0);
   if (handledExplore !== exploreRequest) {
@@ -179,7 +180,7 @@ function DashboardInner({
   }, [selectedSchool, tab, collapsed, panelOpen]);
 
   useEffect(() => {
-    if (!panelOpen) return;
+    if (!panelOpen && collapsed) return;
     const previous =
       panelReturnFocusRef.current ??
       (document.activeElement as HTMLElement | null);
@@ -188,46 +189,49 @@ function DashboardInner({
       ?.querySelector<HTMLButtonElement>('[aria-label="패널 닫기"]')
       ?.focus();
     const close = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      const target = event.target;
+      const otherDialog = target instanceof HTMLElement && target.closest('[role="dialog"]') && !panelRef.current?.contains(target);
+      if (event.key === "Escape" && !event.defaultPrevented && !otherDialog) {
         event.preventDefault();
         event.stopImmediatePropagation();
         setPanelOpen(false);
+        setCollapsed(true);
       }
     };
     document.addEventListener("keydown", close, true);
     return () => {
       document.removeEventListener("keydown", close, true);
-      if (previous?.isConnected) previous.focus();
+      if (previous?.isConnected && previous.getClientRects().length) previous.focus();
       else opener?.focus();
     };
-  }, [panelOpen]);
+  }, [panelOpen, collapsed]);
 
   useEffect(() => {
     const compact = window.matchMedia("(max-width: 1023px)");
     const resize = () => {
-      if (!compact.matches) setPanelOpen(false);
+      setPanelOpen(compact.matches && !collapsed);
     };
     compact.addEventListener("change", resize);
     return () => compact.removeEventListener("change", resize);
-  }, []);
+  }, [collapsed]);
 
-  const selectSchool = (id: string | null, origin?: "map") => {
+  const selectSchool = (id: string | null) => {
     if (issueModel && id) {
       const school = mapSchools.find(s => s.id === id);
       if (school && regionCode && school.regionCode !== regionCode) setRegion(school.regionCode as RegionCode);
     }
     setHighlightedSchoolId(id);
-    if (id && origin !== "map") setCollapsed(false);
     setSchoolFocusNonce((n) => n + 1);
-    if (id && origin === "map") {
+    if (id && bundle.schools.schools.some((s) => s.id === id && hasCoordinates(s))) {
       setPanelOpen(false);
+      setCollapsed(true);
+      requestAnimationFrame(() => document.getElementById("school-map")?.focus());
       return;
     }
-    if (
-      id &&
-      bundle.schools.schools.find((s) => s.id === id && hasCoordinates(s))
-    )
-      setPanelOpen(false);
+    if (id) {
+      setCollapsed(false);
+      setPanelOpen(window.matchMedia("(max-width: 1023px)").matches);
+    }
   };
   const changeFilters = (filters: SchoolFilters) => {
     setName(filters.name);
@@ -243,7 +247,7 @@ function DashboardInner({
   };
 
   return (
-    <div className="flex min-h-0 flex-col overflow-hidden">
+    <div className="absolute inset-0 flex min-h-0 flex-col overflow-hidden">
       <span
         aria-live="polite"
         className="sr-only"
@@ -254,12 +258,14 @@ function DashboardInner({
           <button
             type="button"
             aria-label="패널 바깥 닫기"
-            onClick={() => setPanelOpen(false)}
-            className="fixed inset-0 z-40 bg-ink/20 lg:hidden"
+            onClick={() => { setPanelOpen(false); setCollapsed(true); }}
+            className="cyber-explorer-backdrop lg:hidden"
           />
         )}
         <aside
           ref={panelRef}
+          data-map-obstacle="panel"
+          data-open={!collapsed}
           aria-label="학교 탐색 및 시군 통계"
           role={panelOpen ? "dialog" : undefined}
           aria-modal={panelOpen ? true : undefined}
@@ -285,7 +291,7 @@ function DashboardInner({
               first?.focus();
             }
           }}
-          className={`${panelOpen ? "flex" : "hidden"} ${collapsed ? "lg:hidden" : "lg:flex"} fixed inset-x-0 bottom-0 z-50 max-h-[75%] flex-col rounded-t-2xl border-t border-line bg-surface shadow-xl lg:relative lg:inset-auto lg:z-10 lg:h-full lg:max-h-none lg:w-[360px] lg:shrink-0 lg:rounded-none lg:border-r lg:border-t-0 lg:shadow-none`}
+          className={`cyber-explorer cyber-frame ${panelOpen ? "flex" : "hidden"} ${collapsed ? "lg:hidden" : "lg:flex"} flex-col`}
         >
           <div className="flex shrink-0 items-center gap-1 border-b border-line px-3 py-2">
             <div
@@ -463,17 +469,12 @@ function DashboardInner({
             )}
           </div>
         </aside>
-        <main className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
+        <main inert={panelOpen || undefined} className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
           <MapShell
             mapMetric={mapMetric}
             indicatorId={indicatorId}
             selectedCode={regionCode}
-            onSelect={(code) => {
-              setRegion(code);
-              if (code) {
-                setCollapsed(false);
-              }
-            }}
+            onSelect={setRegion}
             highlightedSchoolId={highlightedSchoolId}
             onHighlightSchool={selectSchool}
             onSchoolStatistics={showStatistics}
@@ -488,7 +489,6 @@ function DashboardInner({
             }
             interactionBlocked={panelOpen}
           />
-          {issueModel && !selectedSchool && <div className="pointer-events-none absolute left-3 right-3 top-16 z-10 max-w-sm rounded-xl border border-line bg-surface/95 p-3 shadow-sm lg:hidden"><p className="text-xs font-semibold">{issueModel.issue.title}</p><p className="mt-1 text-xs">{regionCode ? `${bundle.regions.features.find(f => f.properties.code === regionCode)?.properties.name} · ${issueModel.regions.find(r => r.code === regionCode)?.text}` : issueModel.provinceText}</p></div>}
           {metricPending && (
             <div
               role="status"
@@ -514,7 +514,9 @@ function DashboardInner({
               setPanelOpen(window.matchMedia("(max-width: 1023px)").matches);
               setCollapsed(false);
             }}
-            className={`${collapsed ? "" : "lg:hidden"} absolute left-3 top-3 z-10 min-h-11 rounded-lg border border-line bg-surface px-3 text-sm font-medium shadow-sm`}
+            data-map-obstacle="explore"
+            className="cyber-explore-button cyber-frame min-h-11 px-3 text-sm font-medium"
+            aria-expanded={panelOpen || !collapsed}
           >
             학교·통계
           </button>
@@ -566,7 +568,7 @@ function DashboardBody() {
   const bundle = state.status === "ready" ? state.bundle : null;
 
   return (
-    <div className="grid h-full w-full min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-paper text-ink">
+    <div className="cyber-shell bg-paper text-ink">
       <TopBar indicatorId={indicatorId} bundle={bundle} onExploreIssues={() => setExploreRequest(n => n + 1)} />
       {state.status === "loading" && (
         <CenteredMessage>데이터 불러오는 중…</CenteredMessage>

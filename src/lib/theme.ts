@@ -23,6 +23,15 @@ export const THEME = {
 
 export type ThemeToken = keyof typeof THEME;
 
+/** Surfaces shared with the control-room CSS; data colors retain their meaning. */
+export const HUD_THEME = {
+  panelFill: "rgba(8, 23, 35, .96)",
+  panelRaised: "#102b3b",
+  border: THEME.line,
+  radius: 3,
+  transitionMs: 180,
+} as const;
+
 function hexToRgb(hex: string): [number, number, number] {
   const m = /^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(hex);
   if (!m) throw new Error(`theme: not a #rrggbb color: ${hex}`);

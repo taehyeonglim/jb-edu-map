@@ -8,7 +8,8 @@ import {
   useState,
   type RefObject,
 } from "react";
-import { FlyToInterpolator } from "@deck.gl/core";
+import { FlyToInterpolator, WebMercatorViewport } from "@deck.gl/core";
+import { EMPTY_INSETS, type MapInsets } from "./useHudLayout";
 import { unionBbox } from "@/lib/geo/geo";
 import { fitOverview, fitRegion } from "./camera";
 import { scenePitch, type Scene } from "./scene";
@@ -41,6 +42,7 @@ export function useCamera(
   focusNonce = 0,
   scene: Scene = "city",
   mobile = false,
+  insets: MapInsets | null = EMPTY_INSETS,
 ) {
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
@@ -83,19 +85,31 @@ export function useCamera(
 
   const overview = useMemo(
     () =>
-      size
+      size && insets
         ? fitOverview(
             unionBbox(regions.features),
             regions.features.map((f) => f.properties.labelPoint),
-            size,
+            { width: Math.max(160, size.width - insets.left - insets.right), height: Math.max(160, size.height - insets.top - insets.bottom) },
             "road",
           )
         : null,
-    [size, regions],
+    [size, regions, insets],
   );
 
+  const frameView = useCallback((target: OverviewViewState, school = false) => {
+    if (!size || !insets) return target;
+    const pitch = scenePitch(scene, target.zoom, mobile);
+    const viewport = new WebMercatorViewport({ ...target, ...size, pitch, bearing: 0 });
+    const availableHeight = Math.max(80, size.height - insets.top - insets.bottom);
+    const x = insets.left + (size.width - insets.left - insets.right) / 2;
+    const y = insets.top + availableHeight * (school ? .65 : .5);
+    return { ...target, ...viewport.panByPosition([target.longitude, target.latitude], [x, y]), pitch };
+  }, [size, insets, scene, mobile]);
+
+  const framedOverview = useMemo(() => overview ? frameView(overview) : null, [overview, frameView]);
+
   useEffect(() => {
-    if (!size || !overview) return;
+    if (!size || !overview || !insets) return;
     const before = previous.current;
     const current = latest.current;
     let target: OverviewViewState | CameraViewState | null = null;
@@ -120,10 +134,11 @@ export function useCamera(
         (f) => f.properties.code === selectedCode,
       );
       target = region
-        ? fitRegion(region.properties.bbox, size, { mode: "road" })
+        ? fitRegion(region.properties.bbox, { width: Math.max(160, size.width - insets.left - insets.right), height: Math.max(160, size.height - insets.top - insets.bottom) }, { mode: "road" })
         : overview;
     }
-    if (!target && current && (before?.scene !== scene || before?.mobile !== mobile)) target = current;
+    const sceneOnly = !target && current && (before?.scene !== scene || before?.mobile !== mobile);
+    if (sceneOnly) target = current;
     previous.current = {
       scene, mobile,
       schoolId: selectedSchool?.id ?? null,
@@ -133,7 +148,7 @@ export function useCamera(
     };
     if (!target) return;
     const next: CameraViewState = {
-      ...target,
+      ...(sceneOnly ? target : frameView(target, !!selectedSchool)),
       pitch: scenePitch(scene, target.zoom, mobile),
       bearing: 0,
       transitionInterpolator: new SceneFlyToInterpolator(scene, mobile),
@@ -151,8 +166,8 @@ export function useCamera(
     focusNonce,
     reselectNonce,
     reduceMotion,
-    scene, mobile,
+    scene, mobile, insets, frameView,
   ]);
 
-  return { overview, cameraViewState, reselect, rememberViewState };
+  return { overview: framedOverview, cameraViewState, reselect, rememberViewState };
 }

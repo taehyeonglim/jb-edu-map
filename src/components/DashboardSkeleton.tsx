@@ -15,9 +15,9 @@ import { DEFAULT_INDICATOR_ID } from "@/lib/indicators/registry";
  */
 export default function DashboardSkeleton() {
   return (
-    <div className="grid h-full w-full min-w-0 grid-rows-[auto_minmax(0,1fr)] overflow-hidden bg-paper text-ink">
+    <div className="cyber-shell bg-paper text-ink">
       <TopBar indicatorId={DEFAULT_INDICATOR_ID} bundle={null} />
-      <div className="flex items-center justify-center text-sm text-ink-muted">지도 준비 중</div>
+      <div className="flex h-full items-center justify-center text-sm text-ink-muted">지도 준비 중</div>
     </div>
   );
 }

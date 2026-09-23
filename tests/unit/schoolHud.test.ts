@@ -1,19 +1,27 @@
 import { describe, expect, it } from "vitest";
-import { schoolHudPosition } from "@/components/map/SchoolHud";
+import { placeSchoolHud, type HudRect } from "@/components/map/useHudLayout";
 
-describe("schoolHudPosition", () => {
-  const viewport = { width: 800, height: 600 };
-  const card = { width: 304, height: 228 };
+const overlaps = (a: HudRect, b: HudRect) => a.left < b.left + b.width && a.left + a.width > b.left && a.top < b.top + b.height && a.top + a.height > b.top;
 
-  it("학교 위에 카드를 놓고 지도 가장자리 안에 유지한다", () => {
-    expect(schoolHudPosition([400, 400], viewport, card)).toEqual({ left: 248, top: 150, stemX: 400, stemY: 378 });
-    const edge = schoolHudPosition([790, 590], viewport, card);
-    expect(edge.left).toBe(484);
-    expect(edge.top).toBe(340);
-    expect(edge.stemX).toBe(770);
+describe("학교 HUD 충돌 방지", () => {
+  it("학교가 지도 가장자리에 있어도 카드와 연결선 끝점이 화면 안에 남는다", () => {
+    const card = placeSchoolHud([790, 590], { width: 800, height: 600 }, { width: 304, height: 260 }, []);
+    expect(card.left).toBeGreaterThanOrEqual(12);
+    expect(card.left + card.width).toBeLessThanOrEqual(788);
+    expect(card.top + card.height).toBeLessThanOrEqual(588);
+    expect(card.stemX).toBeGreaterThanOrEqual(card.left);
+    expect(card.stemY).toBeLessThanOrEqual(card.top + card.height);
   });
 
-  it("상단 학교는 아래쪽에 배치한다", () => {
-    expect(schoolHudPosition([30, 30], viewport, card)).toEqual({ left: 12, top: 52, stemX: 30, stemY: 52 });
+  it("모바일 상단·설정·범례를 피하면서 긴 학교 정보는 스크롤 높이로 줄인다", () => {
+    const obstacles = [
+      { left: 0, top: 0, width: 360, height: 168 },
+      { left: 12, top: 180, width: 336, height: 140 },
+      { left: 80, top: 540, width: 268, height: 88 },
+    ];
+    const card = placeSchoolHud([180, 460], { width: 360, height: 640 }, { width: 304, height: 320 }, obstacles);
+    expect(obstacles.some((obstacle) => overlaps(card, obstacle))).toBe(false);
+    expect(card.height).toBeLessThan(320);
+    expect(card.height).toBeGreaterThanOrEqual(96);
   });
 });

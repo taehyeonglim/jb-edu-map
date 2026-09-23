@@ -51,6 +51,8 @@ export interface MapOverlayProps {
    */
   items: MapOverlayItem[];
   collapsible?: boolean;
+  expanded?: boolean;
+  onExpandedChange?: (open: boolean) => void;
   /**
    * Task C — an optional small caption rendered below the button row (the
    * VWorld basemap tile source attribution, shown only while the basemap is
@@ -82,19 +84,22 @@ export default function MapOverlay({
   attribution,
   children,
   collapsible = false,
+  expanded,
+  onExpandedChange,
 }: MapOverlayProps) {
   if (items.length === 0 && !attribution && !children) return null;
 
   return (
-    <div className="pointer-events-none absolute right-3 top-16 lg:top-3 z-10 flex max-w-[calc(100%_-_24px)] flex-col items-end gap-1.5">
+    <div data-map-obstacle="settings" className="cyber-settings pointer-events-none flex max-w-[calc(100%_-_24px)] flex-col items-end gap-1.5">
       <details
-        open={collapsible ? undefined : true}
+        open={collapsible ? expanded : true}
+        onToggle={(event) => onExpandedChange?.(event.currentTarget.open)}
         className="pointer-events-auto max-w-full"
       >
         <summary
           className={
             collapsible
-              ? "ml-auto w-fit cursor-pointer rounded-lg border border-line bg-surface/95 px-3 py-2.5 text-xs shadow-sm"
+              ? "cyber-frame ml-auto w-fit cursor-pointer px-3 py-2.5 text-xs"
               : "hidden"
           }
         >

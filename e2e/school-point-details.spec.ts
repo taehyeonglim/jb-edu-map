@@ -38,7 +38,8 @@ test("통계 화면에서 학교 점을 누르면 해당 위치에 HUD가 열린
   await page.getByRole("searchbox", { name: "학교명 검색" }).fill("전주초등학교");
   await page.getByRole("tab", { name: "시군 통계" }).click();
   await clickOnlySchoolPoint(page, 10);
-  await expect(page.getByRole("tab", { name: "시군 통계" })).toHaveAttribute("aria-selected", "true");
+  await expect(page).toHaveURL(/view=statistics/);
+  await expect(page.getByRole("complementary")).toHaveCount(0);
   await expect(page.getByTestId("school-hud")).toContainText("전주초등학교");
   await expect(page.getByRole("complementary").getByRole("region", { name: "선택한 학교" })).toHaveCount(0);
   await expect(page.getByTestId("school-hud")).toContainText("학생");

@@ -30,20 +30,17 @@ test("모바일에서도 지도와 학교 검색을 사용하고 선택 후 패�
       page.evaluate(() => window.__jbmap?.deck.getViewports()[0].zoom),
     )
     .toBeCloseTo(16, 2);
-  await expect(
-    page.getByRole("button", { name: "전주초등학교 학교 정보 보기" }),
-  ).toBeVisible();
+  await expect(page.getByTestId("school-hud")).toBeVisible();
   await docShot(page, "mobile-school-map");
-  await page
-    .getByRole("button", { name: "전주초등학교 학교 정보 보기" })
-    .click();
+  await page.getByRole("button", { name: "학교·통계", exact: true }).click();
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
   await expect(
     page.getByRole("heading", { name: "전주초등학교" }),
   ).toBeVisible();
-  await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "전주초등학교 학교 정보 보기" }),
+    page.getByRole("button", { name: "학교·통계", exact: true }),
   ).toBeFocused();
 });
 
@@ -60,6 +57,7 @@ test("모바일과 PC 사이 크기 변경 후에도 선택과 배율이 유지�
     () => window.__jbmap!.deck.getViewports()[0].zoom,
   );
   await page.setViewportSize({ width: 1440, height: 900 });
+  await page.getByRole("button", { name: "학교·통계", exact: true }).click();
   await expect(page.getByRole("complementary")).toBeVisible();
   await expect(
     page.getByRole("combobox", { name: "시군", exact: true }),

@@ -110,6 +110,7 @@ test("학교 선택은 지역 필터를 바꾸지 않고 확대하며 이름과 
   await page.getByRole("button", { name: "학교명", exact: true }).click();
   expect((await style()).visible).toBe(false);
   await page.getByRole("button", { name: "학교명", exact: true }).click();
+  await openPanel(page);
   await page.getByRole("searchbox", { name: "학교명 검색" }).fill("군산");
   await expect(page.getByRole("region", { name: "선택한 학교" })).toHaveCount(
     0,

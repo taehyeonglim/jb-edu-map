@@ -48,7 +48,7 @@ function rgbCss([r, g, b]: readonly number[]): string {
  * separately-invented visualization.
  */
 export default function MapFallback({ indicatorId, bundle, selectedCode, onSelect, reason, issueModel }: MapFallbackProps) {
-  if (issueModel) return <div className="h-full overflow-y-auto bg-paper p-4">
+  if (issueModel) return <div className="cyber-fallback h-full overflow-y-auto bg-paper p-4">
     <p data-testid="map-fallback-reason" className="mb-3 text-sm">{REASON_TEXT[reason]}</p>
     <h2 className="font-semibold">{issueModel.title}</h2><p className="my-2 text-xs">{issueModel.date}</p>
     <table className="w-full text-sm"><thead><tr><th className="text-left">시군</th><th className="text-right">현황</th></tr></thead><tbody>{issueModel.regions.map((row) => <tr key={row.code} className={row.code === selectedCode ? "bg-accent-soft" : ""}><td><button className="min-h-11 underline" onClick={() => onSelect(row.code)}>{regionName(row.code)}</button></td><td className="text-right">{row.text}</td></tr>)}</tbody></table>
@@ -69,7 +69,7 @@ export default function MapFallback({ indicatorId, bundle, selectedCode, onSelec
   const span = d1 - d0 || 1;
 
   return (
-    <div className="flex h-full w-full flex-col overflow-y-auto bg-paper p-4 text-ink">
+    <div className="cyber-fallback flex h-full w-full flex-col overflow-y-auto bg-paper p-4 text-ink">
       <p data-testid="map-fallback-reason" className="mb-1 text-sm font-medium text-ink">
         {REASON_TEXT[reason]}
       </p>

@@ -94,12 +94,12 @@ export default function KpiTiles({ indicators, series, manifest }: KpiTilesProps
             key={id}
             data-testid={`kpi-tile-${id}`}
             title={prevYear !== null ? `${prevYear} → ${latestYear}` : undefined}
-            className="flex h-14 min-w-36 flex-1 shrink-0 flex-col justify-center gap-0.5 rounded-md border border-line bg-surface px-3 shadow-[inset_2px_0_0_var(--color-accent)] lg:min-w-0"
+            className="cyber-kpi grid h-[52px] min-w-40 flex-1 shrink-0 grid-cols-[1fr_auto] items-center gap-x-2 px-3 py-1 lg:min-w-0"
           >
-            <dt className="truncate text-[10px] text-ink-muted">{def.label}</dt>
+            <dt className="col-span-2 truncate text-[10px] text-ink-muted">{def.label}</dt>
             <dd
               data-testid={`kpi-value-${id}`}
-              className="tabular-nums text-sm font-semibold text-ink"
+              className="tabular-nums text-xl font-semibold leading-none text-ink"
             >
               {value === null ? "—" : def.format(value)}
             </dd>
@@ -107,7 +107,7 @@ export default function KpiTiles({ indicators, series, manifest }: KpiTilesProps
               data-testid={`kpi-delta-${id}`}
               data-tone={isWarn ? "warn" : "neutral"}
               title={deltaTitle}
-              className={`tabular-nums text-[10px] ${deltaClass}`}
+              className={`whitespace-nowrap tabular-nums text-[10px] ${deltaClass}`}
             >
               {deltaText}
             </dd>

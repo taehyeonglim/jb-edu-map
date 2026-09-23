@@ -99,8 +99,11 @@ test.describe("시군 선택", () => {
     // own onKeyDown.
     await expect(page.getByLabel(MAP_WRAPPER_LABEL)).not.toBeFocused();
     await page.keyboard.press("Escape");
-
+    await expect(page.getByRole("complementary")).toHaveCount(0);
+    await expect(page).toHaveURL(/[?&]region=52110(&|$)/);
+    await page.keyboard.press("Escape");
     await expect(page).not.toHaveURL(/[?&]region=/);
+    await openPanel(page);
     await expect(page.getByText("시군을 클릭하거나 목록에서 선택하세요")).toBeVisible();
 
     // A transition to/from "nothing selected" always pushes a history entry
@@ -152,6 +155,7 @@ test.describe("시군 선택", () => {
     await waitForMapReady(page);
 
     const labelPoint = jeonjuLabelPoint();
+    await page.getByRole("button", { name: "패널 닫기", exact: true }).click();
 
     /** Re-projects 전주시's ground point to a live canvas pixel — re-read on every attempt, not cached, since a retried click may land after the camera/canvas has moved (e.g. widget layout, viewport resize). */
     async function jeonjuPixel(): Promise<{ x: number; y: number }> {
@@ -161,10 +165,12 @@ test.describe("시군 선택", () => {
         const [x, y] = deck.getViewports()[0].project(point);
         // School dots intentionally consume their own clicks. Find a nearby
         // visible part of Jeonju's region surface instead of clicking a school.
-        for (let radius = 0; radius <= 60; radius += 12) {
-          for (const [dx, dy] of [[0, radius], [radius, 0], [0, -radius], [-radius, 0]]) {
-            const hit = deck.pickObject({ x: x + dx, y: y + dy, radius: 0 });
-            if (hit?.object?.properties?.code === '52110') return [x + dx, y + dy];
+        for (let radius = 0; radius <= 60; radius += 6) {
+          for (let offset = -radius; offset <= radius; offset += 6) {
+            for (const [dx, dy] of [[offset, radius], [offset, -radius], [radius, offset], [-radius, offset]]) {
+              const hit = deck.pickObject({ x: x + dx, y: y + dy, radius: 0 });
+              if (hit?.object?.properties?.code === '52110') return [x + dx, y + dy];
+            }
           }
         }
         throw new Error('No exposed Jeonju region surface near its label');
@@ -255,7 +261,8 @@ test.describe("시군 선택", () => {
     }
 
     await expect(page).toHaveURL(REGION_URL);
-    await expect(page.getByRole("heading", { name: "전주시", exact: true })).toBeVisible();
+    await expect(page.getByTestId("metric-legend")).toContainText("전주시");
+    await expect(page.getByRole("complementary")).toHaveCount(0);
 
     // Esc deselects here too, without ever focusing the wrapper (fix round
     // 1, review finding #1) — after a canvas click, deck.gl/mjolnir.js

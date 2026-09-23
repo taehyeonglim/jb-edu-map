@@ -68,6 +68,8 @@ import {
 import { makeSchoolTooltip, makeTooltip } from "@/components/map/tooltip";
 import MapOverlay, { type MapOverlayItem } from "@/components/map/MapOverlay";
 import SchoolHud from "@/components/map/SchoolHud";
+import { HUD_THEME, THEME } from "@/lib/theme";
+import { useHudLayout } from "./useHudLayout";
 import { useCamera } from "@/components/map/useCamera";
 import { useEmdBoundaries } from "@/components/map/useEmdBoundaries";
 import { useFontGate } from "@/components/map/useFontGate";
@@ -167,6 +169,13 @@ const VIEW = new MapView();
 const WIDGET_THEME_STYLE: CSSProperties = {
   ...DarkGlassTheme,
   "--widget-margin": "16px",
+  "--button-size": "46px",
+  "--button-corner-radius": `${HUD_THEME.radius}px`,
+  "--button-background": HUD_THEME.panelFill,
+  "--button-stroke": HUD_THEME.border,
+  "--button-icon-idle": THEME.inkMuted,
+  "--button-icon-hover": THEME.accent,
+  "--button-shadow": "0 0 18px rgba(67,207,224,.08)",
 } as CSSProperties;
 
 export interface DeckMapProps {
@@ -248,9 +257,13 @@ export default function DeckMap({
     [],
   );
   const [showSchoolNames, setShowSchoolNames] = useState(true);
+  const [settings, setSettings] = useState({ schoolId: highlightedSchoolId, open: false });
+  const settingsOpen = settings.schoolId === highlightedSchoolId && settings.open;
+  const setSettingsOpen = useCallback((open: boolean) => setSettings({ schoolId: highlightedSchoolId, open }), [highlightedSchoolId]);
   const selectedSchool =
     bundle.schools.schools.find((s) => s.id === highlightedSchoolId) ?? null;
   const containerRef = useRef<HTMLDivElement>(null);
+  const hudLayout = useHudLayout(containerRef);
   const deckRef = useRef<DeckGLRef | null>(null);
   const pointerDownRef = useRef<{ x: number; y: number; id: number } | null>(null);
   const mapReadyRef = useRef(false);
@@ -286,6 +299,7 @@ export default function DeckMap({
     schoolFocusNonce,
     scene,
     mobile,
+    hudLayout?.insets ?? null,
   );
 
   // Task 6, Section A.2 — WebGL context loss: deck.gl's own internal
@@ -543,8 +557,8 @@ export default function DeckMap({
     [],
   );
   const handleSchoolClick = useCallback(
-    (id: string) => onHighlightSchool(id, "map"),
-    [onHighlightSchool],
+    (id: string) => { setSettingsOpen(false); onHighlightSchool(id, "map"); },
+    [onHighlightSchool, setSettingsOpen],
   );
 
   const nearbySchoolId = useCallback((x: number, y: number, viewport?: Viewport) => {
@@ -1223,7 +1237,7 @@ export default function DeckMap({
           ref={deckRef}
           initialViewState={cameraViewState}
           views={views}
-          controller={{ ...CONTROLLER, maxBounds: undefined }}
+          controller={interactionBlocked ? false : { ...CONTROLLER, maxBounds: undefined }}
           layers={layers}
           widgets={widgets}
           getTooltip={getTooltip}
@@ -1246,19 +1260,22 @@ export default function DeckMap({
           )}
         />
       )}
-      {selectedSchool && labelViewport && (
+      {selectedSchool && labelViewport && !(settingsOpen && labelViewport.width < 1024) && (
         <SchoolHud
           school={selectedSchool}
           viewport={labelViewport}
           metric={metricModel}
+          obstacles={hudLayout?.obstacles}
           onClose={() => onHighlightSchool(null)}
           onStatistics={onSchoolStatistics}
         />
       )}
       <MetricLegend
+        key={highlightedSchoolId ?? "overview"}
         metric={metricModel}
         density={densityVisible}
         schoolSelected={!!highlightedSchoolId}
+        selectedRegionSummary={selectedCode ? `${nameOf(selectedCode)} · ${issueModel ? issueModel.regions.find((r) => r.code === selectedCode)?.text ?? "자료 없음" : map.get(selectedCode) == null ? "자료 없음" : formatWithUnit(def, map.get(selectedCode)! )}` : undefined}
         densityUnavailable={
           schoolChart === "auto" &&
           metricModel.kind === "density" &&
@@ -1301,6 +1318,8 @@ export default function DeckMap({
       </MetricLegend>
       <MapOverlay
         collapsible
+        expanded={settingsOpen}
+        onExpandedChange={setSettingsOpen}
         items={overlayItems}
         attribution={basemapOn ? BASEMAP_ATTRIBUTION : undefined}
       >

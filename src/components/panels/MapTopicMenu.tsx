@@ -27,7 +27,7 @@ export default function MapTopicMenu({
   const select = (id: string) =>
     id === "special-education" ? query.setIssue(id) : query.setIndicator(id);
   return (
-    <div className="flex w-full min-w-0 items-center justify-between gap-1 sm:w-auto sm:gap-2">
+    <div className="flex w-full min-w-0 items-center justify-between gap-1 lg:w-auto lg:gap-2">
       <select
         aria-label="교육현황 빠른 선택"
         value={active}
@@ -56,7 +56,7 @@ export default function MapTopicMenu({
         ))}
       </nav>
       <IndicatorMenu series={series} />
-      <button aria-label="교육문제 탐색" className="absolute right-3 top-2 min-h-11 shrink-0 rounded-lg bg-accent-soft px-2 text-xs font-semibold text-accent-text sm:static" onClick={() => { query.setView("issues"); onExploreIssues?.(); }}>교육문제<span className="hidden xl:inline"> 탐색</span></button>
+      <button aria-label="교육문제 탐색" className="absolute right-3 top-1 min-h-11 shrink-0 border border-accent/40 bg-accent-soft px-3 text-xs font-semibold text-accent-text lg:static" onClick={() => { query.setView("issues"); onExploreIssues?.(); }}>교육문제<span className="hidden xl:inline"> 탐색</span></button>
     </div>
   );
 }

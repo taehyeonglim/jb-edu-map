@@ -34,7 +34,7 @@ export default function IndicatorPicker({ value, onChange, series = {} }: Indica
         const items = INDICATORS.filter((d) => d.group === group);
         if (items.length === 0) return null;
         return (
-          <fieldset key={group} className="m-0 flex items-center gap-2 border-0 p-0">
+          <fieldset key={group} className="m-0 flex min-w-0 w-full flex-wrap items-start gap-2 border-0 p-0">
             <legend className="mr-1 text-[11px] uppercase tracking-wide text-ink-muted">
               {GROUP_LABELS[group]}
             </legend>

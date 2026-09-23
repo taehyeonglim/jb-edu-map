@@ -59,6 +59,7 @@ test("교육문제에서 지정 현황·관련 학교·URL을 함께 탐색하�
   await related.locator('button[data-testid^="issue-school-"]').first().click();
   await expect(page.getByRole("region", { name: "선택한 학교" })).toBeVisible();
   await expect(page).toHaveURL(/issue=regional-sustainability/);
+  await openPanel(page);
   await page.getByRole("button", { name: "이 지역 학교 검색 →" }).click();
   await expect(
     page.getByRole("searchbox", { name: "학교명 검색" }),

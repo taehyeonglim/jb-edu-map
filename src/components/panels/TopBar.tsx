@@ -49,9 +49,9 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
   const kpiFile = bundle?.indicators[KPI_INDICATOR_IDS[0]];
 
   return (
-    <div className="relative z-40 w-full min-w-0 shrink-0 border-b border-line bg-paper shadow-[0_8px_28px_rgba(0,0,0,0.22)]">
-    <header className="flex w-full min-w-0 min-h-14 flex-col items-stretch gap-2 border-b border-line px-3 py-2 sm:h-14 sm:flex-row sm:items-center sm:gap-4 sm:px-4 sm:py-0">
-      <span className="flex min-h-11 shrink-0 items-center border-l-2 border-accent pl-2 text-sm font-bold tracking-wide text-ink sm:min-h-0 sm:text-base">{ACTIVE_PROFILE.province.shortName}교육지도</span>
+    <div className="cyber-command" data-map-obstacle="header">
+    <header className="cyber-header flex w-full min-w-0 flex-col items-stretch gap-1 px-3 py-1 lg:flex-row lg:items-center lg:gap-5 lg:px-5 lg:py-0">
+      <span className="cyber-brand flex min-h-11 shrink-0 items-center pl-1 text-sm font-bold tracking-wide text-ink lg:text-base">{ACTIVE_PROFILE.province.shortName}교육지도<span className="ml-3 hidden text-[10px] font-normal tracking-[.15em] text-accent-text 2xl:inline">교육 현황 관제</span></span>
 
       {bundle ? (
         <MapTopicMenu series={bundle.series} onExploreIssues={onExploreIssues} />
@@ -60,7 +60,7 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
       )}
 
     </header>
-    <section aria-label="전북 교육 현황" className="flex h-[76px] min-w-0 items-center gap-3 px-3 sm:px-4">
+    <section aria-label="전북 교육 현황" className="cyber-kpi-rail flex min-w-0 items-center gap-3">
       <span className="hidden shrink-0 text-[11px] font-bold tracking-[0.08em] text-accent-text lg:block">전북 현황</span>
       <div className="min-w-0 flex-1 overflow-x-auto overscroll-x-contain">
         {bundle ? (
@@ -74,7 +74,7 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
         )}
 
       </div>
-      <span data-testid="topbar-reference-date" className="hidden shrink-0 text-[11px] tabular-nums text-ink-muted sm:block">
+      <span data-testid="topbar-reference-date" className="hidden shrink-0 text-[11px] tabular-nums text-ink-muted lg:block">
         {bundle && kpiFile ? `기준 ${kpiFile.referenceDate}` : <SkeletonBar className="h-4 w-20" />}
       </span>
     </section>

@@ -255,7 +255,7 @@ export default function IndicatorMenu({ series = {} }: IndicatorMenuProps) {
           onClick={handlePopoverClick}
           onKeyDown={handlePopoverKeyDown}
           onKeyUp={handlePopoverKeyUp}
-          className="fixed left-3 right-3 top-[112px] z-50 mt-2 max-h-[70vh] overflow-y-auto rounded-lg border border-line bg-surface p-3 shadow-xl sm:top-14 xl:absolute xl:left-auto xl:right-0 xl:top-full xl:w-[640px]"
+          className="cyber-frame fixed left-3 right-3 top-[104px] z-50 mt-2 max-h-[calc(100dvh-128px)] overflow-y-auto p-3 lg:top-14 xl:absolute xl:left-auto xl:right-0 xl:top-full xl:w-[640px]"
         >
           <IndicatorPicker
             value={issueId ? "" : indicatorId}

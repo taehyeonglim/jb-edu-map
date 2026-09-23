@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import type { MapMetricSpec } from "@/lib/mapMetrics";
 import { ACTIVE_PROFILE } from "@/lib/profiles";
 
@@ -10,13 +12,16 @@ export default function MetricLegend({
   densityUnavailable = false,
   children,
   schoolSelected = false,
+  selectedRegionSummary,
 }: {
   metric: MapMetricSpec;
   density: boolean;
   densityUnavailable?: boolean;
   children?: ReactNode;
   schoolSelected?: boolean;
+  selectedRegionSummary?: string;
 }) {
+  const [expanded, setExpanded] = useState(false);
   const legend = density
     ? METRIC_RAMP.map((color, i) => ({
         color,
@@ -27,14 +32,21 @@ export default function MetricLegend({
     <section
       aria-label="선택 지표 범례"
       data-testid="metric-legend"
-      className={`pointer-events-none absolute ${schoolSelected ? "bottom-36 lg:bottom-4" : "bottom-4"} right-3 z-10 w-80 max-w-[calc(100%_-_72px)] rounded-xl border border-line bg-surface/95 p-3 shadow-sm`}
+      data-map-obstacle="legend"
+      data-school-selected={schoolSelected}
+      className="cyber-legend cyber-frame pointer-events-auto p-3"
     >
+      <div className="flex items-center justify-between gap-2">
       <h2
         data-testid="legend-indicator-label"
         className="text-sm font-semibold"
       >
         {metric.title}
       </h2>
+      <button type="button" aria-label="범례 펼치기" aria-expanded={expanded} onClick={() => setExpanded((value) => !value)} className="min-h-11 min-w-11 border border-line px-2 text-xs text-accent-text lg:hidden">{expanded ? "접기 −" : "범례 +"}</button>
+      </div>
+      {selectedRegionSummary && <p className="mt-1 text-xs font-semibold text-accent-text">{selectedRegionSummary}</p>}
+      <div className={`cyber-legend-body ${expanded ? "block" : "hidden lg:block"}`}>
       <p className="mt-1 text-xs text-ink-muted">
         {density
           ? "상대 집중도 · 낮음 → 높음"
@@ -78,6 +90,7 @@ export default function MetricLegend({
           이 기기에서는 학교별 수치로 표시합니다.
         </p>
       )}
+      </div>
     </section>
   );
 }

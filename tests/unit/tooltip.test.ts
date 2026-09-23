@@ -48,14 +48,14 @@ describe("makeTooltip", () => {
     expect(result?.html).toContain("a &amp; b");
   });
 
-  it("uses a light tooltip card style (THEME tokens — Task 1)", () => {
+  it("uses the control-room tooltip card style", () => {
     const getTooltip = makeTooltip(() => ["전주시", "값"]);
     const result = getTooltip(infoFor("52110"));
     expect(result?.style).toMatchObject({
       background: THEME.surface,
       color: THEME.ink,
       border: `1px solid ${THEME.line}`,
-      borderRadius: "8px",
+      borderRadius: "3px",
       padding: "8px 10px",
       fontSize: "13px",
     });
