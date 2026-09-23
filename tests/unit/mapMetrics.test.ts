@@ -24,6 +24,15 @@ beforeAll(async () => {
 });
 
 describe("education city metrics", () => {
+  it("prints percent and area units exactly once in province summaries", () => {
+    for (const [id, expected] of [
+      ["students_change_5y", "전북 전체 -12.5%"],
+      ["small_school_share", "전북 전체 41.3%"],
+      ["rural_school_share", "전북 전체 43.4%"],
+      ["site_area_per_student", "전북 전체 85㎡"],
+      ["students_total", "전북 전체 165,958명"],
+    ]) expect(buildMapMetric(bundle, id, null, facts).summary).toBe(expected);
+  });
   const density = ["students_total", "classes_total", "teachers_total"];
   const category = ["schools_total", "small_schools", "zero_entrant_schools"];
   const value = [

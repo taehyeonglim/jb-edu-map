@@ -88,7 +88,7 @@
 .cyber-legend { position: absolute; bottom: 12px; right: 12px; z-index: 15; width: 320px; max-width: calc(100% - 80px); }
 .cyber-legend-body { max-height: min(40dvh, 360px); overflow-y: auto; }
 .cyber-legend[data-school-selected="true"] .cyber-legend-body { max-height: 20dvh; }
-.cyber-shell .cyber-fallback { padding-top: calc(var(--map-top) + 60px); }
+.cyber-shell .cyber-fallback { padding-top: calc(var(--map-top) + 60px); scroll-padding-top: calc(var(--map-top) + 60px); }
 .cyber-hud { border-color: var(--color-accent); }
 .cyber-hud h2 { letter-spacing: -.025em; }
 .cyber-metric-rail { display: none; }

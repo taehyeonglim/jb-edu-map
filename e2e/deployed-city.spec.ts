@@ -15,7 +15,6 @@ test("deployed city API, school selection, both issues and mobile controls", asy
   await expect(page.getByText(/일부 건물 정보를 불러오지 못했습니다/)).toHaveCount(0);
   await page.waitForLoadState("networkidle", { timeout: 30000 });
   await page.screenshot({path:"test-results/deployed-city-desktop.png"});
-  await page.getByText("지도 설정",{exact:true}).click();
   await page.getByRole("radio",{name:"평면",exact:true}).click();
   await expect(page).toHaveURL(/scene=flat/);
   await expect(page.getByRole("heading",{name:"전주초등학교"})).toBeVisible();
@@ -29,7 +28,7 @@ test("deployed city API, school selection, both issues and mobile controls", asy
   await page.setViewportSize({width:390,height:844});
   await page.goto(`${site}/?scene=city&school=B000005959`);
   await expect(page.getByText(/건물 조회:/)).toBeVisible({timeout:30000});
-  await expect(page.getByRole("button",{name:"전주초등학교 학교 정보 보기"})).toBeVisible();
+  await expect(page.getByTestId("school-hud")).toContainText("전주초등학교");
   await page.getByText("지도 설정",{exact:true}).click();
   await page.getByRole("radio",{name:"평면",exact:true}).click();
   await expect(page).toHaveURL(/scene=flat/);

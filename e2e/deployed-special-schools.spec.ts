@@ -19,6 +19,7 @@ test("deployed special schools expose verified locations and official directions
     "href", "https://school.jbedu.kr/deogyusam/MABACAI/index.do",
   );
   await expect(page.getByText("전북특별자치도 장수군 계북면 장무로 1326", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "학교·통계", exact: true }).click();
   await page.getByRole("group", { name: "학교급 필터" }).getByRole("button", { name: "특수", exact: true }).click();
   await expect(page.getByTestId("school-result-count")).toHaveText("검색 결과 11개 · 지도 표시 가능 11개");
   await expect(page.locator("#school-map")).toHaveAttribute("data-map-ready", "true");

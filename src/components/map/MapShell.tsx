@@ -10,7 +10,7 @@
  * which is why the deck.gl-importing DeckMap is loaded from here rather
  * than from a server component.
  */
-import { useMemo, useSyncExternalStore, type ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 
 import type { DeckMapProps } from "./DeckMap";
@@ -56,19 +56,19 @@ export default function MapShell(props: DeckMapProps) {
     getWebGLServerSnapshot,
   );
 
-  // Shared by every MapFallback variant (webgl/viewport/error) — not
-  // DeckMapProps' full shape: MapFallback has no school-point rendering, so
-  // highlightedSchoolId/onHighlightSchool are never relevant to it.
-  const fallbackProps = useMemo(
-    () => ({
+  // Both unsupported WebGL and render errors must retain school details.
+  // Unlocated schools already use Dashboard's panel-based detail path.
+  const fallbackProps = {
       issueModel: props.issueModel,
       indicatorId: props.indicatorId,
       bundle,
       selectedCode: props.selectedCode,
       onSelect: props.onSelect,
-    }),
-    [props.indicatorId, bundle, props.selectedCode, props.onSelect, props.issueModel],
-  );
+      selectedSchool: (props.schools ?? bundle.schools.schools).find((school) =>
+        school.id === props.highlightedSchoolId && school.lat !== null && school.lng !== null) ?? null,
+      onSchoolClose: () => props.onHighlightSchool(null),
+      onSchoolStatistics: props.onSchoolStatistics,
+  };
 
   let content: ReactNode;
   if (!webglOk) {

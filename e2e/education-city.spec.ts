@@ -27,7 +27,7 @@ test("default city emphasizes the student distribution and opens tools on demand
   await expect.poll(() => layerIds(page)).toContain("education-density");
   await expect(
     page.getByRole("radio", { name: "원통", exact: true }),
-  ).not.toBeVisible();
+  ).toBeVisible();
   await page.screenshot({ path: "test-results/education-city-overview.png" });
   await page.getByRole("button", { name: "교육여건", exact: true }).click();
   await expect(page.getByTestId("metric-legend")).toContainText(

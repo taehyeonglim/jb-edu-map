@@ -10,7 +10,6 @@ test("deployed school cylinders follow the metric and remain readable on mobile"
   await expect(page.locator("#school-map")).toHaveAttribute("data-map-ready", "true");
   await page.waitForLoadState("networkidle");
   await page.screenshot({ path: "test-results/deployed-school-columns.png" });
-  await page.getByText("지도 설정", {exact:true}).click();
   await page.getByRole("radio", { name: "점", exact: true }).click();
   await expect(page).toHaveURL(/schoolChart=dots/);
   await expect(page.getByTestId("school-chart-legend")).toHaveCount(0);
@@ -18,6 +17,7 @@ test("deployed school cylinders follow the metric and remain readable on mobile"
   await expect(page.getByTestId("school-chart-legend")).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${site}/?scene=city&schoolChart=columns&region=52110&indicator=teachers_total`);
+  await page.getByRole("button", { name: "범례 펼치기" }).click();
   await expect(page.getByTestId("school-chart-legend")).toContainText("원통 높이 · 교원수");
   await page.waitForLoadState("networkidle");
   await page.screenshot({ path: "test-results/deployed-school-columns-mobile.png" });

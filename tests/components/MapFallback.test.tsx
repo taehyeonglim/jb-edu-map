@@ -8,6 +8,7 @@ import { PUBLISHED_ISSUES } from "@/lib/issues/registry";
 import MapFallback from "@/components/map/MapFallback";
 import { REGIONS } from "@/lib/geo/regions";
 import type { IndicatorFile, SeriesFile } from "@/lib/indicators/types";
+import type { School } from "@/lib/schools/types";
 
 /** Deliberately NOT REGIONS' declaration order — exercises real rank sorting (mirrors tests/components/RegionList.test.tsx's own fixture). */
 const VALUES: Record<string, number> = {
@@ -38,6 +39,24 @@ function bundleFixture() {
     indicators: { students_total: studentsTotalFile() },
     series: {} as Record<string, SeriesFile>,
   };
+}
+
+for (const reason of ["webgl", "error"] as const) {
+  it(`${reason}: retains located school details and their actions`, async () => {
+    const school: School = { id: "test-school", name: "대체화면학교", level: "elem", status: "운영", branch: false,
+      lat: 35.82, lng: 127.14, regionCode: "52110", students: 60, classes: 6, teachers: 10, studentsPerClass: 10, small: true };
+    const onClose = vi.fn();
+    const onStatistics = vi.fn();
+    render(<MapFallback indicatorId="students_total" bundle={bundleFixture()} selectedCode={null} onSelect={vi.fn()}
+      reason={reason} selectedSchool={school} onSchoolClose={onClose} onSchoolStatistics={onStatistics} />);
+    const detail = within(screen.getByTestId("fallback-school-detail"));
+    expect(detail.getByRole("heading", { name: school.name })).toBeVisible();
+    expect(detail.getByText("60명")).toBeVisible();
+    await userEvent.click(detail.getByRole("button", { name: "해당 시군 통계 보기" }));
+    expect(onStatistics).toHaveBeenCalledWith("52110");
+    await userEvent.click(detail.getByRole("button", { name: "학교 선택 해제" }));
+    expect(onClose).toHaveBeenCalledOnce();
+  });
 }
 
 describe("MapFallback", () => {

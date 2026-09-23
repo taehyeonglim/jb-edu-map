@@ -7,6 +7,7 @@ import { displayLabel, valueMap } from "./stats";
 import { makeColorScale, paletteFor } from "./colors";
 import { PROVINCE_CODE, REGION_CODES } from "./geo/regions";
 import { ACTIVE_PROFILE } from "./profiles";
+import { formatWithUnit } from "./tooltipText";
 
 export type MetricColor = [number, number, number, number];
 export type MapMetricKind = "density" | "value" | "category" | "region";
@@ -202,7 +203,7 @@ export function buildMapMetric(
   const province = map.get(PROVINCE_CODE);
   const summary =
     issue?.provinceText ??
-    `${ACTIVE_PROFILE.province.shortName} 전체 ${province == null ? "자료 없음" : `${def.format(province)}${def.unit}`}`;
+    `${ACTIVE_PROFILE.province.shortName} 전체 ${province == null ? "자료 없음" : formatWithUnit(def, province)}`;
   return {
     kind,
     proportional: issue?.metric === "school-size" || (issue?.issue.id === "special-education" && issue.metric !== "special-schools"),

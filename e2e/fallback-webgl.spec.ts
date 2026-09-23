@@ -40,3 +40,32 @@ test("WebGL2 컨텍스트를 생성할 수 없으면 지도 대신 표를 보여
 
   expect(consoleErrors).toEqual([]);
 });
+
+for (const width of [1440, 390]) {
+  test(`WebGL 대체 화면 ${width}px: 학교 선택·공유 링크·통계·선택 해제`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/");
+    await expect(page.getByTestId("map-fallback-reason")).toBeVisible();
+    await page.getByRole("button", { name: "학교·통계", exact: true }).click();
+    await page.getByRole("searchbox", { name: "학교명 검색" }).fill("전주초등학교");
+    await page.getByTestId("school-row-B000005959").click();
+    const detail = page.getByTestId("fallback-school-detail");
+    await expect(detail).toContainText("전주초등학교");
+    await expect(detail).toContainText("228명");
+    await expect(detail).toBeFocused();
+    await expect(detail.getByRole("heading")).toBeInViewport();
+    const heading = (await detail.getByRole("heading").boundingBox())!;
+    const header = (await page.locator(".cyber-command").boundingBox())!;
+    expect(heading.y).toBeGreaterThanOrEqual(header.y + header.height);
+    await expect(page).toHaveURL(/school=B000005959/);
+    await page.reload();
+    await expect(detail).toBeVisible();
+    await detail.getByRole("button", { name: "해당 시군 통계 보기" }).click();
+    await expect(page.getByRole("tab", { name: "시군 통계" })).toHaveAttribute("aria-selected", "true");
+    await expect(page).toHaveURL(/region=52110/);
+    await page.getByRole("button", { name: "패널 닫기", exact: true }).click();
+    await detail.getByRole("button", { name: "학교 선택 해제" }).click();
+    await expect(detail).toHaveCount(0);
+    await expect(page).not.toHaveURL(/school=/);
+  });
+}

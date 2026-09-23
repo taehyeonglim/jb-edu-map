@@ -81,8 +81,10 @@ test("원통 클릭은 학교를 선택하고 모바일에서도 전환할 수 �
   await page.mouse.click(bounds.x + point.x, bounds.y + point.y);
   await expect(page.getByRole("heading", { name: "전주초등학교" })).toBeVisible();
   await page.setViewportSize({ width: 390, height: 844 });
+  await openMapSettings(page);
   await page.getByRole("radio", { name: "점", exact: true }).click();
   await page.getByRole("radio", { name: "원통", exact: true }).click();
+  await page.getByRole("button", { name: "범례 펼치기" }).click();
   await expect(page.getByTestId("school-chart-legend")).toBeVisible();
   await page.screenshot({ path: "test-results/school-columns-mobile.png" });
 });

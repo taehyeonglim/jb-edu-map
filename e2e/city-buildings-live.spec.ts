@@ -75,10 +75,18 @@ test("real buildings preserve school picking and both issue overlays", async ({p
   await page.mouse.click(canvas!.x+point.x,canvas!.y+point.y);
   await expect(page.getByRole("heading",{name:"전주초등학교"})).toBeVisible();
   await page.screenshot({path:"test-results/live-school-picking.png"});
+  const response = await page.request.get("/data/schools.json");
+  expect(response.ok()).toBe(true);
+  const schools = (await response.json()).schools as { id: string; name: string; small: boolean; branch: boolean; lat: number | null; lng: number | null; regionCode: string }[];
+  const smallSchool = schools.find(s => s.small && !s.branch && s.lat !== null && s.lng !== null && s.regionCode === "52110");
+  expect(smallSchool, "regional default needs a located small main school").toBeDefined();
   for (const issue of ["regional-sustainability","special-education"]) {
-    await page.goto(`/?scene=city&view=issues&issue=${issue}&school=B000005959`);
+    // Keep testing the actual default overlay, but select a school it includes.
+    const school = issue === "regional-sustainability" ? smallSchool! : { id: "B000005959", name: "전주초등학교" };
+    await page.goto(`/?scene=city&view=issues&issue=${issue}&school=${encodeURIComponent(school.id)}`);
     await expect(page.locator("#school-map")).toHaveAttribute("data-labels-ready","true");
-    await expect(page.getByText(/건물 조회:/)).toBeVisible();
+    await expect(page.getByTestId("school-hud")).toContainText(school.name);
+    await expect(page.getByText(/건물 조회:/)).toBeVisible({ timeout: 20000 });
     await expect.poll(()=>page.evaluate(()=>{
       const deck=window.__jbmap!.deck as unknown as {layerManager:{getLayers:()=>{id:string,props:{getFillColor?:number[]}}[]}};
       const layers=deck.layerManager.getLayers().filter(l=>l.id.endsWith("-volume"));

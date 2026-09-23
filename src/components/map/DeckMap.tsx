@@ -302,18 +302,21 @@ export default function DeckMap({
     hudLayout?.insets ?? null,
   );
 
-  // Task 6, Section A.2 — WebGL context loss: deck.gl's own internal
-  // handling (Deck#_onWebGLContextLost) calls onError(new Error('WebGL
-  // context is lost')) — matching on "context" (case-insensitively, not an
-  // exact string) also catches any OTHER error deck.gl/luma.gl ever phrases
-  // slightly differently, while still leaving every unrelated error (a
-  // picking bug, a bad accessor, ...) to just log and fall through with no
-  // overlay, per the brief. deck.gl's default onError just does
-  // `log.error(error.message)`; supplying our own REPLACES that default, so
-  // the non-context branch below calls console.error itself to not lose
-  // that reporting.
+  // Native context loss is not forwarded to onError by every deck.gl version.
+  // Capture on the persistent parent: the canvas is created asynchronously,
+  // and webglcontextlost does not bubble. Cleanup also covers Strict Mode.
   const [heatmapSupported, setHeatmapSupported] = useState(false);
   const [contextLost, setContextLost] = useState(false);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const onLost = (event: Event) => {
+      event.preventDefault();
+      setContextLost(true);
+    };
+    container.addEventListener("webglcontextlost", onLost, true);
+    return () => container.removeEventListener("webglcontextlost", onLost, true);
+  }, []);
   const handleDeckError = useCallback((error: Error) => {
     if (error.message.toLowerCase().includes("context")) {
       setContextLost(true);

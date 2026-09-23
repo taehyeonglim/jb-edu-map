@@ -43,6 +43,7 @@ test("교육문제에서 지정 현황·관련 학교·URL을 함께 탐색하�
       .getByRole("heading", { name: "진안군 함께 살펴보기" }),
   ).toBeVisible();
   await page
+    .getByRole("tabpanel", { name: "교육문제", exact: true })
     .getByRole("button", { name: "소규모학교 비율", exact: true })
     .click();
   await expect(page).toHaveURL(/issueMetric=small-share/);
@@ -52,7 +53,7 @@ test("교육문제에서 지정 현황·관련 학교·URL을 함께 탐색하�
   await openPanel(page);
   await ready(page);
   await expect(
-    page.getByRole("button", { name: "소규모학교 비율", exact: true }),
+    page.getByRole("tabpanel", { name: "교육문제", exact: true }).getByRole("button", { name: "소규모학교 비율", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByTestId("issue-school-count")).toHaveText(count);
   const related = page.getByRole("region", { name: "교육문제 관련 학교" });

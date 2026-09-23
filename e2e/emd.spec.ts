@@ -1,4 +1,4 @@
-import { openMapSettings, expect, test } from "./fixtures";
+import { openMapSettings, openPanel, expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
 // Flake mitigation: local 5-worker runs can hit CDP "session closed" on page.reload() here.
@@ -55,6 +55,7 @@ test.describe("읍면동 경계", () => {
     page.on("pageerror", (error) => consoleErrors.push(error.message));
 
     await page.goto("/?region=52110");
+    await openPanel(page);
   await openMapSettings(page);
     await page.getByRole("tab", { name: "시군 통계" }).click();
     await waitForMapReady(page);

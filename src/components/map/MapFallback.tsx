@@ -18,6 +18,9 @@ import { makeColorScale } from "@/lib/colors";
 import { domainOf } from "@/lib/scales";
 import { regionRankList } from "@/lib/selection";
 import { displayLabel, rank, valueMap } from "@/lib/stats";
+import { useEffect, useRef } from "react";
+import type { School } from "@/lib/schools/types";
+import { SchoolDetail } from "@/components/panels/SchoolExplorer";
 
 export interface MapFallbackProps {
   issueModel?: IssueMapModel | null;
@@ -25,6 +28,9 @@ export interface MapFallbackProps {
   bundle: Pick<DataBundle, "indicators" | "series">;
   selectedCode: RegionCode | null;
   onSelect: (code: RegionCode | null) => void;
+  selectedSchool?: School | null;
+  onSchoolClose?: () => void;
+  onSchoolStatistics?: (code: RegionCode) => void;
   /** Why the map isn't shown — each gets its own banner text. 'webgl' (no WebGL2 context), 'viewport' (<768px wide), 'error' (MapErrorBoundary caught a render exception). */
   reason: "webgl" | "viewport" | "error";
 }
@@ -47,9 +53,21 @@ function rgbCss([r, g, b]: readonly number[]): string {
  * this table reads as a direct, consistent stand-in for the map, not a
  * separately-invented visualization.
  */
-export default function MapFallback({ indicatorId, bundle, selectedCode, onSelect, reason, issueModel }: MapFallbackProps) {
+export default function MapFallback({ indicatorId, bundle, selectedCode, onSelect, reason, issueModel, selectedSchool, onSchoolClose, onSchoolStatistics }: MapFallbackProps) {
+  const detailRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!selectedSchool) return;
+    detailRef.current?.focus({ preventScroll: true });
+    detailRef.current?.scrollIntoView?.({ block: "nearest" });
+  }, [selectedSchool]);
+  const detail = selectedSchool && (
+    <div ref={detailRef} tabIndex={-1} className="my-3 shrink-0" data-testid="fallback-school-detail">
+      <SchoolDetail school={selectedSchool} onClose={() => onSchoolClose?.()} onStatistics={onSchoolStatistics ?? onSelect} />
+    </div>
+  );
   if (issueModel) return <div className="cyber-fallback h-full overflow-y-auto bg-paper p-4">
     <p data-testid="map-fallback-reason" className="mb-3 text-sm">{REASON_TEXT[reason]}</p>
+    {detail}
     <h2 className="font-semibold">{issueModel.title}</h2><p className="my-2 text-xs">{issueModel.date}</p>
     <table className="w-full text-sm"><thead><tr><th className="text-left">시군</th><th className="text-right">현황</th></tr></thead><tbody>{issueModel.regions.map((row) => <tr key={row.code} className={row.code === selectedCode ? "bg-accent-soft" : ""}><td><button className="min-h-11 underline" onClick={() => onSelect(row.code)}>{regionName(row.code)}</button></td><td className="text-right">{row.text}</td></tr>)}</tbody></table>
     <p className="mt-3 text-xs">{issueModel.note}</p>
@@ -74,6 +92,7 @@ export default function MapFallback({ indicatorId, bundle, selectedCode, onSelec
         {REASON_TEXT[reason]}
       </p>
       <p className="mb-3 text-xs text-ink-muted">{label} 기준 · 시군을 클릭하면 선택됩니다</p>
+      {detail}
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-line text-left text-xs text-ink-muted">

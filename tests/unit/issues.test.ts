@@ -9,6 +9,7 @@ import {
   EDUCATION_ISSUES,
   issueById,
   PUBLISHED_ISSUES,
+  METRIC_LABELS,
 } from "@/lib/issues/registry";
 import { createLoader } from "nuqs/server";
 import { mapQueryParsers } from "@/lib/state/urlState";
@@ -25,6 +26,12 @@ const regional = () => issueById("regional-sustainability")!;
 const special = () => issueById("special-education")!;
 
 describe("policy-linked education issues", () => {
+  it("names every published metric, including each default, for visible and accessible controls", () => {
+    for (const issue of PUBLISHED_ISSUES) for (const metric of issue.metrics) {
+      expect(METRIC_LABELS[metric], `${issue.id}/${metric}`).toBeTypeOf("string");
+      expect(METRIC_LABELS[metric].trim()).not.toBe("");
+    }
+  });
   it("publishes all ten sourced themes", () => {
     expect(EDUCATION_ISSUES).toHaveLength(10);
     expect(PUBLISHED_ISSUES).toHaveLength(10);

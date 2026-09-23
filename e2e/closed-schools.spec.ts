@@ -1,4 +1,4 @@
-import { docShot, expect, test } from "./fixtures";
+import { docShot, expect, test, openPanel } from "./fixtures";
 
 test("폐교 지표: /?indicator=closed_schools 진입 → 범례 라벨 → 시군 선택 → 폐교 목록 섹션 표시", async ({ page }) => {
   const consoleErrors: string[] = [];
@@ -10,6 +10,7 @@ test("폐교 지표: /?indicator=closed_schools 진입 → 범례 라벨 → 시
   // 군산시(52130) has 14 폐교 rows (per the raw CSV — see task-5-report.md's
   // per-region table), so the 목록 is guaranteed non-empty here.
   await page.goto("/?indicator=closed_schools&region=52130");
+  await openPanel(page);
     await page.getByRole("tab", { name: "시군 통계" }).click();
   await expect(page.locator("canvas")).toBeVisible({ timeout: 15000 });
   await expect(page.locator('[data-map-ready="true"]')).toBeAttached({ timeout: 20000 });
