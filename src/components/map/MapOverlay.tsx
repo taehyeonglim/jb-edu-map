@@ -1,6 +1,16 @@
 "use client";
 
-import { useRef, type ReactNode, type KeyboardEvent } from "react";
+import { useRef, useSyncExternalStore, type ReactNode, type KeyboardEvent } from "react";
+
+const desktopQuery = "(min-width: 1024px)";
+function subscribeDesktop(notify: () => void) {
+  if (!window.matchMedia) return () => {};
+  const media = window.matchMedia(desktopQuery);
+  media.addEventListener("change", notify);
+  return () => media.removeEventListener("change", notify);
+}
+const getDesktop = () => window.matchMedia?.(desktopQuery).matches ?? false;
+const getServerDesktop = () => false;
 
 /** A press/unpress chip (`aria-pressed`). `kind` is optional so the original item shape (Task A/C/E callers and tests) keeps working unchanged. */
 export interface MapOverlayToggleItem {
@@ -87,18 +97,19 @@ export default function MapOverlay({
   expanded,
   onExpandedChange,
 }: MapOverlayProps) {
+  const desktop = useSyncExternalStore(subscribeDesktop, getDesktop, getServerDesktop);
   if (items.length === 0 && !attribution && !children) return null;
 
   return (
     <div data-map-obstacle="settings" className="cyber-settings pointer-events-none flex max-w-[calc(100%_-_24px)] flex-col items-end gap-1.5">
       <details
-        open={collapsible ? expanded : true}
-        onToggle={(event) => onExpandedChange?.(event.currentTarget.open)}
+        open={desktop || !collapsible || expanded}
+        onToggle={(event) => { if (!desktop) onExpandedChange?.(event.currentTarget.open); }}
         className="pointer-events-auto max-w-full"
       >
         <summary
           className={
-            collapsible
+            collapsible && !desktop
               ? "cyber-frame ml-auto w-fit cursor-pointer px-3 py-2.5 text-xs"
               : "hidden"
           }

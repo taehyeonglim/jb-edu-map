@@ -18,6 +18,18 @@ for (const [width, height] of [[1440, 900], [1024, 768], [390, 844], [360, 640]]
       };
     })).toEqual({ fullMap: true, fits: true, overlaps: false, horizontalScroll: false });
     await expect(page.getByRole("button", { name: "학교 HUD 닫기" })).toBeInViewport();
+    if (width >= 1024) {
+      const metrics = page.getByRole("navigation", { name: "전체 지도 지표" });
+      await expect(metrics.getByRole("button")).toHaveCount(18);
+      for (const button of await metrics.getByRole("button").all()) {
+        await expect(button).toBeInViewport();
+        expect((await button.boundingBox())!.height).toBe(28);
+      }
+      await expect(page.getByRole("button", { name: "학교명", exact: true })).toBeVisible();
+      await metrics.getByRole("button", { name: "학급수", exact: true }).click();
+      await expect(page).toHaveURL(/indicator=classes_total/);
+      await expect(metrics.getByRole("button", { name: "학급수", exact: true })).toHaveAttribute("aria-pressed", "true");
+    }
     await docShot(page, `control-room-${width}`);
     await page.getByRole("button", { name: "학교·통계", exact: true }).click();
     await expect(page.getByRole("searchbox", { name: "학교명 검색" })).toBeVisible();

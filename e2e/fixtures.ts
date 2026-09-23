@@ -58,6 +58,7 @@ export async function openPanel(page: Page) {
 }
 export async function openMapSettings(page: Page) {
   const summary = page.locator("summary").filter({ hasText: "지도 설정" });
+  if (await summary.locator("..").evaluate(el => el.hasAttribute("open"))) return;
   await expect(summary).toBeVisible();
   if (!(await summary.locator("..").getAttribute("open"))) {
     // Boolean open attributes serialize as an empty string; use DOM presence.

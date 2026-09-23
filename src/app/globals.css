@@ -91,6 +91,7 @@
 .cyber-shell .cyber-fallback { padding-top: calc(var(--map-top) + 60px); }
 .cyber-hud { border-color: var(--color-accent); }
 .cyber-hud h2 { letter-spacing: -.025em; }
+.cyber-metric-rail { display: none; }
 .cyber-shell .hud-map::after {
   content: "";
   position: absolute;
@@ -100,12 +101,40 @@
   box-shadow: inset 0 0 100px rgba(2,10,19,.4);
 }
 @media (min-width: 1024px) {
-  .cyber-shell { --map-top: 132px; }
-  .cyber-header { min-height: 56px; height: 56px; }
-  .cyber-explorer { top: calc(var(--map-top) + 52px); left: 12px; bottom: 12px; right: auto; width: 360px; max-height: none; z-index: 30; }
+  .cyber-shell { --map-top: 188px; font-size: 12px; }
+  .cyber-shell :where(button, summary, input, select) { min-height: 28px; font-size: 11px; }
+  .cyber-shell label:has(> input[type="radio"]) { min-height: 28px; }
+  .cyber-shell :where(.text-sm) { font-size: 12px; line-height: 1.4; }
+  .cyber-shell :where(.text-base, .text-lg) { font-size: 13px; line-height: 1.4; }
+  .cyber-shell :where(.text-xl, .text-2xl) { font-size: 16px; line-height: 1.2; }
+  .cyber-header { min-height: 38px; height: 38px; }
+  .cyber-brand { min-height: 28px; font-size: 13px; }
+  .cyber-brand::before { width: 10px; height: 10px; margin-right: 8px; }
+  .cyber-kpi-rail { height: 42px; padding: 3px 12px; }
+  .cyber-kpi { height: 36px; padding: 2px 8px; }
+  .cyber-kpi dd:first-of-type { font-size: 16px; }
+  .cyber-metric-rail { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; padding: 3px 12px 6px; background: var(--panel-fill); border-bottom: 1px solid var(--panel-border); }
+  .cyber-metric-rail button { height: 28px; white-space: nowrap; }
+  .cyber-explorer { top: calc(var(--map-top) + 36px); left: 12px; bottom: 12px; right: auto; width: 320px; max-height: none; z-index: 30; }
+  .cyber-explorer :where(.p-4) { padding: 10px; }
+  .cyber-explorer :where(.p-3) { padding: 8px; }
+  .cyber-explorer :where(.gap-3, .gap-4) { gap: 8px; }
+  .cyber-explorer :where(.py-3, .py-2) { padding-block: 5px; }
+  .cyber-explore-button { padding-block: 4px; }
+  .cyber-settings details[open] { padding: 5px; }
+  .cyber-settings details[open] > div { padding-top: 0; gap: 3px; }
+  .cyber-settings button { padding: 3px 7px; }
+  .cyber-legend { width: 280px; padding: 8px; }
+  .cyber-hud { padding: 8px; }
+  .cyber-hud button { min-width: 28px; height: 28px; padding-block: 3px; }
+  .cyber-hud :where(.py-2) { padding-block: 4px; }
   .cyber-explorer-backdrop { display: none; }
-  .cyber-shell:has(.cyber-explorer[data-open="true"]) .deck-widget { margin-left: 388px; }
+  .cyber-shell:has(.cyber-explorer[data-open="true"]) .deck-widget { margin-left: 348px; }
   .cyber-legend[data-school-selected="true"] .cyber-legend-body { max-height: min(40dvh, 360px); }
+}
+@media (min-width: 1280px) {
+  .cyber-shell { --map-top: 158px; }
+  .cyber-metric-rail { grid-template-columns: repeat(9, minmax(0, 1fr)); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cyber-shell { --control-duration: 0ms; }

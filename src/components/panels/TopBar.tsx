@@ -3,6 +3,7 @@ import { ACTIVE_PROFILE } from "@/lib/profiles";
 
 import MapTopicMenu from "./MapTopicMenu";
 import KpiTiles, { KPI_INDICATOR_IDS } from "./KpiTiles";
+import MetricCommandRail from "./MetricCommandRail";
 
 export interface TopBarProps {
   /**
@@ -78,6 +79,7 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
         {bundle && kpiFile ? `기준 ${kpiFile.referenceDate}` : <SkeletonBar className="h-4 w-20" />}
       </span>
     </section>
+    {bundle && <MetricCommandRail />}
     </div>
   );
 }
