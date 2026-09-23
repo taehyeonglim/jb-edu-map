@@ -171,7 +171,7 @@ function DashboardInner({
   }, [highlightedSchoolId, selectedSchool, setHighlightedSchoolId]);
 
   useEffect(() => {
-    if (!selectedSchool || tab === "statistics" || collapsed) return;
+    if (!selectedSchool || hasCoordinates(selectedSchool) || tab === "statistics" || collapsed) return;
     if (window.matchMedia("(max-width: 1023px)").matches && !panelOpen) return;
     panelRef.current
       ?.querySelector('[aria-label="선택한 학교"]')
@@ -217,11 +217,10 @@ function DashboardInner({
       if (school && regionCode && school.regionCode !== regionCode) setRegion(school.regionCode as RegionCode);
     }
     setHighlightedSchoolId(id);
-    if (id) setCollapsed(false);
+    if (id && origin !== "map") setCollapsed(false);
     setSchoolFocusNonce((n) => n + 1);
     if (id && origin === "map") {
-      if (tab === "statistics") setTab("schools");
-      setPanelOpen(window.matchMedia("(max-width: 1023px)").matches);
+      setPanelOpen(false);
       return;
     }
     if (
@@ -362,7 +361,7 @@ function DashboardInner({
                 filters={{ name, level, regionCode }}
                 onFilters={changeFilters}
                 selectedSchoolId={highlightedSchoolId}
-                selectedSchool={selectedSchool}
+                selectedSchool={selectedSchool && !hasCoordinates(selectedSchool) ? selectedSchool : null}
                 onSelect={selectSchool}
                 onStatistics={showStatistics}
               />
@@ -477,6 +476,7 @@ function DashboardInner({
             }}
             highlightedSchoolId={highlightedSchoolId}
             onHighlightSchool={selectSchool}
+            onSchoolStatistics={showStatistics}
             schools={mapSchools}
             compareCode={compareRegion}
             emphasizeZero={zeroEntrants}
@@ -518,7 +518,7 @@ function DashboardInner({
           >
             학교·통계
           </button>
-          {selectedSchool && (
+          {selectedSchool && !hasCoordinates(selectedSchool) && (
             <button
               type="button"
               aria-label={`${selectedSchool.name} 학교 정보 보기`}

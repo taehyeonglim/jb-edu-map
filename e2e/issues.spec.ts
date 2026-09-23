@@ -184,8 +184,9 @@ test("모바일에서 질문·학교 선택 후 정보 패널을 다시 열어�
   await ready(page);
   await page.locator('button[data-testid^="issue-school-"]').first().click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await page.getByRole("button", { name: /학교 정보 보기/ }).click();
-  await expect(page.getByRole("region", { name: "선택한 학교" })).toBeVisible();
+  await expect(page.getByTestId("school-hud")).toBeVisible();
+  await expect(page.getByRole("button", { name: /학교 정보 보기/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "학교·통계", exact: true }).click();
   await expect(
     page.getByRole("tab", { name: "교육문제", exact: true }),
   ).toHaveAttribute("aria-selected", "true");

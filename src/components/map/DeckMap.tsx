@@ -67,6 +67,7 @@ import {
 } from "@/components/map/layers/schoolLayers";
 import { makeSchoolTooltip, makeTooltip } from "@/components/map/tooltip";
 import MapOverlay, { type MapOverlayItem } from "@/components/map/MapOverlay";
+import SchoolHud from "@/components/map/SchoolHud";
 import { useCamera } from "@/components/map/useCamera";
 import { useEmdBoundaries } from "@/components/map/useEmdBoundaries";
 import { useFontGate } from "@/components/map/useFontGate";
@@ -187,6 +188,7 @@ export interface DeckMapProps {
   highlightedSchoolId: string | null;
   /** Called with a school id to highlight it, or null to clear. DeckMap itself handles the "click the same point again -> clear" toggle before calling this. */
   onHighlightSchool: (id: string | null, origin?: "map") => void;
+  onSchoolStatistics?: (code: RegionCode) => void;
 }
 
 export default function DeckMap({
@@ -195,6 +197,7 @@ export default function DeckMap({
   onSelect,
   highlightedSchoolId,
   onHighlightSchool,
+  onSchoolStatistics,
   schools,
   schoolFocusNonce = 0,
   statisticsVisible = false,
@@ -535,6 +538,10 @@ export default function DeckMap({
   );
   const schoolLabelsVisible =
     showSchoolNames && (zoom >= SCHOOL_LABEL_MIN_ZOOM || !!highlightedSchoolId);
+  const schoolHudLabel = useCallback(
+    (school: School) => `${school.name}\n학생 ${school.students === null ? "자료 없음" : `${school.students.toLocaleString("ko-KR")}명`}`,
+    [],
+  );
   const handleSchoolClick = useCallback(
     (id: string) => onHighlightSchool(id, "map"),
     [onHighlightSchool],
@@ -574,7 +581,7 @@ export default function DeckMap({
         candidates.push({
           value: { kind: "school", value },
           position: [value.lng, value.lat, heightOfSchool(value)],
-          text: value.name,
+          text: schoolHudLabel(value),
           size: 11,
           priority:
             value.id === highlightedSchoolId
@@ -605,6 +612,7 @@ export default function DeckMap({
     selectedCode,
     highlightedSchoolId,
     schoolLabelsVisible,
+    schoolHudLabel,
     zoom,
     heightOfSchool,
   ]);
@@ -1011,6 +1019,7 @@ export default function DeckMap({
         makeSchoolLabelsLayer(visibleLabels.schools, {
           collisionEnabled: false,
           highlightedId: highlightedSchoolId,
+          textOf: schoolHudLabel,
           elevationOf: () => 0,
           heightOf: () => 0,
           heightKey: "flat",
@@ -1064,6 +1073,7 @@ export default function DeckMap({
     handleSchoolClick,
     fontReady,
     schoolLabelsVisible,
+    schoolHudLabel,
     fontFamily,
     characterSet,
     visibleLabels,
@@ -1234,6 +1244,15 @@ export default function DeckMap({
             window.devicePixelRatio || 1,
             mobile ? 1 : 1.5,
           )}
+        />
+      )}
+      {selectedSchool && labelViewport && (
+        <SchoolHud
+          school={selectedSchool}
+          viewport={labelViewport}
+          metric={metricModel}
+          onClose={() => onHighlightSchool(null)}
+          onStatistics={onSchoolStatistics}
         />
       )}
       <MetricLegend

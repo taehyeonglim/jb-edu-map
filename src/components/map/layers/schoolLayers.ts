@@ -228,6 +228,7 @@ export function makeSchoolsLayer(
 export interface SchoolLabelsLayerOptions {
   collisionEnabled?: boolean;
   highlightedId?: string | null;
+  textOf?: (school: PositionedSchool) => string;
   elevationOf: (regionCode: string) => number;
   /** students -> column height(m) — the SAME accessor DeckMap hands makeSchoolsLayer (see its own doc comment), used by legacy columns; the live school map passes zero. */
   heightOf: (students: number | null) => number;
@@ -263,7 +264,7 @@ export function makeSchoolLabelsLayer(
       d.lat,
       opts.elevationOf(d.regionCode) + opts.heightOf(d.students),
     ],
-    getText: (d) => d.name,
+    getText: (d) => opts.textOf?.(d) ?? d.name,
     sizeUnits: "pixels",
     getSize: 11,
     sizeMinPixels: 11,
@@ -333,7 +334,7 @@ export function makeSchoolLabelsLayer(
     updateTriggers: {
       getCollisionPriority: [opts.highlightedId],
       getPosition: [opts.triggerKey, opts.heightKey],
-      getText: [opts.triggerKey],
+      getText: [opts.triggerKey, opts.textOf],
     },
     // Omitted when 0 — see labelLayer.ts.
     transitions:

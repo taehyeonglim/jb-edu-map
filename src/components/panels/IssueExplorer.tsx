@@ -339,7 +339,7 @@ export default function IssueExplorer({
           </button>
         )}
       </section>
-      {selectedSchool && (
+      {selectedSchool && (selectedSchool.lat === null || selectedSchool.lng === null) && (
         <SchoolDetail
           school={selectedSchool}
           onClose={() => onSchool(null)}

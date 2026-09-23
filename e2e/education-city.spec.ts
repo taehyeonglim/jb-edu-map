@@ -115,11 +115,12 @@ test("mobile topic selector, complete metric menu and selected school card fit",
   await page.screenshot({ path: "test-results/education-city-mobile.png" });
   await openPanel(page);
   await page.locator('button[data-testid^="issue-school-"]').first().click();
-  const card = page.getByRole("button", { name: /학교 정보 보기$/ });
+  const card = page.getByTestId("school-hud");
   await expect(card).toBeVisible();
   const cardBox = await card.boundingBox();
-  const legendBox = await page.getByTestId("metric-legend").boundingBox();
-  expect(legendBox!.y + legendBox!.height).toBeLessThanOrEqual(cardBox!.y);
+  const mapBox = await page.locator("#school-map").boundingBox();
+  expect(cardBox!.x).toBeGreaterThanOrEqual(mapBox!.x);
+  expect(cardBox!.x + cardBox!.width).toBeLessThanOrEqual(mapBox!.x + mapBox!.width);
 });
 
 test("a GPU without float blending uses readable school values instead of clipped density", async ({
