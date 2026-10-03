@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { withNuqsTestingAdapter } from "nuqs/adapters/testing";
+import { parseAsStringLiteral, useQueryState } from "nuqs";
 
 import { useMapQuery } from "@/lib/state/urlState";
 
@@ -39,6 +40,34 @@ function Harness() {
 function lastHistory(onUrlUpdate: ReturnType<typeof vi.fn>): unknown {
   return onUrlUpdate.mock.calls.at(-1)?.[0]?.options?.history;
 }
+
+function SearchHistoryHarness() {
+  const { search, setSearch } = useMapQuery();
+  const [, setChart] = useQueryState("schoolChart", parseAsStringLiteral(["columns", "dots"] as const).withOptions({ history: "push" }));
+  return <>
+    <span data-testid="search">{search}</span>
+    <button onClick={() => setSearch("전주초등학교")}>search-jeonju</button>
+    <button onClick={() => void setChart("dots")}>show-dots</button>
+  </>;
+}
+
+it("writes the search into the current history entry before a subsequent chart navigation", async () => {
+  const user = userEvent.setup();
+  const onUrlUpdate = vi.fn();
+  render(<SearchHistoryHarness />, { wrapper: withNuqsTestingAdapter({ searchParams: "?schoolChart=columns", onUrlUpdate, hasMemory: true }) });
+  await user.click(screen.getByText("search-jeonju"));
+  await user.click(screen.getByText("show-dots"));
+
+  const updates = onUrlUpdate.mock.calls.map(([update]) => ({
+    search: update.searchParams.get("q"),
+    chart: update.searchParams.get("schoolChart"),
+    history: update.options.history,
+  }));
+  expect(updates).toEqual([
+    { search: "전주초등학교", chart: "columns", history: "replace" },
+    { search: "전주초등학교", chart: "dots", history: "push" },
+  ]);
+});
 
 describe("useMapQuery().setRegion history mode (fix round 1, review finding #2)", () => {
   it("null -> code pushes a new history entry", async () => {

@@ -15,7 +15,7 @@ function Harness() {
   );
 }
 
-it("copies the latest optimistic search even before the debounced address update", async () => {
+it("copies the latest search and the other active URL filters", async () => {
   const user = userEvent.setup();
   const copy = vi.spyOn(navigator.clipboard, "writeText").mockResolvedValue();
   render(<Harness />, {

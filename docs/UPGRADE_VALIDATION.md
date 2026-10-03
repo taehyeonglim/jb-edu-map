@@ -1,15 +1,22 @@
 # 업그레이드 검증 기록
 
-기준 소스: `c7d03f5`. 원자료와 생성 통계는 변경하지 않았습니다. 이 문서는 업그레이드의 배포 전 로컬 검증 결과를 기록합니다. 운영 반영은 GitHub `main`과 Vercel Production을 통해 관리합니다.
+기준 소스: `c7d03f5`. 원자료와 생성 통계는 변경하지 않았습니다. 이 문서는 업그레이드의 로컬 검증과 배포 과정에서 확인한 보완 내용을 기록합니다. 운영 반영은 GitHub `main`과 Vercel Production을 통해 관리합니다.
 
 ## 환경과 확인 범위
 
 - Node.js 22.23.3, npm lockfile 기반 설치, Chromium 153.0.8010.12.
 - API 키와 기존 `node_modules`가 없는 별도 소스 복사본에서 `npm ci` 실행. 기존 미추적 `Sparkline.tsx`는 이 복사본에 포함하지 않음.
-- 단위·컴포넌트 테스트 833개 통과. 타입 검사·데이터 검증 통과. Lint 오류 0, 기존 경고 2개 유지.
+- 단위·컴포넌트 테스트 834개 통과. 타입 검사·데이터 검증 통과. Lint 오류 0, 기존 경고 2개 유지.
 - 프로덕션 빌드의 기본 E2E **73개 통과**(재시도 없음, 13분). 최종 비교표 표시·CSV 범위 설명 수정 후 관련 **6개를 production 빌드에서 재검증해 통과**(58초). 6개는 전체 73개에 포함된 시나리오입니다.
 - API 키·`.env.local`·E2E 전용 설정 없이 `npm run dev` 실행 후 실제 브라우저에서 지도·검색·CSV 확인. 외부 지도 요청 0, page error 0. 건물 API는 키 미설정 시 예상대로 503 반환.
 - 실제 VWorld API·운영 사이트 검증은 수동 워크플로로 분리. 이번 기본 회귀 검사는 fixture를 사용합니다.
+- 첫 배포의 [외부 검증](https://github.com/taehyeonglim/jb-edu-map/actions/runs/37162395054)은 실제 운영 주소에서 5개 모두 통과했습니다. 별도 운영 브라우저 확인에서도 지도·건물 API, 검색·공유·CSV와 모바일 화면을 확인했습니다.
+
+## 배포 과정에서 보완한 검색 기록
+
+첫 [GitHub CI](https://github.com/taehyeonglim/jb-edu-map/actions/runs/37162247193)는 72개 즉시 통과와 1개 재시도 통과였습니다. 검색 직후 지도 표시 방식을 바꾸고 뒤로 가면, 검색어의 250ms URL 반영 지연 때문에 이전 기록에서 검색 조건이 빠질 수 있었습니다.
+
+추가한 회귀 테스트가 수정 전 실패하는 것을 확인하고, 검색어를 nuqs의 기본 URL 갱신 방식으로 반영하도록 수정했습니다. 수정 후 전체 단위·컴포넌트 834개와 해당 프로덕션 브라우저 시나리오의 **5회 연속 실행**이 재시도 없이 통과했습니다.
 
 ## 주요 검증 시나리오
 
@@ -51,7 +58,7 @@
 
 ## 검사 로그
 
-[단위 테스트](validation/unit.log) · [전체 E2E](validation/e2e-full.log) · [최종 변경 재검증](validation/e2e-final.log) · [키 없는 첫 실행](validation/no-key-start.json)
+[단위 테스트](validation/unit.log) · [전체 E2E](validation/e2e-full.log) · [비교 기능 재검증](validation/e2e-final.log) · [검색 기록 재검증](validation/search-history-e2e.log) · [키 없는 첫 실행](validation/no-key-start.json)
 
 ## 재현
 

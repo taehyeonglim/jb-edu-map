@@ -11,7 +11,7 @@
  */
 "use client";
 
-import { debounce, parseAsString, parseAsStringLiteral, throttle, useQueryStates } from "nuqs";
+import { parseAsString, parseAsStringLiteral, throttle, useQueryStates } from "nuqs";
 import type { SchoolFilters } from "../schools/filter";
 
 import { ISSUE_IDS, ISSUE_METRICS, issueById, resolveIssueMetric } from "../issues/registry";
@@ -38,7 +38,10 @@ export const regionParser = parseAsStringLiteral(REGION_CODES);
 
 /** Shared by useMapQuery() and tests/unit/urlState.test.ts's createLoader() check. */
 export const mapQueryParsers = {
-  q: parseAsString.withDefault("").withOptions({ limitUrlUpdates: debounce(250) }),
+  // Keep client-only search on nuqs' normal URL queue. Debouncing it lets
+  // a subsequent history push happen before the current entry has the query,
+  // so Back can unexpectedly clear the school filter.
+  q: parseAsString.withDefault(""),
   schoolLevel: parseAsStringLiteral(["all", "elem", "mid", "high", "special"] as const).withDefault("all"),
   indicator: indicatorParser,
   region: regionParser,
@@ -100,7 +103,7 @@ export function useMapQuery(): MapQuery {
   return {
     search: q,
     schoolLevel,
-    setSearch(name) { void setQuery({ q: name }, name ? undefined : { limitUrlUpdates: throttle(0) }); },
+    setSearch(name) { void setQuery({ q: name }); },
     setSchoolLevel(level) { void setQuery({ schoolLevel: level }); },
     resetFilters() { void setQuery({ q: null, schoolLevel: null, region: null, compareRegion: null }, { limitUrlUpdates: throttle(0) }); },
     view,

@@ -7,7 +7,7 @@
 
 
  Test Files  62 passed (62)
-      Tests  833 passed (833)
-   Start at  08:24:59
-   Duration  6.22s (environment 33%, setup 22%, import 19%, tests 18%, transform 8%)
+      Tests  834 passed (834)
+   Start at  08:50:43
+   Duration  6.00s (environment 28%, tests 22%, import 21%, setup 21%, transform 7%, worker 1%)
 
