@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-10-03T23:26:51.552Z",
+  "node": "v22.23.3",
+  "envFilePresent": false,
+  "hasTestBridge": false,
+  "schoolResult": "검색 결과 1개 · 지도 표시 가능 1개",
+  "csvIncludesSelectedSchool": true,
+  "buildingApiStatus": 503,
+  "externalMapRequests": 0,
+  "pageErrors": []
+}

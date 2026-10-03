@@ -4,6 +4,24 @@ import { describe, expect, it } from "vitest";
 import TimeSeriesChart from "@/components/ui/TimeSeriesChart";
 
 describe("TimeSeriesChart", () => {
+  it("compares on one scale and does not claim an annual change across an absent year", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<TimeSeriesChart place="전주시" label="학생수" unit="명" format={String}
+      data={[{ year: 2022, value: 100 }, { year: 2024, value: 80 }]}
+      comparison={{ place: "군산시", data: [{ year: 2022, value: 40 }, { year: 2023, value: 40 }, { year: 2024, value: 40 }] }} />);
+    expect(screen.getByText("군산시 40명")).toBeInTheDocument();
+    expect(screen.queryByText(/전년 대비/)).not.toBeInTheDocument();
+    expect(container.querySelectorAll("path")).toHaveLength(1);
+    expect(container.querySelector("path")).toHaveAttribute("stroke-dasharray", "5 4");
+    await user.click(screen.getByRole("button", { name: /2023/ }));
+    expect(screen.getByText("2023년 전주시 자료 없음")).toBeInTheDocument();
+  });
+
+  it("does not draw a trend from a single observation", () => {
+    const { container } = render(<TimeSeriesChart place="전주시" label="학생수" unit="명" format={String} data={[{ year: 2026, value: 100 }]} />);
+    expect(screen.getByText("추이 없음")).toBeInTheDocument();
+    expect(container.querySelector("svg")).toBeNull();
+  });
   it("shows each annual value and updates the focused year's change", async () => {
     const user = userEvent.setup();
     render(<TimeSeriesChart

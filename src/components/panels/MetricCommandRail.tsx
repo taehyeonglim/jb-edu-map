@@ -9,7 +9,9 @@ export default function MetricCommandRail() {
   const query = useMapQuery();
   return (
     <nav aria-label="전체 지도 지표" className="cyber-metric-rail">
-      {GROUP_ORDER.flatMap((group) => INDICATORS.filter((item) => item.group === group).map((item) => (
+      {GROUP_ORDER.map(group => <div key={group} role="group" aria-label={GROUP_LABELS[group]} className="cyber-metric-group" style={{ flexGrow: INDICATORS.filter(item => item.group === group).length }}>
+        <span className="cyber-metric-group-title">{GROUP_LABELS[group]}</span>
+        {INDICATORS.filter((item) => item.group === group).map((item) => (
         <button
           key={item.id}
           type="button"
@@ -20,7 +22,8 @@ export default function MetricCommandRail() {
         >
           {item.label}
         </button>
-      )))}
+        ))}
+      </div>)}
     </nav>
   );
 }

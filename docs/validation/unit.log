@@ -1,0 +1,13 @@
+
+> jb-edu-map@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.1 /Users/taehyeong/Documents/GitHub/jb-edu-map
+
+
+ Test Files  62 passed (62)
+      Tests  833 passed (833)
+   Start at  08:24:59
+   Duration  6.22s (environment 33%, setup 22%, import 19%, tests 18%, transform 8%)
+

@@ -29,6 +29,9 @@ jobs:
       - name: Validate data
         run: npm run data:validate
 
+      - name: Check documentation links
+        run: npm run docs:check
+
       - name: Typecheck
         run: npm run typecheck
 

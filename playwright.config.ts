@@ -9,6 +9,11 @@ const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "e2e",
+  // External checks are opt-in and run separately from deterministic CI.
+  testIgnore: [
+    ...(!process.env.DEPLOYMENT_URL ? ["**/deployed-*.spec.ts"] : []),
+    ...(process.env.LIVE_BUILDINGS !== "1" ? ["**/city-buildings-live.spec.ts"] : []),
+  ],
   // Task 6, Section D.1 — CI's own "실패 시 playwright-report/ 아티팩트
   // 업로드" step needs an actual playwright-report/ directory to exist,
   // which neither of Playwright's own DEFAULT reporters ('list' locally,

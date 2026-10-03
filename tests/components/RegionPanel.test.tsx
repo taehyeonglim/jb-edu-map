@@ -193,7 +193,7 @@ describe("RegionPanel", () => {
     renderSelected(`?region=${REGION}&indicator=students_total`);
     expect(screen.getByTestId("region-panel-current-label")).toHaveTextContent("학생수");
     expect(screen.getByTestId("region-panel-current-value")).toHaveTextContent("70,851");
-    expect(screen.getByText("명")).toBeInTheDocument();
+    expect(screen.getByTestId("region-panel-current-value")).toHaveTextContent(/^70,851명$/);
   });
 
   it("shows the rank out of 14 시군, derived from REGION_CODES.length (fix round 1, review finding #4 — not hardcoded)", () => {

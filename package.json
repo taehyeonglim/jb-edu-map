@@ -24,7 +24,9 @@
     "data:validate": "tsx scripts/pipeline/validate.ts",
     "data:build": "tsx scripts/pipeline/build.ts",
     "data:issues": "tsx scripts/pipeline/build-education-issues.ts",
-    "social:build": "node scripts/generate-social-assets.mjs"
+    "social:build": "node scripts/generate-social-assets.mjs",
+    "docs:check": "node scripts/check-doc-links.mjs",
+    "perf:measure": "node scripts/measure-interactions.mjs"
   },
   "dependencies": {
     "@deck.gl/aggregation-layers": "9.4.0",

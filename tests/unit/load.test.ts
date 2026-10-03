@@ -120,6 +120,19 @@ function fullFakeFetch() {
 }
 
 describe("loadBundle", () => {
+  it("starts validated metric requests before a slow geography response finishes", async () => {
+    const { impl, calls } = fullFakeFetch();
+    let release!: () => void;
+    const held = new Promise<void>(resolve => { release = resolve; });
+    const result = loadBundle(async url => {
+      if (url === "/data/regions.geojson") await held;
+      return impl(url);
+    });
+    await vi.waitFor(() => expect(calls).toContain("/data/indicators/students_total.json"));
+    expect(calls).not.toContain("/data/regions.geojson");
+    release();
+    expect((await result).regions.features).toHaveLength(14);
+  });
   it("fetches regions/neighbors/charset/manifest + every indicator/series file, returning a DataBundle", async () => {
     const { impl } = fullFakeFetch();
     const bundle = await loadBundle(impl);

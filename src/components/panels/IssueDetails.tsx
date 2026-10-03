@@ -4,8 +4,10 @@ import { useState } from "react";
 import type { DataBundle } from "@/lib/data/types";
 import type { EducationIssuesFile, IssueMapModel } from "@/lib/issues/types";
 import { PROVINCE_CODE, regionName, type RegionCode } from "@/lib/geo/regions";
-import { formatIssueValue, isResourceMetric, issueValue } from "@/lib/issues/model";
-import { METRIC_LABELS } from "@/lib/issues/registry";
+import { isResourceMetric } from "@/lib/issues/model";
+import { buildIssueComparison } from "@/lib/comparison";
+import RegionComparison from "./RegionComparison";
+import { SCHOOL_LEVEL_LABELS } from "@/lib/schoolVisuals";
 
 const number = (n: number | null) => n === null ? "자료 없음" : n.toLocaleString("ko-KR");
 
@@ -14,21 +16,12 @@ export function IssueComparison({ bundle, data, model, region, compare, onCompar
   region: RegionCode | null; compare: RegionCode | null; onCompare: (code: RegionCode | null) => void;
 }) {
   if (!region) return <p className="text-xs text-ink-muted">시군을 선택하면 다른 지역과 나란히 비교할 수 있습니다.</p>;
-  return <section aria-label="두 지역 비교" className="space-y-3 rounded-xl border border-line p-3">
-    <label className="block text-xs font-semibold">비교할 지역
-      <select aria-label="비교할 지역" className="mt-2 min-h-11 w-full rounded border border-line bg-surface px-2 text-sm" value={compare ?? ""} onChange={e => onCompare((e.target.value || null) as RegionCode | null)}>
-        <option value="">비교 지역 선택</option>
-        {model.regions.filter(r => r.code !== region).map(r => <option key={r.code} value={r.code}>{regionName(r.code)}</option>)}
-      </select>
-    </label>
-    {compare && <table className="w-full table-fixed text-xs" aria-label="선택 지역 수치 비교">
-      <thead><tr><th className="w-2/5 py-2 text-left">지표</th><th>{regionName(region)}</th><th>{regionName(compare)}</th></tr></thead>
-      <tbody>{model.issue.metrics.map(metric => <tr key={metric} className="border-t border-line">
-        <th className="py-2 text-left font-normal">{METRIC_LABELS[metric]}</th>
-        {[region, compare].map(code => <td key={code} className="text-center tabular-nums">{formatIssueValue(metric, issueValue(bundle, data, metric, code, model.level))}</td>)}
-      </tr>)}</tbody>
-    </table>}
-  </section>;
+  return <RegionComparison
+    region={region} compare={compare} onCompare={onCompare}
+    rows={compare ? buildIssueComparison(bundle, data, model, region, compare) : []}
+    selectedId={model.metric}
+    conditions={`교육문제=${model.issue.title}; 지표=${model.title}; 집계 학교급=${model.issue.id === "school-size" ? SCHOOL_LEVEL_LABELS[model.level ?? "elem"] : "지표별 정의 참조"}; 시군 전체 집계`}
+  />;
 }
 
 export function IssueDetails({ bundle, data, model, region }: {

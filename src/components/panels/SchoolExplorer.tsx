@@ -1,5 +1,9 @@
 "use client";
 
+import { useState } from "react";
+import type { SchoolsFile } from "@/lib/schools/types";
+import { downloadCsv, schoolCsv } from "@/lib/export";
+
 import type { MapMetricSpec } from "@/lib/mapMetrics";
 import { chartValueText } from "@/lib/schools/chart";
 import type { School } from "@/lib/schools/types";
@@ -114,6 +118,8 @@ export function SchoolDetail({
 }
 
 export default function SchoolExplorer({
+  sourceFile,
+  exportContext,
   metric,
   schools,
   filters,
@@ -123,6 +129,8 @@ export default function SchoolExplorer({
   selectedSchool,
   onStatistics,
 }: {
+  sourceFile: SchoolsFile;
+  exportContext: string;
   metric?: MapMetricSpec;
   schools: School[];
   filters: SchoolFilters;
@@ -132,6 +140,13 @@ export default function SchoolExplorer({
   selectedSchool: School | null;
   onStatistics: (code: RegionCode) => void;
 }) {
+  // Expand DOM rows only; map and CSV continue using the complete filtered set.
+  const scope = `${filters.name}:${filters.level}:${filters.regionCode}:${exportContext}`;
+  const [pagination, setPagination] = useState({ scope, limit: 50 });
+  if (pagination.scope !== scope) setPagination({ scope, limit: 50 });
+  const limit = pagination.scope === scope ? pagination.limit : 50;
+  const selectedIndex = schools.findIndex(school => school.id === selectedSchoolId);
+  const shown = Math.max(limit, selectedIndex + 1);
   const located = schools.filter(
     (s) => s.lat !== null && s.lng !== null,
   ).length;
@@ -229,13 +244,14 @@ export default function SchoolExplorer({
           초기화
         </button>
       </div>
+      <button type="button" disabled={!schools.length} className="min-h-11 w-full rounded border border-line px-3 text-xs hover:bg-paper disabled:opacity-50" onClick={() => downloadCsv("학교검색결과.csv", schoolCsv(schools, sourceFile, filters, exportContext, metric))}>검색 결과 CSV 저장</button>
       {schools.length === 0 ? (
         <p className="py-8 text-center text-sm text-ink-muted">
           검색 조건에 맞는 학교가 없습니다.
         </p>
       ) : (
         <ul className="space-y-1" aria-label="학교 목록">
-          {schools.map((school) => (
+          {schools.slice(0, shown).map((school) => (
             <li key={school.id}>
               <button
                 type="button"
@@ -282,6 +298,7 @@ export default function SchoolExplorer({
           ))}
         </ul>
       )}
+      {schools.length > shown && <button type="button" className="min-h-11 w-full rounded border border-line px-3 text-xs hover:bg-paper" onClick={() => setPagination({ scope, limit: shown + 50 })}>학교 50개 더 보기 ({shown}/{schools.length})</button>}
     </div>
   );
 }

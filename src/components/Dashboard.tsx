@@ -8,6 +8,8 @@ import { useIssueData } from "@/lib/issues/useIssueData";
 import { issueById } from "@/lib/issues/registry";
 import { buildIssueModel } from "@/lib/issues/model";
 import SchoolExplorer from "@/components/panels/SchoolExplorer";
+import ExploreToolbar from "@/components/panels/ExploreToolbar";
+import { SCHOOL_LEVEL_LABELS } from "@/lib/schoolVisuals";
 import { filterSchools, type SchoolFilters } from "@/lib/schools/filter";
 import { hasCoordinates } from "@/components/map/layers/schoolLayers";
 import MapShell from "@/components/map/MapShell";
@@ -79,23 +81,8 @@ function DashboardInner({
     setIssue,
     setIssueMetric,
     issueLevel, compareRegion, zeroEntrants,
+    search: name, schoolLevel: level, setSearch: setName, setSchoolLevel: setLevel,
   } = useMapQuery();
-  const searchScope = issueId ?? "indicators";
-  const [search, setSearch] = useState({
-    scope: searchScope,
-    name: "",
-    level: "all" as SchoolFilters["level"],
-  });
-  const name = search.scope === searchScope ? search.name : "";
-  const level = search.scope === searchScope ? search.level : "all";
-  const setName = (next: string) =>
-    setSearch({ scope: searchScope, name: next, level });
-  const setLevel = (next: SchoolFilters["level"]) =>
-    setSearch((previous) => ({
-      scope: searchScope,
-      name: previous.scope === searchScope ? previous.name : "",
-      level: next,
-    }));
 
   const { state: issueState, retry: retryIssues } = useIssueData(
     !!issueId ||
@@ -360,9 +347,12 @@ function DashboardInner({
             id={`panel-${tab}`}
             aria-labelledby={`tab-${tab}`}
           >
+            <ExploreToolbar title={mapMetric.title} />
             {tab === "schools" ? (
               <SchoolExplorer
                 metric={mapMetric}
+                sourceFile={bundle.schools}
+                exportContext={issueModel ? `교육문제=${issueModel.issue.title}; 지표=${issueModel.title}; 집계 학교급=${issueModel.issue.id === "school-size" ? SCHOOL_LEVEL_LABELS[issueModel.level ?? "elem"] : "지표별 정의 참조"}` : `지표=${mapMetric.title}`}
                 schools={filteredSchools}
                 filters={{ name, level, regionCode }}
                 onFilters={changeFilters}

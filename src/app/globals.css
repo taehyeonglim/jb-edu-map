@@ -113,8 +113,10 @@
   .cyber-kpi-rail { height: 42px; padding: 3px 12px; }
   .cyber-kpi { height: 36px; padding: 2px 8px; }
   .cyber-kpi dd:first-of-type { font-size: 16px; }
-  .cyber-metric-rail { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; padding: 3px 12px 6px; background: var(--panel-fill); border-bottom: 1px solid var(--panel-border); }
-  .cyber-metric-rail button { height: 28px; white-space: nowrap; }
+  .cyber-metric-rail { display: flex; gap: 8px; padding: 3px 12px 6px; background: var(--panel-fill); border-bottom: 1px solid var(--panel-border); }
+  .cyber-metric-group { display: flex; flex-wrap: wrap; flex: 1; align-content: flex-start; gap: 3px; min-width: 0; border-left: 1px solid var(--color-line); padding-left: 6px; }
+  .cyber-metric-group-title { width: 100%; color: var(--color-ink-muted); font-size: 10px; line-height: 14px; }
+  .cyber-metric-rail button { flex: 1 1 auto; height: 28px; white-space: nowrap; }
   .cyber-explorer { top: calc(var(--map-top) + 36px); left: 12px; bottom: 12px; right: auto; width: 320px; max-height: none; z-index: 30; }
   .cyber-explorer :where(.p-4) { padding: 10px; }
   .cyber-explorer :where(.p-3) { padding: 8px; }
@@ -132,9 +134,8 @@
   .cyber-shell:has(.cyber-explorer[data-open="true"]) .deck-widget { margin-left: 348px; }
   .cyber-legend[data-school-selected="true"] .cyber-legend-body { max-height: min(40dvh, 360px); }
 }
-@media (min-width: 1280px) {
-  .cyber-shell { --map-top: 158px; }
-  .cyber-metric-rail { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+@media (max-width: 1023px) {
+  .cyber-explorer :where(button, summary, input:not([type="checkbox"]), select) { min-height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .cyber-shell { --control-duration: 0ms; }

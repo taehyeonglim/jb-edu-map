@@ -25,76 +25,71 @@ async function fetchJson<T>(fetchImpl: FetchImpl, url: string): Promise<T> {
   return (await res.json()) as T;
 }
 
-/**
- * Loads every file the dashboard needs in one pass, all via `Promise.all`
- * (per the task brief's simplification over the original plan — regions.geojson
- * is not staged/resolved ahead of the rest; total payload is a few hundred KB,
- * not worth a two-phase load). Fetches `indicators/<id>.json` for every
- * registry indicator, and `series/<id>.json` for every indicator EXCEPT
- * `aggregate.kind === 'external'` ones (currently only students_change_5y) —
- * build-indicators.ts never writes a series file for those, so requesting one
- * would just 404.
- */
+/** Base geography/school data loads alongside the manifest-gated metrics. */
 export async function loadBundle(fetchImpl: FetchImpl = fetch): Promise<DataBundle> {
-  const [regions, neighbors, charset, manifest, schools, closedSchools] = await Promise.all([
+  const base = Promise.all([
     fetchJson<RegionsFeatureCollection>(fetchImpl, "/data/regions.geojson"),
     fetchJson<NeighborsFeatureCollection>(fetchImpl, "/data/neighbors.geojson"),
     fetchJson<string>(fetchImpl, "/data/charset.json"),
-    fetchJson<Manifest>(fetchImpl, "/data/manifest.json"),
     fetchJson<SchoolsFile>(fetchImpl, "/data/schools.json"),
     fetchJson<ClosedSchoolsFile>(fetchImpl, "/data/closed-schools.json"),
   ]);
 
-  const indicatorIds = INDICATORS.map((d) => d.id);
+  const metrics = (async () => {
+    const manifest = await fetchJson<Manifest>(fetchImpl, "/data/manifest.json");
+    const indicatorIds = INDICATORS.map((d) => d.id);
 
-  // The app only ever fetches indicators it knows about (the static
-  // registry) — it never derives its fetch list from the manifest. But the
-  // manifest is the pipeline's own record of what it actually built, so
-  // cross-check every registry id against it BEFORE issuing any
-  // indicator/series fetch below. A registry id missing from the manifest
-  // means the data build is stale relative to the registry (e.g. someone
-  // added an indicator to registry.ts without re-running the pipeline);
-  // fail loudly with the exact ids and the fix, instead of a confusing 404
-  // (or a silently-undefined bundle entry) partway through the Promise.all
-  // below. The reverse — a manifest id with no matching registry entry,
-  // e.g. a retired indicator — is fine and deliberately not checked here.
-  // Fix round 2, finding 3 — public/data/** (including manifest.json) is
-  // cached for up to 1h (see next.config.ts's headers()); a returning
-  // visitor can briefly get a fresh JS bundle paired with a stale cached
-  // manifest right after a data-refresh deploy, hitting this branch even
-  // though nothing is actually broken. The THROWN message must therefore be
-  // the ordinary, temporary-sounding user-facing string DataProvider's error
-  // UI shows (never a raw indicator id list or an npm command, which would
-  // confuse/alarm an end user) — the full developer diagnosis goes to
-  // console.error instead, where it's still there for a developer actually
-  // debugging a genuinely stale build.
-  const missingFromManifest = indicatorIds.filter((id) => !(id in manifest.indicators));
-  if (missingFromManifest.length > 0) {
-    console.error(
-      `loadBundle: manifest.json 에 없는 지표: ${missingFromManifest.join(", ")} — npm run data:build 를 다시 실행하세요`,
-    );
-    throw new Error("데이터가 갱신 중입니다. 잠시 후 새로고침해 주세요.");
-  }
+    // The app only ever fetches indicators it knows about (the static
+    // registry) — it never derives its fetch list from the manifest. But the
+    // manifest is the pipeline's own record of what it actually built, so
+    // cross-check every registry id against it BEFORE issuing any
+    // indicator/series fetch below. A registry id missing from the manifest
+    // means the data build is stale relative to the registry (e.g. someone
+    // added an indicator to registry.ts without re-running the pipeline);
+    // fail loudly with the exact ids and the fix, instead of a confusing 404
+    // (or a silently-undefined bundle entry) partway through the Promise.all
+    // below. The reverse — a manifest id with no matching registry entry,
+    // e.g. a retired indicator — is fine and deliberately not checked here.
+    // Fix round 2, finding 3 — public/data/** (including manifest.json) is
+    // cached for up to 1h (see next.config.ts's headers()); a returning
+    // visitor can briefly get a fresh JS bundle paired with a stale cached
+    // manifest right after a data-refresh deploy, hitting this branch even
+    // though nothing is actually broken. The THROWN message must therefore be
+    // the ordinary, temporary-sounding user-facing string DataProvider's error
+    // UI shows (never a raw indicator id list or an npm command, which would
+    // confuse/alarm an end user) — the full developer diagnosis goes to
+    // console.error instead, where it's still there for a developer actually
+    // debugging a genuinely stale build.
+    const missingFromManifest = indicatorIds.filter((id) => !(id in manifest.indicators));
+    if (missingFromManifest.length > 0) {
+      console.error(
+        `loadBundle: manifest.json 에 없는 지표: ${missingFromManifest.join(", ")} — npm run data:build 를 다시 실행하세요`,
+      );
+      throw new Error("데이터가 갱신 중입니다. 잠시 후 새로고침해 주세요.");
+    }
 
-  const seriesIds = INDICATORS.filter((d) => d.aggregate.kind !== "external").map((d) => d.id);
+    const seriesIds = INDICATORS.filter((d) => d.aggregate.kind !== "external").map((d) => d.id);
 
-  const [indicatorFiles, seriesFiles] = await Promise.all([
-    Promise.all(
-      indicatorIds.map((id) => fetchJson<IndicatorFile>(fetchImpl, `/data/indicators/${id}.json`)),
-    ),
-    Promise.all(seriesIds.map((id) => fetchJson<SeriesFile>(fetchImpl, `/data/series/${id}.json`))),
-  ]);
+    const [indicatorFiles, seriesFiles] = await Promise.all([
+      Promise.all(
+        indicatorIds.map((id) => fetchJson<IndicatorFile>(fetchImpl, `/data/indicators/${id}.json`)),
+      ),
+      Promise.all(seriesIds.map((id) => fetchJson<SeriesFile>(fetchImpl, `/data/series/${id}.json`))),
+    ]);
 
-  const indicators: Record<string, IndicatorFile> = {};
-  indicatorIds.forEach((id, i) => {
-    indicators[id] = indicatorFiles[i];
-  });
+    const indicators: Record<string, IndicatorFile> = {};
+    indicatorIds.forEach((id, i) => {
+      indicators[id] = indicatorFiles[i];
+    });
 
-  const series: Record<string, SeriesFile> = {};
-  seriesIds.forEach((id, i) => {
-    series[id] = seriesFiles[i];
-  });
+    const series: Record<string, SeriesFile> = {};
+    seriesIds.forEach((id, i) => {
+      series[id] = seriesFiles[i];
+    });
 
+    return { manifest, indicators, series };
+  })();
+  const [[regions, neighbors, charset, schools, closedSchools], { manifest, indicators, series }] = await Promise.all([base, metrics]);
   return { regions, neighbors, charset, manifest, schools, closedSchools, indicators, series };
 }
 

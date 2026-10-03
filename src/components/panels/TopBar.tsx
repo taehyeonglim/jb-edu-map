@@ -1,3 +1,6 @@
+"use client";
+
+import { useLayoutEffect, useRef } from "react";
 import type { DataBundle } from "@/lib/data/types";
 import { ACTIVE_PROFILE } from "@/lib/profiles";
 
@@ -33,6 +36,18 @@ function SkeletonBar({ className }: { className: string }) {
  * an unstacked header).
  */
 export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
+  const commandRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const header = commandRef.current;
+    const shell = header?.closest<HTMLElement>(".cyber-shell");
+    if (!header || !shell) return;
+    const measure = () => shell.style.setProperty("--map-top", `${Math.ceil(header.getBoundingClientRect().height) + 8}px`);
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => { observer.disconnect(); shell.style.removeProperty("--map-top"); };
+  }, []);
   // Task 5 fix round 1 (coordinator ruling): this caption sits directly
   // beside KpiTiles' 4 fixed KESS-sourced tiles, so it must show THEIR OWN
   // reference date — never the currently-selected MAP indicator's (that
@@ -50,7 +65,7 @@ export default function TopBar({ bundle, onExploreIssues }: TopBarProps) {
   const kpiFile = bundle?.indicators[KPI_INDICATOR_IDS[0]];
 
   return (
-    <div className="cyber-command" data-map-obstacle="header">
+    <div ref={commandRef} className="cyber-command" data-map-obstacle="header">
     <header className="cyber-header flex w-full min-w-0 flex-col items-stretch gap-1 px-3 py-1 lg:flex-row lg:items-center lg:gap-5 lg:px-5 lg:py-0">
       <span className="cyber-brand flex min-h-11 shrink-0 items-center pl-1 text-sm font-bold tracking-wide text-ink lg:text-base">{ACTIVE_PROFILE.province.shortName}교육지도<span className="ml-3 hidden text-[10px] font-normal tracking-[.15em] text-accent-text 2xl:inline">교육 현황 관제</span></span>
 

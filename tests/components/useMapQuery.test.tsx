@@ -96,6 +96,7 @@ function MetricHarness() {
   const query = useMapQuery();
   return <>
     <span data-testid="active-issue">{query.issueId}:{query.issueMetric}</span>
+    <span data-testid="filters">{query.search}:{query.schoolLevel}:{query.compareRegion}</span>
     <button onClick={() => query.setView("statistics")}>statistics</button>
     <button onClick={() => query.setIndicator("teachers_total")}>teachers</button>
     <button onClick={() => query.setIssue("special-education", "special-students")}>special-students</button>
@@ -115,4 +116,14 @@ it("panel changes preserve the selected issue; selecting an indicator clears it 
   expect(params.get("indicator")).toBe("teachers_total");
   expect(params.get("issue")).toBeNull();
   expect(params.get("issueMetric")).toBeNull();
+});
+
+it("restores search/level and preserves comparison while switching general indicators", async () => {
+  const user = userEvent.setup();
+  render(<MetricHarness />, { wrapper: withNuqsTestingAdapter({ searchParams: "?q=전주&schoolLevel=elem&region=52110&compareRegion=52130", hasMemory: true }) });
+  expect(screen.getByTestId("filters")).toHaveTextContent("전주:elem:52130");
+  await user.click(screen.getByText("teachers"));
+  expect(screen.getByTestId("filters")).toHaveTextContent("전주:elem:52130");
+  await user.click(screen.getByText("special-students"));
+  expect(screen.getByTestId("filters")).toHaveTextContent(":all:52130");
 });

@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 import TimeSeriesChart from "@/components/ui/TimeSeriesChart";
+import RegionComparison from "./RegionComparison";
+import { buildIndicatorComparison } from "@/lib/comparison";
 import type { DataBundle } from "@/lib/data/types";
 import { REGION_CODES, regionName } from "@/lib/geo/regions";
 import { ACTIVE_PROFILE } from "@/lib/profiles";
@@ -13,7 +15,7 @@ import { SCHOOL_LEVEL_LABELS, SCHOOL_LEVEL_ORDER } from "@/lib/schoolVisuals";
 import type { School } from "@/lib/schools/types";
 import { displayLabel, rank, referenceDateLabel, shareOfProvince, trend, valueMap, vsProvince } from "@/lib/stats";
 import { useMapQuery } from "@/lib/state/urlState";
-import { formatDelta, formatShare } from "@/lib/tooltipText";
+import { formatDelta, formatShare, formatWithUnit } from "@/lib/tooltipText";
 
 export interface RegionPanelProps {
   showSchools?: boolean;
@@ -56,7 +58,7 @@ interface OtherIndicatorRow {
  * defensive fallback, not the primary gate).
  */
 export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSchool, showSchools = true }: RegionPanelProps) {
-  const { indicatorId, regionCode, setIndicator, setRegion } = useMapQuery();
+  const { indicatorId, regionCode, setIndicator, setRegion, compareRegion, setCompareRegion } = useMapQuery();
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
   // fix round, review finding #3: reset the 학교급 filter back to "전체"
   // whenever the selected region changes — otherwise e.g. a "고" filter
@@ -168,9 +170,8 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
         </p>
         <p className="mt-1 tabular-nums">
           <span data-testid="region-panel-current-value" className="text-2xl font-bold">
-            {value === null || value === undefined ? "자료 없음" : def.format(value)}
+            {value === null || value === undefined ? "자료 없음" : formatWithUnit(def, value)}
           </span>
-          <span className="ml-1 text-sm text-ink-muted">{def.unit}</span>
         </p>
         <p className="mt-1 text-xs text-ink-muted">
           {regionRank !== null ? `${REGION_CODES.length}개 시군 중 ${regionRank}위` : "순위 없음"}
@@ -195,12 +196,14 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
             {def.caveat}
           </p>
         )}
+        <p className="mt-2 text-xs text-ink-muted">{referenceDateLabel(file)} · <a className="underline" href={file.source.url} target="_blank" rel="noreferrer">{file.source.name}</a></p>
       </section>
 
       <div className="mb-4">
         <TimeSeriesChart
           key={`${indicatorId}:${regionCode}`}
           data={trendRows}
+          comparison={compareRegion ? { place: regionName(compareRegion), data: seriesFile ? trend(seriesFile, compareRegion) : [] } : undefined}
           label={label}
           place={regionName(regionCode)}
           unit={def.unit}
@@ -209,7 +212,14 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
         />
       </div>
 
-      <section className="mb-4">
+      <RegionComparison
+        region={regionCode} compare={compareRegion} onCompare={setCompareRegion}
+        rows={compareRegion ? buildIndicatorComparison(bundle, regionCode, compareRegion) : []}
+        selectedId={indicatorId} onIndicator={setIndicator}
+        conditions={`선택 지표=${label}; 시군 전체 집계; 지표별 최신 값`}
+      />
+
+      {!compareRegion && <section className="mb-4">
         <p className="mb-1 text-xs text-ink-muted">다른 지표</p>
         <table className="w-full border-collapse text-xs">
           <tbody>
@@ -267,7 +277,7 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
             })}
           </tbody>
         </table>
-      </section>
+      </section>}
 
       {showSchools && <section className="mb-4">
         <div className="mb-2 flex items-baseline justify-between gap-2">
@@ -392,9 +402,6 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
         </details>
       </section>
 
-      <footer className="text-[10px] text-ink-muted">
-        {def.source.name} · {referenceDateLabel(file)}
-      </footer>
     </div>
   );
 }

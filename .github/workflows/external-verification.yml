@@ -1,0 +1,58 @@
+name: External verification
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Verify the local build against VWorld, or an existing deployment
+        required: true
+        default: live-local
+        type: choice
+        options: [live-local, deployment]
+      deployment_url:
+        description: Existing HTTPS site URL (required for deployment target)
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      LIVE_BUILDINGS: ${{ inputs.target == 'live-local' && '1' || '0' }}
+      DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+      NEXT_PUBLIC_VWORLD_KEY: ${{ secrets.NEXT_PUBLIC_VWORLD_KEY }}
+      VWORLD_BUILDING_KEY: ${{ secrets.VWORLD_BUILDING_KEY }}
+      VWORLD_BUILDING_DOMAIN: ${{ secrets.VWORLD_BUILDING_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Check required settings
+        env:
+          TARGET: ${{ inputs.target }}
+        run: |
+          if [ "$TARGET" = "live-local" ]; then
+            test -n "$NEXT_PUBLIC_VWORLD_KEY" && test -n "$VWORLD_BUILDING_KEY" || { echo 'Configure VWorld secrets before live verification.'; exit 1; }
+          else
+            node -e 'const u = new URL(process.env.DEPLOYMENT_URL); if (u.protocol !== "https:") throw new Error("Use an HTTPS deployment URL");'
+          fi
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify real building API
+        if: inputs.target == 'live-local'
+        run: npm run e2e -- e2e/city-buildings-live.spec.ts --workers=1
+      - name: Verify existing deployment
+        if: inputs.target == 'deployment'
+        run: npm run e2e -- 'e2e/deployed-.*.spec.ts' --workers=1
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: external-verification
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

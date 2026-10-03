@@ -11,7 +11,8 @@
  */
 "use client";
 
-import { parseAsStringLiteral, useQueryStates } from "nuqs";
+import { debounce, parseAsString, parseAsStringLiteral, throttle, useQueryStates } from "nuqs";
+import type { SchoolFilters } from "../schools/filter";
 
 import { ISSUE_IDS, ISSUE_METRICS, issueById, resolveIssueMetric } from "../issues/registry";
 
@@ -37,6 +38,8 @@ export const regionParser = parseAsStringLiteral(REGION_CODES);
 
 /** Shared by useMapQuery() and tests/unit/urlState.test.ts's createLoader() check. */
 export const mapQueryParsers = {
+  q: parseAsString.withDefault("").withOptions({ limitUrlUpdates: debounce(250) }),
+  schoolLevel: parseAsStringLiteral(["all", "elem", "mid", "high", "special"] as const).withDefault("all"),
   indicator: indicatorParser,
   region: regionParser,
   view: parseAsStringLiteral(MAP_VIEWS).withDefault("schools"),
@@ -48,6 +51,11 @@ export const mapQueryParsers = {
 };
 
 export interface MapQuery {
+  search: string;
+  schoolLevel: SchoolFilters["level"];
+  setSearch: (name: string) => void;
+  setSchoolLevel: (level: SchoolFilters["level"]) => void;
+  resetFilters: () => void;
   view: MapPanelView;
   compareRegion: RegionCode | null;
   issueLevel: "elem" | "mid" | "high";
@@ -83,13 +91,18 @@ export interface MapQuery {
  * drilling of the setters is needed.
  */
 export function useMapQuery(): MapQuery {
-  const [{ indicator, region, view, issue, issueMetric, compareRegion, issueLevel, zeroEntrants }, setQuery] = useQueryStates(mapQueryParsers, {
+  const [{ q, schoolLevel, indicator, region, view, issue, issueMetric, compareRegion, issueLevel, zeroEntrants }, setQuery] = useQueryStates(mapQueryParsers, {
     history: "replace",
     shallow: true,
   });
 
   const definition = issueById(issue);
   return {
+    search: q,
+    schoolLevel,
+    setSearch(name) { void setQuery({ q: name }, name ? undefined : { limitUrlUpdates: throttle(0) }); },
+    setSchoolLevel(level) { void setQuery({ schoolLevel: level }); },
+    resetFilters() { void setQuery({ q: null, schoolLevel: null, region: null, compareRegion: null }, { limitUrlUpdates: throttle(0) }); },
     view,
     compareRegion: region && compareRegion !== region ? compareRegion : null,
     issueLevel,
@@ -104,7 +117,7 @@ export function useMapQuery(): MapQuery {
     },
     setIssue(id, metric) {
       const next = issueById(id);
-      void setQuery({ view: "issues", issue: next?.id ?? null, issueMetric: next ? resolveIssueMetric(next, metric ?? null) : null }, { history: "push" });
+      void setQuery({ view: "issues", issue: next?.id ?? null, issueMetric: next ? resolveIssueMetric(next, metric ?? null) : null, ...(next?.id !== definition?.id ? { q: null, schoolLevel: null } : {}) }, { history: "push", limitUrlUpdates: throttle(0) });
     },
     setIssueMetric(metric) {
       if (definition) void setQuery({ issueMetric: resolveIssueMetric(definition, metric) });
@@ -112,7 +125,7 @@ export function useMapQuery(): MapQuery {
     indicatorId: indicator,
     regionCode: region,
     setIndicator(id) {
-      void setQuery({ indicator: id, issue: null, issueMetric: null, compareRegion: null });
+      void setQuery({ indicator: id, issue: null, issueMetric: null, ...(definition ? { q: null, schoolLevel: null } : {}) }, { limitUrlUpdates: throttle(0) });
     },
     setRegion(code) {
       // History semantics (fix round 1, review finding #2): only a

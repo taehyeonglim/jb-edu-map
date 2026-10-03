@@ -1,0 +1,105 @@
+{
+  "measuredAt": "2026-10-03T23:29:15.346Z",
+  "node": "v22.23.3",
+  "browser": "153.0.8010.12",
+  "url": "http://localhost:3100",
+  "note": "3 fresh browser contexts per viewport; local server; reduced motion; external tile fixtures; first run can include cold compilation.",
+  "runs": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "run": 1,
+      "mapReadyMs": 6854,
+      "searchMs": 1403,
+      "indicatorMs": 459,
+      "buildingRequestMs": 2458,
+      "buildingReadyMs": 3433,
+      "buildingRequests": 18,
+      "dataRequests": 76,
+      "dataBytes": 1039184,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "run": 2,
+      "mapReadyMs": 5407,
+      "searchMs": 206,
+      "indicatorMs": 329,
+      "buildingRequestMs": 2333,
+      "buildingReadyMs": 3748,
+      "buildingRequests": 18,
+      "dataRequests": 76,
+      "dataBytes": 1039184,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "run": 3,
+      "mapReadyMs": 6122,
+      "searchMs": 868,
+      "indicatorMs": 630,
+      "buildingRequestMs": 2282,
+      "buildingReadyMs": 3028,
+      "buildingRequests": 18,
+      "dataRequests": 76,
+      "dataBytes": 1039184,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "run": 1,
+      "mapReadyMs": 5942,
+      "searchMs": 855,
+      "indicatorMs": 512,
+      "buildingRequestMs": 3558,
+      "buildingReadyMs": 4057,
+      "buildingRequests": 5,
+      "dataRequests": 76,
+      "dataBytes": 1039184,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "run": 2,
+      "mapReadyMs": 3888,
+      "searchMs": 174,
+      "indicatorMs": 181,
+      "buildingRequestMs": 1566,
+      "buildingReadyMs": 2080,
+      "buildingRequests": 5,
+      "dataRequests": 76,
+      "dataBytes": 1039184,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "run": 3,
+      "mapReadyMs": 3876,
+      "searchMs": 169,
+      "indicatorMs": 175,
+      "buildingRequestMs": 1516,
+      "buildingReadyMs": 1989,
+      "buildingRequests": 5,
+      "dataRequests": 76,
+      "dataBytes": 1039184,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)"
+    }
+  ]
+}
