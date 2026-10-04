@@ -1,7 +1,7 @@
 "use client";
 
 import { parseAsString, useQueryState } from "nuqs";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import IssueExplorer from "@/components/panels/IssueExplorer";
 import { useIssueData } from "@/lib/issues/useIssueData";
@@ -24,6 +24,7 @@ import type { DataBundle } from "@/lib/data/types";
 import type { RegionCode } from "@/lib/geo/regions";
 import { indicatorById } from "@/lib/indicators/registry";
 import { MAP_VIEWS, useMapQuery } from "@/lib/state/urlState";
+import { afterFilterUpdate } from "@/lib/state/filterHistory";
 
 function CenteredMessage({ children }: { children: ReactNode }) {
   return (
@@ -114,10 +115,15 @@ function DashboardInner({
       indicatorId,
     );
   const metricPending = needsFacts && issueState.status !== "ready";
-  const [highlightedSchoolId, setHighlightedSchoolId] = useQueryState(
+  const [highlightedSchoolId, updateHighlightedSchoolId] = useQueryState(
     "school",
     parseAsString.withOptions({ history: "push", shallow: true }),
   );
+  const setHighlightedSchoolId = useCallback((id: string | null, options?: { history: "replace" }) => {
+    const update = () => { void updateHighlightedSchoolId(id, options); };
+    if (options?.history === "replace") update();
+    else afterFilterUpdate(update);
+  }, [updateHighlightedSchoolId]);
   const initiallyUnlocated = bundle.schools.schools.some((s) => s.id === highlightedSchoolId && !hasCoordinates(s));
   const [panelOpen, setPanelOpen] = useState(() => (tab !== "schools" || initiallyUnlocated) && typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches);
   const [collapsed, setCollapsed] = useState(

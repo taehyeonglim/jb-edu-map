@@ -1,4 +1,4 @@
-import { openPanel, openMapSettings, expect, test } from "./fixtures";
+import { openPanel, openMapSettings, expect, test, tabKey } from "./fixtures";
 import type { Locator, Page } from "@playwright/test";
 
 // Task 6, Section B. `npx @axe-core/cli` can't be installed (no new
@@ -16,7 +16,7 @@ async function tabUntilFocused(page: Page, locator: Locator, maxTabs: number): P
   const isFocused = () => locator.evaluate((el) => el === document.activeElement).catch(() => false);
   if (await isFocused()) return true;
   for (let i = 0; i < maxTabs; i++) {
-    await page.keyboard.press("Tab");
+    await page.keyboard.press(tabKey(page));
     if (await isFocused()) return true;
   }
   return false;

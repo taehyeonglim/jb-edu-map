@@ -13,6 +13,7 @@
 
 import { parseAsString, parseAsStringLiteral, throttle, useQueryStates } from "nuqs";
 import type { SchoolFilters } from "../schools/filter";
+import { afterFilterUpdate, trackFilterUpdate } from "./filterHistory";
 
 import { ISSUE_IDS, ISSUE_METRICS, issueById, resolveIssueMetric } from "../issues/registry";
 
@@ -38,9 +39,8 @@ export const regionParser = parseAsStringLiteral(REGION_CODES);
 
 /** Shared by useMapQuery() and tests/unit/urlState.test.ts's createLoader() check. */
 export const mapQueryParsers = {
-  // Keep client-only search on nuqs' normal URL queue. Debouncing it lets
-  // a subsequent history push happen before the current entry has the query,
-  // so Back can unexpectedly clear the school filter.
+  // Keep client-only search on the normal queue. Navigation waits for the
+  // pending filter replacement below, including nuqs' default URL throttle.
   q: parseAsString.withDefault(""),
   schoolLevel: parseAsStringLiteral(["all", "elem", "mid", "high", "special"] as const).withDefault("all"),
   indicator: indicatorParser,
@@ -103,9 +103,9 @@ export function useMapQuery(): MapQuery {
   return {
     search: q,
     schoolLevel,
-    setSearch(name) { void setQuery({ q: name }); },
-    setSchoolLevel(level) { void setQuery({ schoolLevel: level }); },
-    resetFilters() { void setQuery({ q: null, schoolLevel: null, region: null, compareRegion: null }, { limitUrlUpdates: throttle(0) }); },
+    setSearch(name) { trackFilterUpdate(setQuery({ q: name })); },
+    setSchoolLevel(level) { trackFilterUpdate(setQuery({ schoolLevel: level })); },
+    resetFilters() { trackFilterUpdate(setQuery({ q: null, schoolLevel: null, region: null, compareRegion: null }, { limitUrlUpdates: throttle(0) })); },
     view,
     compareRegion: region && compareRegion !== region ? compareRegion : null,
     issueLevel,
@@ -116,11 +116,11 @@ export function useMapQuery(): MapQuery {
     issueId: definition?.id ?? null,
     issueMetric: definition ? resolveIssueMetric(definition, issueMetric) : null,
     setView(next) {
-      void setQuery({ view: next }, { history: "push" });
+      afterFilterUpdate(() => { void setQuery({ view: next }, { history: "push" }); });
     },
     setIssue(id, metric) {
       const next = issueById(id);
-      void setQuery({ view: "issues", issue: next?.id ?? null, issueMetric: next ? resolveIssueMetric(next, metric ?? null) : null, ...(next?.id !== definition?.id ? { q: null, schoolLevel: null } : {}) }, { history: "push", limitUrlUpdates: throttle(0) });
+      afterFilterUpdate(() => { void setQuery({ view: "issues", issue: next?.id ?? null, issueMetric: next ? resolveIssueMetric(next, metric ?? null) : null, ...(next?.id !== definition?.id ? { q: null, schoolLevel: null } : {}) }, { history: "push", limitUrlUpdates: throttle(0) }); });
     },
     setIssueMetric(metric) {
       if (definition) void setQuery({ issueMetric: resolveIssueMetric(definition, metric) });
@@ -142,7 +142,9 @@ export function useMapQuery(): MapQuery {
       // destructure above, so this always compares against the selection
       // being replaced, not a stale snapshot.
       const history = code === null || region === null ? "push" : "replace";
-      void setQuery({ region: code, ...(!code || code === compareRegion ? { compareRegion: null } : {}) }, { history });
+      const update = () => { void setQuery({ region: code, ...(!code || code === compareRegion ? { compareRegion: null } : {}) }, { history }); };
+      if (history === "push") afterFilterUpdate(update);
+      else update();
     },
   };
 }

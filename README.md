@@ -77,7 +77,7 @@ Next.js App Router, React, TypeScript, deck.gl, nuqs를 사용합니다. 정확�
 | `npm run social:build` | 공유 썸네일·아이콘 생성 |
 | `npm run perf:measure` | 실행 중인 개발 서버의 탐색 성능 측정 |
 
-GitHub Actions는 push·PR마다 문서·데이터·타입·lint·단위 테스트·빌드와 기본 E2E를 검사합니다. 실제 건물 API와 배포 주소는 **External verification** 수동 워크플로로 검증합니다. 실행 조건과 제한은 [운영 안내](docs/OPERATIONS.md), 이번 변경의 검증 결과는 [업그레이드 검증 기록](docs/UPGRADE_VALIDATION.md)을 참고하세요.
+GitHub Actions는 push·PR마다 문서·데이터·타입·lint·단위 테스트·빌드와 기본 E2E를 검사합니다. 실제 건물 API와 배포 주소는 **External verification** 수동 워크플로로 검증합니다. 실행 조건과 제한은 [운영 안내](docs/OPERATIONS.md), 검증 결과는 [업그레이드 검증 기록](docs/UPGRADE_VALIDATION.md)과 [전체 검수 기록](docs/FULL_REVIEW.md)을 참고하세요.
 
 ## 데이터와 해석
 

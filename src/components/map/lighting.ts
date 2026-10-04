@@ -1,5 +1,5 @@
 import { AmbientLight, DirectionalLight, LightingEffect } from "@deck.gl/core";
-import type { Effect, Material, PreRenderOptions } from "@deck.gl/core";
+import type { Material, PreRenderOptions } from "@deck.gl/core";
 
 // Task B — CollisionFilterExtension compatibility fix (region-labels/
 // school-labels, labelLayer.ts/schoolLayers.ts). Root-caused end to end

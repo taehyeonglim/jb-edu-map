@@ -15,10 +15,14 @@ import type { DataBundle, NeighborsFeatureCollection, RegionsFeatureCollection }
 // still satisfies this type (a function accepting a wider input type is a
 // valid substitute), and it lets tests inject a fetchImpl typed over plain
 // strings without fighting the DOM lib's URL|RequestInfo union.
-type FetchImpl = (url: string) => Promise<Response>;
+type FetchImpl = (url: string, options?: RequestInit) => Promise<Response>;
 
 async function fetchJson<T>(fetchImpl: FetchImpl, url: string): Promise<T> {
-  const res = await fetchImpl(url);
+  // Stable data URLs can still be fresh in the browser's hour-long cache
+  // after deployment. Revalidate the whole bundle, as education-issues does,
+  // so returning visitors do not mix old school/statistics files with new
+  // issue facts. Conditional requests can reuse unchanged response bodies.
+  const res = await fetchImpl(url, { cache: "no-cache" });
   if (!res.ok) {
     throw new Error(`loadBundle: failed to fetch ${url} (HTTP ${res.status})`);
   }
@@ -50,16 +54,8 @@ export async function loadBundle(fetchImpl: FetchImpl = fetch): Promise<DataBund
     // (or a silently-undefined bundle entry) partway through the Promise.all
     // below. The reverse — a manifest id with no matching registry entry,
     // e.g. a retired indicator — is fine and deliberately not checked here.
-    // Fix round 2, finding 3 — public/data/** (including manifest.json) is
-    // cached for up to 1h (see next.config.ts's headers()); a returning
-    // visitor can briefly get a fresh JS bundle paired with a stale cached
-    // manifest right after a data-refresh deploy, hitting this branch even
-    // though nothing is actually broken. The THROWN message must therefore be
-    // the ordinary, temporary-sounding user-facing string DataProvider's error
-    // UI shows (never a raw indicator id list or an npm command, which would
-    // confuse/alarm an end user) — the full developer diagnosis goes to
-    // console.error instead, where it's still there for a developer actually
-    // debugging a genuinely stale build.
+    // Keep temporary data-update failures readable in the error UI. Detailed
+    // build diagnostics belong in the console, not the user-facing message.
     const missingFromManifest = indicatorIds.filter((id) => !(id in manifest.indicators));
     if (missingFromManifest.length > 0) {
       console.error(

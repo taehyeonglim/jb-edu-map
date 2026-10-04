@@ -120,6 +120,21 @@ function fullFakeFetch() {
 }
 
 describe("loadBundle", () => {
+  it("revalidates a returning visitor's cached schools alongside a fresh manifest", async () => {
+    const { impl } = fullFakeFetch();
+    const staleSchools = schoolsFixture();
+    staleSchools.referenceDate.stats = "2025-04-01";
+    const bundle = await loadBundle(async (url, options) => {
+      // Model a still-fresh max-age=3600 response from the previous deploy.
+      if (url === "/data/schools.json" && options?.cache !== "no-cache") {
+        return jsonResponse(staleSchools);
+      }
+      return impl(url);
+    });
+    expect(bundle.schools.referenceDate.stats).toBe("2026-04-01");
+    expect(bundle.manifest.latestYear).toBe(2026);
+    expect(bundle.indicators.students_total.referenceDate).toBe(bundle.schools.referenceDate.stats);
+  });
   it("starts validated metric requests before a slow geography response finishes", async () => {
     const { impl, calls } = fullFakeFetch();
     let release!: () => void;

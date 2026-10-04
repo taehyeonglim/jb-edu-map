@@ -38,6 +38,7 @@ import type {
   Viewport,
 } from "@deck.gl/core";
 import { DarkGlassTheme, ResetViewWidget, ZoomWidget } from "@deck.gl/widgets";
+import { afterFilterUpdate } from "@/lib/state/filterHistory";
 import "@deck.gl/widgets/stylesheet.css";
 
 import {
@@ -851,7 +852,7 @@ export default function DeckMap({
         { value: "dots", label: "점" },
       ],
       onChange: (value) => {
-        void setSchoolChart(value as "auto" | "columns" | "dots");
+        afterFilterUpdate(() => { void setSchoolChart(value as "auto" | "columns" | "dots"); });
       },
     });
     items.push({

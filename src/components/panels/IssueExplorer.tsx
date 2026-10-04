@@ -128,7 +128,7 @@ export default function IssueExplorer({
             className="block w-full rounded-xl border border-line bg-paper p-4 text-left hover:border-accent/50 focus-visible:outline-accent"
           >
             <span className="text-xs font-semibold text-accent-text">
-              0{index + 1} · {issue.title}
+              {String(index + 1).padStart(2, "0")} · {issue.title}
             </span>
             <span className="mt-2 block text-base font-semibold leading-relaxed">
               {issue.question}

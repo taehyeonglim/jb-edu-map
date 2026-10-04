@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { readScenePref, writeScenePref, type Scene } from "./scene";
+import { afterFilterUpdate } from "@/lib/state/filterHistory";
 const parser = parseAsStringLiteral(["city", "flat"] as const);
 export function useScene() {
   const [urlScene, setUrlScene] = useQueryState("scene", parser.withOptions({ history: "push", shallow: true }));
@@ -14,6 +15,8 @@ export function useScene() {
   useEffect(() => {
     if (enabled && urlScene === null) void setUrlScene(issue ? "flat" : savedScene, { history: "replace" });
   }, [enabled, urlScene, savedScene, setUrlScene, issue]);
-  const setScene = useCallback((next: Scene) => { writeScenePref(next); void setUrlScene(next); }, [setUrlScene]);
+  const setScene = useCallback((next: Scene) => {
+    afterFilterUpdate(() => { writeScenePref(next); void setUrlScene(next); });
+  }, [setUrlScene]);
   return { scene, setScene, enabled };
 }

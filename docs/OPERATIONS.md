@@ -78,6 +78,8 @@ npm run e2e -- --workers=1
 
 일반 CI는 배경지도·건물 API 응답을 fixture로 대체합니다. 데이터 요청 실패 후 재시도, WebGL 미지원·실행 중 손실, 표 대체 화면의 학교 상세, 건물 API 실패 후 재시도를 포함합니다.
 
+Chromium·Firefox·WebKit의 선택 검사 설정은 `playwright.cross-browser.config.ts`입니다. 브라우저 설치와 대상 시나리오를 포함한 재현 명령은 [전체 검수 기록](FULL_REVIEW.md)에 있습니다. 기본 자료와 교육문제 자료는 앱을 열 때 조건부 재검증하므로 이전 배포의 브라우저 캐시와 새 자료가 섞이지 않도록 합니다.
+
 실제 API와 배포 주소 검사는 GitHub Actions의 **External verification**을 수동 실행합니다. `live-local`은 저장소 secrets `NEXT_PUBLIC_VWORLD_KEY`, `VWORLD_BUILDING_KEY`, 필요 시 `VWORLD_BUILDING_DOMAIN`을 사용합니다. `deployment`는 이미 배포된 사이트의 URL을 입력합니다. 이 워크플로는 사이트를 배포하지 않습니다.
 
 로컬에서 실제 건물을 검증하려면 환경변수를 불러온 뒤 `LIVE_BUILDINGS=1 npm run e2e -- e2e/city-buildings-live.spec.ts --workers=1`을 실행합니다. 배포 주소 검사는 `DEPLOYMENT_URL=https://example.com npm run e2e -- 'e2e/deployed-.*.spec.ts' --workers=1`로 실행합니다. 키는 명령 기록에 직접 넣지 않습니다.

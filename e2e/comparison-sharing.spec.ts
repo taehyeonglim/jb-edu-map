@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { parseCsv } from "../scripts/pipeline/lib/csv";
-import { test, expect, openPanel } from "./fixtures";
+import { test, expect, openPanel, tabKey } from "./fixtures";
 
 test("wrapped indicator groups never cover map actions after viewport changes", async ({
   page,
@@ -184,7 +184,7 @@ for (const width of [390, 360])
         .evaluate((el) => el.getBoundingClientRect().height),
     ).toBeGreaterThanOrEqual(44);
     await page.getByRole("button", { name: "비교표 CSV 저장" }).focus();
-    for (let i = 0; i < 6; i++) await page.keyboard.press("Tab");
+    for (let i = 0; i < 6; i++) await page.keyboard.press(tabKey(page));
     expect(
       await panel.evaluate((el) => el.contains(document.activeElement)),
     ).toBe(true);

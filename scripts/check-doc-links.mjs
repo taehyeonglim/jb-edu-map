@@ -8,6 +8,7 @@ const files = [
   "docs/OPERATIONS.md",
   "docs/ROADMAP.md",
   "docs/UPGRADE_VALIDATION.md",
+  "docs/FULL_REVIEW.md",
 ];
 const errors = [];
 for (const file of files) {

@@ -35,6 +35,15 @@ export const test = base.extend<object>({
 
 export { expect };
 
+/** macOS WebKit needs Option-Tab to include native buttons in its default
+ * keyboard traversal; do not change the user's system keyboard preferences.
+ * https://support.apple.com/guide/safari/cpsh003/mac
+ */
+export function tabKey(page: Page): "Alt+Tab" | "Tab" {
+  return process.platform === "darwin" && page.context().browser()?.browserType().name() === "webkit"
+    ? "Alt+Tab" : "Tab";
+}
+
 /**
  * Diagnostic screenshot for local runs only. On CI (headless Chromium on
  * swiftshader software GL) a full-page WebGL capture costs ~10 s each —

@@ -1,0 +1,1401 @@
+{
+  "date": "2026-10-04",
+  "baseCommit": "2c3023f7f4957d565d14be9684eab8c5c50591fe",
+  "environment": {
+    "node": "22.23.3",
+    "chromium": "153.0.8010.12",
+    "firefox": "155.0",
+    "webkit": "26.6",
+    "build": "production",
+    "externalMapAndBuildingApis": "fixtures",
+    "workers": 1,
+    "retries": 0
+  },
+  "unit": {
+    "files": 64,
+    "passed": 842
+  },
+  "checks": {
+    "cleanInstall": true,
+    "typecheck": "passed",
+    "lint": {
+      "errors": 0,
+      "warnings": 0,
+      "scope": "isolated source checkout"
+    },
+    "dataValidation": "passed; existing coordinate discrepancy for B000006009 retained",
+    "documentationLinks": "passed",
+    "productionBuild": "passed"
+  },
+  "chromium": {
+    "initialRun": {
+      "startTime": "2026-10-04T00:43:26.100Z",
+      "duration": 632765.487,
+      "expected": 89,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "correctedAssertion": "The map legend appends the valid scope note 특수학교 포함. The test now checks the indicator label and separately requires that scope note for both special-education indicators. No app change for this failure.",
+    "recheck": {
+      "startTime": "2026-10-04T00:54:30.853Z",
+      "duration": 9884.674,
+      "expected": 1,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "coveredScenarios": 90
+  },
+  "crossBrowser": {
+    "startTime": "2026-10-04T00:56:29.749Z",
+    "duration": 87085.252,
+    "expected": 58,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0,
+    "initialMacOSKeyboardCheck": {
+      "stats": {
+        "startTime": "2026-10-04T00:54:41.113Z",
+        "duration": 85240.026,
+        "expected": 56,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "resolution": "Native WebKit Tab skips buttons on macOS. Verified in a minimal HTML page, then used documented Option-Tab for keyboard traversal. The final 58-scenario run passed without retries."
+    }
+  },
+  "cacheRegression": {
+    "before": {
+      "initial": "2026-04-01",
+      "cached": "2026-04-01",
+      "revalidated": "2027-04-01",
+      "stale": true
+    },
+    "after": {
+      "prewarmedOldBrowserCache": true,
+      "result": "검색 결과 1개 · 지도 표시 가능 1개",
+      "fresh": true
+    },
+    "method": "Real Chromium HTTP cache, isolated next start server. Synthetic source edits restored in finally."
+  },
+  "sourceFingerprint": {
+    "algorithm": "sha256 of sorted UTF-8 relative path + NUL + file bytes + NUL for each included path",
+    "value": "3a583db6f8ee9033b66ef9efa349d40bc9f837e8ce1ed081b767ef2f530c0b75",
+    "files": [
+      "e2e/a11y.spec.ts",
+      "e2e/basemap.spec.ts",
+      "e2e/city-buildings-live.spec.ts",
+      "e2e/city-buildings.spec.ts",
+      "e2e/closed-schools.spec.ts",
+      "e2e/comparison-sharing.spec.ts",
+      "e2e/control-room.spec.ts",
+      "e2e/debug-regressions.spec.ts",
+      "e2e/deployed-city.spec.ts",
+      "e2e/deployed-education-city.spec.ts",
+      "e2e/deployed-school-chart.spec.ts",
+      "e2e/deployed-special-schools.spec.ts",
+      "e2e/education-city.spec.ts",
+      "e2e/emd.spec.ts",
+      "e2e/fallback-viewport.spec.ts",
+      "e2e/fallback-webgl.spec.ts",
+      "e2e/fixtures.ts",
+      "e2e/history-races.spec.ts",
+      "e2e/indicator-switch.spec.ts",
+      "e2e/issues.spec.ts",
+      "e2e/metric-coverage.spec.ts",
+      "e2e/school-chart.spec.ts",
+      "e2e/school-point-details.spec.ts",
+      "e2e/schools.spec.ts",
+      "e2e/select-region.spec.ts",
+      "e2e/smoke.spec.ts",
+      "e2e/time-series.spec.ts",
+      "e2e/url-state.spec.ts",
+      "next.config.ts",
+      "package-lock.json",
+      "package.json",
+      "playwright.config.ts",
+      "playwright.cross-browser.config.ts",
+      "public/data/.gitkeep",
+      "public/data/charset.json",
+      "public/data/closed-schools.json",
+      "public/data/education-issues.json",
+      "public/data/emd/52110.geojson",
+      "public/data/emd/52130.geojson",
+      "public/data/emd/52140.geojson",
+      "public/data/emd/52180.geojson",
+      "public/data/emd/52190.geojson",
+      "public/data/emd/52210.geojson",
+      "public/data/emd/52710.geojson",
+      "public/data/emd/52720.geojson",
+      "public/data/emd/52730.geojson",
+      "public/data/emd/52740.geojson",
+      "public/data/emd/52750.geojson",
+      "public/data/emd/52770.geojson",
+      "public/data/emd/52790.geojson",
+      "public/data/emd/52800.geojson",
+      "public/data/indicators/classes_total.json",
+      "public/data/indicators/classrooms_per_school.json",
+      "public/data/indicators/closed_schools.json",
+      "public/data/indicators/closed_schools_recent.json",
+      "public/data/indicators/closed_schools_unused.json",
+      "public/data/indicators/rural_school_share.json",
+      "public/data/indicators/schools_total.json",
+      "public/data/indicators/site_area_per_student.json",
+      "public/data/indicators/small_school_share.json",
+      "public/data/indicators/small_schools.json",
+      "public/data/indicators/special_classes.json",
+      "public/data/indicators/special_students.json",
+      "public/data/indicators/students_change_5y.json",
+      "public/data/indicators/students_per_class.json",
+      "public/data/indicators/students_per_teacher.json",
+      "public/data/indicators/students_total.json",
+      "public/data/indicators/teachers_total.json",
+      "public/data/indicators/zero_entrant_schools.json",
+      "public/data/manifest.json",
+      "public/data/neighbors.geojson",
+      "public/data/regions.geojson",
+      "public/data/schools.json",
+      "public/data/series/classes_total.json",
+      "public/data/series/classrooms_per_school.json",
+      "public/data/series/rural_school_share.json",
+      "public/data/series/schools_total.json",
+      "public/data/series/site_area_per_student.json",
+      "public/data/series/small_school_share.json",
+      "public/data/series/small_schools.json",
+      "public/data/series/special_classes.json",
+      "public/data/series/special_students.json",
+      "public/data/series/students_per_class.json",
+      "public/data/series/students_per_teacher.json",
+      "public/data/series/students_total.json",
+      "public/data/series/teachers_total.json",
+      "public/data/series/zero_entrant_schools.json",
+      "src/app/api/buildings/v1/[z]/[x]/[y]/route.ts",
+      "src/app/apple-icon.png",
+      "src/app/favicon.ico",
+      "src/app/globals.css",
+      "src/app/icon.svg",
+      "src/app/layout.tsx",
+      "src/app/page.tsx",
+      "src/components/Dashboard.tsx",
+      "src/components/DashboardSkeleton.tsx",
+      "src/components/map/DeckMap.tsx",
+      "src/components/map/MapErrorBoundary.tsx",
+      "src/components/map/MapFallback.tsx",
+      "src/components/map/MapOverlay.tsx",
+      "src/components/map/MapShell.tsx",
+      "src/components/map/SchoolHud.tsx",
+      "src/components/map/basemapPref.ts",
+      "src/components/map/camera.ts",
+      "src/components/map/deckDepthPatch.ts",
+      "src/components/map/declutterLabels.ts",
+      "src/components/map/effects.ts",
+      "src/components/map/emdPref.ts",
+      "src/components/map/layers/basemapLayer.ts",
+      "src/components/map/layers/buildingLayer.ts",
+      "src/components/map/layers/emdLayer.ts",
+      "src/components/map/layers/flatMapLayers.ts",
+      "src/components/map/layers/labelLayer.ts",
+      "src/components/map/layers/metricLayers.ts",
+      "src/components/map/layers/regionLayers.ts",
+      "src/components/map/layers/schoolChartLayer.ts",
+      "src/components/map/layers/schoolLayers.ts",
+      "src/components/map/lighting.ts",
+      "src/components/map/mapFx.ts",
+      "src/components/map/scene.ts",
+      "src/components/map/tooltip.ts",
+      "src/components/map/useCamera.ts",
+      "src/components/map/useEmdBoundaries.ts",
+      "src/components/map/useFontGate.ts",
+      "src/components/map/useHudLayout.ts",
+      "src/components/map/useRegionKeyboardNav.ts",
+      "src/components/map/useScene.ts",
+      "src/components/panels/ExploreToolbar.tsx",
+      "src/components/panels/Footer.tsx",
+      "src/components/panels/IndicatorMenu.tsx",
+      "src/components/panels/IndicatorPicker.tsx",
+      "src/components/panels/IssueDetails.tsx",
+      "src/components/panels/IssueExplorer.tsx",
+      "src/components/panels/KpiTiles.tsx",
+      "src/components/panels/Legend.tsx",
+      "src/components/panels/MapTopicMenu.tsx",
+      "src/components/panels/MetricCommandRail.tsx",
+      "src/components/panels/MetricLegend.tsx",
+      "src/components/panels/RegionComparison.tsx",
+      "src/components/panels/RegionList.tsx",
+      "src/components/panels/RegionPanel.tsx",
+      "src/components/panels/SchoolExplorer.tsx",
+      "src/components/panels/TopBar.tsx",
+      "src/components/ui/TimeSeriesChart.tsx",
+      "src/lib/buildings/server.ts",
+      "src/lib/buildings/tiles.ts",
+      "src/lib/buildings/transport.ts",
+      "src/lib/buildings/types.ts",
+      "src/lib/closedSchools/types.ts",
+      "src/lib/colors.ts",
+      "src/lib/comparison.ts",
+      "src/lib/data/DataProvider.tsx",
+      "src/lib/data/load.ts",
+      "src/lib/data/types.ts",
+      "src/lib/export.ts",
+      "src/lib/format.ts",
+      "src/lib/geo/geo.ts",
+      "src/lib/geo/regions.ts",
+      "src/lib/indicators/groups.ts",
+      "src/lib/indicators/registry.ts",
+      "src/lib/indicators/types.ts",
+      "src/lib/issues/model.ts",
+      "src/lib/issues/registry.ts",
+      "src/lib/issues/types.ts",
+      "src/lib/issues/useIssueData.ts",
+      "src/lib/issues/validate.ts",
+      "src/lib/mapMetrics.ts",
+      "src/lib/profiles/index.ts",
+      "src/lib/profiles/jeonbuk.ts",
+      "src/lib/profiles/jeonbuk/README.md",
+      "src/lib/profiles/jeonbuk/issues.ts",
+      "src/lib/profiles/types.ts",
+      "src/lib/scales.ts",
+      "src/lib/schoolVisuals.ts",
+      "src/lib/schools/chart.ts",
+      "src/lib/schools/filter.ts",
+      "src/lib/schools/types.ts",
+      "src/lib/selection.ts",
+      "src/lib/state/filterHistory.ts",
+      "src/lib/state/urlState.ts",
+      "src/lib/stats.ts",
+      "src/lib/theme.ts",
+      "src/lib/timeSeries.ts",
+      "src/lib/tooltipText.ts",
+      "src/lib/useReducedMotion.ts",
+      "tests/components/.gitkeep",
+      "tests/components/ExploreToolbar.test.tsx",
+      "tests/components/Footer.test.tsx",
+      "tests/components/IndicatorMenu.test.tsx",
+      "tests/components/IndicatorPicker.test.tsx",
+      "tests/components/KpiTiles.test.tsx",
+      "tests/components/Legend.test.tsx",
+      "tests/components/MapErrorBoundary.test.tsx",
+      "tests/components/MapFallback.test.tsx",
+      "tests/components/MapOverlay.test.tsx",
+      "tests/components/RegionList.test.tsx",
+      "tests/components/RegionPanel.test.tsx",
+      "tests/components/TimeSeriesChart.test.tsx",
+      "tests/components/TopBar.test.tsx",
+      "tests/components/filterHistory.test.ts",
+      "tests/components/historyRaces.test.tsx",
+      "tests/components/useEmdBoundaries.test.tsx",
+      "tests/components/useMapQuery.test.tsx",
+      "tests/components/useReducedMotion.test.tsx",
+      "tests/pipeline/aggregate.test.ts",
+      "tests/pipeline/build-charset.test.ts",
+      "tests/pipeline/build-emd.test.ts",
+      "tests/pipeline/build-regions.test.ts",
+      "tests/pipeline/build-schools.test.ts",
+      "tests/pipeline/closed-schools.test.ts",
+      "tests/pipeline/kess-xlsx.test.ts",
+      "tests/pipeline/point-in-polygon.test.ts",
+      "tests/pipeline/school-locations.test.ts",
+      "tests/setup.ts",
+      "tests/unit/basemapLayer.test.ts",
+      "tests/unit/basemapPref.test.ts",
+      "tests/unit/buildings.test.ts",
+      "tests/unit/camera.test.ts",
+      "tests/unit/colors.test.ts",
+      "tests/unit/comparison-export.test.ts",
+      "tests/unit/deckDepthPatch.test.ts",
+      "tests/unit/declutterLabels.test.ts",
+      "tests/unit/effects.test.ts",
+      "tests/unit/emdLayer.test.ts",
+      "tests/unit/emdPref.test.ts",
+      "tests/unit/flatMapLayers.test.ts",
+      "tests/unit/format.test.ts",
+      "tests/unit/geo.test.ts",
+      "tests/unit/issues.test.ts",
+      "tests/unit/labelLayer.test.ts",
+      "tests/unit/lighting.test.ts",
+      "tests/unit/load.test.ts",
+      "tests/unit/mapFx.test.ts",
+      "tests/unit/mapMetrics.test.ts",
+      "tests/unit/next-config.test.ts",
+      "tests/unit/regionLayers.test.ts",
+      "tests/unit/registry.test.ts",
+      "tests/unit/scales.test.ts",
+      "tests/unit/schoolChart.test.ts",
+      "tests/unit/schoolChartAudit.test.ts",
+      "tests/unit/schoolFilter.test.ts",
+      "tests/unit/schoolHud.test.ts",
+      "tests/unit/schoolLayers.test.ts",
+      "tests/unit/selection.test.ts",
+      "tests/unit/smoke.test.ts",
+      "tests/unit/stats.test.ts",
+      "tests/unit/theme.test.ts",
+      "tests/unit/tooltip.test.ts",
+      "tests/unit/tooltipText.test.ts",
+      "tests/unit/urlState.test.ts",
+      "tests/unit/useFontGate.test.ts",
+      "tsconfig.json",
+      "vitest.config.ts"
+    ]
+  },
+  "scenarios": [
+    {
+      "browser": "chromium",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "랜드마크: banner/main/complementary/contentinfo 가 모두 존재한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "포커스 순서: 지표 메뉴 → 라디오 → 시군 목록 → 패널까지 Tab 으로 도달 가능하다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "전체보기/확대/축소 위젯 버튼이 Tab 으로 도달 가능하다 (대체 버튼 불필요 확인)",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "지표 전환 시 aria-live 낭독 텍스트가 갱신된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/basemap.spec.ts",
+      "scenario": "야간 배경을 기본으로 표시하고 사용자가 고른 배경을 복원한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/basemap.spec.ts",
+      "scenario": "과거 지도 설정을 무시하고 입체 현황판을 표시하며 지형을 요청하지 않는다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/city-buildings.spec.ts",
+      "scenario": "city tiles are gated, reused, non-pickable and recover from failures",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/city-buildings.spec.ts",
+      "scenario": "mobile gates at 16, caps pitch, and remembers explicit flat mode",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/closed-schools.spec.ts",
+      "scenario": "폐교 지표: /?indicator=closed_schools 진입 → 범례 라벨 → 시군 선택 → 폐교 목록 섹션 표시",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "wrapped indicator groups never cover map actions after viewport changes",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "search links restore filters, export the full result, and reset after changing issues",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "general comparison keeps regions while changing indicators and exports displayed values",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "issue comparison CSV preserves designation labels and per-metric dates",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "comparison and sharing fit 390px with keyboard focus retained",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "comparison and sharing fit 360px with keyboard focus retained",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/control-room.spec.ts",
+      "scenario": "관제실 1440×900: 전체 지도와 HUD가 컨트롤을 가리지 않는다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/control-room.spec.ts",
+      "scenario": "관제실 1024×768: 전체 지도와 HUD가 컨트롤을 가리지 않는다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/control-room.spec.ts",
+      "scenario": "관제실 390×844: 전체 지도와 HUD가 컨트롤을 가리지 않는다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/control-room.spec.ts",
+      "scenario": "관제실 360×640: 전체 지도와 HUD가 컨트롤을 가리지 않는다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/debug-regressions.spec.ts",
+      "scenario": "실제 WebGL 손실을 안내하고 선택 상태를 유지한 채 평면으로 복구한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/debug-regressions.spec.ts",
+      "scenario": "비율 단위와 지역소멸 기본 지표 이름을 정확히 표시한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "default city emphasizes the student distribution and opens tools on demand",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "school selection switches density to values, keeping the statewide scale",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "special education keeps its scope across panels and uses distinct school symbols",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "mobile topic selector, complete metric menu and selected school card fit",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "a GPU without float blending uses readable school values instead of clipped density",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "metric menu remains inside the 768px viewport",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/education-city.spec.ts",
+      "scenario": "metric menu remains inside the 1024px viewport",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/emd.spec.ts",
+      "scenario": "전주(52110) 선택 → emd-boundaries 레이어 표시(순서: regions 뒤·schools 앞) → 토글 OFF 시 사라짐 → 새로고침 후 OFF 유지 → 다시 ON, 콘솔 error 0",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/emd.spec.ts",
+      "scenario": "아무 시군도 선택하지 않으면 토글이 ON이어도 emd-boundaries 레이어는 null, 콘솔 error 0",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/fallback-viewport.spec.ts",
+      "scenario": "모바일에서도 지도와 학교 검색을 사용하고 선택 후 패널이 접힌다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/fallback-viewport.spec.ts",
+      "scenario": "모바일과 PC 사이 크기 변경 후에도 선택과 배율이 유지된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/fallback-webgl.spec.ts",
+      "scenario": "WebGL2 컨텍스트를 생성할 수 없으면 지도 대신 표를 보여준다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/fallback-webgl.spec.ts",
+      "scenario": "WebGL 대체 화면 1440px: 학교 선택·공유 링크·통계·선택 해제",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/fallback-webgl.spec.ts",
+      "scenario": "WebGL 대체 화면 390px: 학교 선택·공유 링크·통계·선택 해제",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before tab navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before chart navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before scene navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before region navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before issue navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before school navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/indicator-switch.spec.ts",
+      "scenario": "switching the indicator updates the legend, with no console errors",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "교육문제에서 지정 현황·관련 학교·URL을 함께 탐색하고 복원한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "특수학교는 지도·집계·목록에 포함하고 일반학교 특수학급과 분리한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "학교 규모·작은학교·폐교 주제는 각각의 지도 표현과 URL 상태를 제공한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "교육문제 자료 실패는 기존 검색에 영향을 주지 않고 재시도할 수 있다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "모바일에서 질문·학교 선택 후 정보 패널을 다시 열어도 교육문제가 유지된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "알 수 없는 질문은 목록, 다른 주제 지표는 기본 지표로 돌아간다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "basic-learning 공식 자원·시군 지도를 연다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "reading 공식 자원·시군 지도를 연다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "care 공식 자원·시군 지도를 연다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "wellbeing 공식 자원·시군 지도를 연다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "career 공식 자원·시군 지도를 연다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "ai-education 공식 자원·시군 지도를 연다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/issues.spec.ts",
+      "scenario": "지역아동센터 수록 범위와 지도 점을 구분해 표시한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "all 18 indicators can be selected from the comparison table without losing regions",
+      "status": "failed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in school-size renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in regional-sustainability renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in special-education renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in closed-assets renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in basic-learning renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in reading renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in care renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in wellbeing renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in career renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in ai-education renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-chart.spec.ts",
+      "scenario": "원통은 현재 지표에 비례하고 검색·점 전환·뒤로가기에 반응한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-chart.spec.ts",
+      "scenario": "지역 전용 지표와 평면은 점을 유지하고 교육문제는 선택한 값을 쓴다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-chart.spec.ts",
+      "scenario": "원통 클릭은 학교를 선택하고 모바일에서도 전환할 수 있다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-chart.spec.ts",
+      "scenario": "학교수는 낮은 동일 높이로 표시한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-point-details.spec.ts",
+      "scenario": "통계 화면에서 학교 점을 누르면 해당 위치에 HUD가 열린다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-point-details.spec.ts",
+      "scenario": "기본 지도 설정에서도 학교 점 주변을 누르면 상세가 열린다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/school-point-details.spec.ts",
+      "scenario": "모바일에서 학교 점을 누르면 정보를 바로 볼 수 있다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/schools.spec.ts",
+      "scenario": "검색·학교급·시군 필터가 목록과 지도에 함께 적용된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/schools.spec.ts",
+      "scenario": "학교 선택은 지역 필터를 바꾸지 않고 확대하며 이름과 점의 픽셀 크기는 고정된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/schools.spec.ts",
+      "scenario": "특수학교 11곳은 공식 좌표로 표시되고 선택 시 확대된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/schools.spec.ts",
+      "scenario": "좌표가 없는 자료의 검색·상세 조회 대체 경로를 유지한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/select-region.spec.ts",
+      "scenario": "RegionList 클릭 → URL/패널/카메라 갱신 → Esc 해제 → 뒤로가기로 재선택 복원",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/select-region.spec.ts",
+      "scenario": "화살표로 시군을 두 번 이동해도 뒤로가기 한 번이면 선택이 사라진다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/select-region.spec.ts",
+      "scenario": "캔버스에서 전주시를 직접 클릭해도 선택된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/select-region.spec.ts",
+      "scenario": "지표 메뉴가 열린 상태에서 Esc → 메뉴만 닫히고 시군 선택(URL의 region)은 유지된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/smoke.spec.ts",
+      "scenario": "home page renders the flat school map with 14 regions and no console errors",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/time-series.spec.ts",
+      "scenario": "시군 통계에서 전북 전체와 선택 지역의 연도별 추이를 살펴본다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/time-series.spec.ts",
+      "scenario": "단일 연도 지표에서 학생수 원자료 추이로 이동한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/time-series.spec.ts",
+      "scenario": "특수교육 질문은 일반학교 특수학급만의 시계열을 보여준다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/url-state.spec.ts",
+      "scenario": "selecting an indicator from the menu updates the URL and survives a refresh",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/url-state.spec.ts",
+      "scenario": "navigating directly to ?indicator=teachers_total starts on that indicator",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/url-state.spec.ts",
+      "scenario": "legend distinguishes student density from regional quantile counts",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/url-state.spec.ts",
+      "scenario": "an invalid ?indicator value falls back to the default indicator",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/url-state.spec.ts",
+      "scenario": "arrow-key navigation in the indicator menu previews live (URL updates, popover stays open); Enter commits and returns focus; Escape cancels",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "chromium",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "all 18 indicators can be selected from the comparison table without losing regions",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "랜드마크: banner/main/complementary/contentinfo 가 모두 존재한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "포커스 순서: 지표 메뉴 → 라디오 → 시군 목록 → 패널까지 Tab 으로 도달 가능하다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "전체보기/확대/축소 위젯 버튼이 Tab 으로 도달 가능하다 (대체 버튼 불필요 확인)",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "지표 전환 시 aria-live 낭독 텍스트가 갱신된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "랜드마크: banner/main/complementary/contentinfo 가 모두 존재한다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "포커스 순서: 지표 메뉴 → 라디오 → 시군 목록 → 패널까지 Tab 으로 도달 가능하다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "전체보기/확대/축소 위젯 버튼이 Tab 으로 도달 가능하다 (대체 버튼 불필요 확인)",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/a11y.spec.ts",
+      "scenario": "지표 전환 시 aria-live 낭독 텍스트가 갱신된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "wrapped indicator groups never cover map actions after viewport changes",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "search links restore filters, export the full result, and reset after changing issues",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "general comparison keeps regions while changing indicators and exports displayed values",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "issue comparison CSV preserves designation labels and per-metric dates",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "comparison and sharing fit 390px with keyboard focus retained",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "comparison and sharing fit 360px with keyboard focus retained",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "wrapped indicator groups never cover map actions after viewport changes",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "search links restore filters, export the full result, and reset after changing issues",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "general comparison keeps regions while changing indicators and exports displayed values",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "issue comparison CSV preserves designation labels and per-metric dates",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "comparison and sharing fit 390px with keyboard focus retained",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/comparison-sharing.spec.ts",
+      "scenario": "comparison and sharing fit 360px with keyboard focus retained",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/fallback-viewport.spec.ts",
+      "scenario": "모바일에서도 지도와 학교 검색을 사용하고 선택 후 패널이 접힌다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/fallback-viewport.spec.ts",
+      "scenario": "모바일과 PC 사이 크기 변경 후에도 선택과 배율이 유지된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/fallback-viewport.spec.ts",
+      "scenario": "모바일에서도 지도와 학교 검색을 사용하고 선택 후 패널이 접힌다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/fallback-viewport.spec.ts",
+      "scenario": "모바일과 PC 사이 크기 변경 후에도 선택과 배율이 유지된다",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before tab navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before chart navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before scene navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before region navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before issue navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before school navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before tab navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before chart navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before scene navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before region navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before issue navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/history-races.spec.ts",
+      "scenario": "rapid search before school navigation survives Back",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "all 18 indicators can be selected from the comparison table without losing regions",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in school-size renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in regional-sustainability renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in special-education renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in closed-assets renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in basic-learning renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in reading renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in care renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in wellbeing renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in career renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "firefox",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in ai-education renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "all 18 indicators can be selected from the comparison table without losing regions",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in school-size renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in regional-sustainability renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in special-education renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in closed-assets renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in basic-learning renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in reading renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in care renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in wellbeing renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in career renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    },
+    {
+      "browser": "webkit",
+      "file": "e2e/metric-coverage.spec.ts",
+      "scenario": "every metric in ai-education renders its map and regional comparison",
+      "status": "passed",
+      "retry": 0
+    }
+  ],
+  "limits": [
+    "Headless desktop engines; no physical phone/GPU benchmark.",
+    "Default E2E uses external API fixtures; live deployment verification is separate."
+  ],
+  "keylessProduction": {
+    "build": "production, no API keys or NEXT_PUBLIC_E2E",
+    "testBridge": false,
+    "searchResults": 1,
+    "csvFilename": "학교검색결과.csv",
+    "questionTenCorrect": true,
+    "buildingApiStatus": 503,
+    "pageErrors": [],
+    "externalVworldRequests": 0
+  }
+}
