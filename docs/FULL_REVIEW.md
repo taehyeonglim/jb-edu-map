@@ -67,3 +67,22 @@ CI=1 PW_PORT=3111 npx playwright test -c playwright.cross-browser.config.ts \
 브라우저 엔진 검사는 macOS의 headless 환경이며 물리 휴대전화의 GPU·터치·성능을 보장하지 않습니다. 기본 E2E의 외부 지도·건물 응답은 fixture입니다. 실제 운영 API 확인은 별도로 구분합니다. 기존 원천 좌표와 행정구역이 일치하지 않는 전주원동초등학교 1건은 원자료의 알려진 차이로 남겨 두었습니다. 출처 근거 없이 통계나 좌표를 변경하지 않았습니다.
 
 성능 전후 수치는 [업그레이드 검증 기록](UPGRADE_VALIDATION.md)을 참고하세요. 이 검수로 속도 향상을 주장하지 않습니다.
+
+## 후속 검수: 학교 클릭 후 드래그 고착
+
+사용자 제보로 `e499006` 운영 사이트에서 재현했습니다. 학교 점을 클릭하고 버튼을 놓은 뒤 마우스만 움직였는데 학교의 화면 위치가 약 126px, -72px 이동하고 커서가 `grabbing`으로 남았습니다. 모든 후속 이동 이벤트의 `buttons`는 0이었습니다. 기존 학교 선택 검사는 HUD가 열리는지만 확인하여 클릭 이후의 잘못된 이동을 놓쳤습니다.
+
+학교 선택용 `onPointerUpCapture`의 `stopPropagation()`이 원인이었습니다. `pointerup`은 문서 캡처 단계에서 1번 관측됐지만 window 버블 단계에는 0번 도착했습니다. 지도 입력 처리기(mjolnir.js)는 window의 `pointerup`으로 눌린 포인터를 해제하므로 이후의 hover를 드래그로 처리했습니다.
+
+캡처 단계의 별도 학교 선택 처리를 제거하고, 점 주변의 넓은 선택 범위는 deck.gl의 완료된 클릭 처리로 옮겼습니다. 데스크톱 9px·모바일 14px의 추가 선택 범위와 전체보기의 지역 선택 규칙을 유지합니다. 실제 드래그에서는 학교가 잘못 선택되지 않으며 정상적인 관성 이동 후 멈춰야 합니다.
+
+`e2e/school-point-details.spec.ts`에 평면·입체 지도 각각의 점/주변 클릭 후 버튼 없는 마우스 이동, 실제 드래그 종료 후 hover, 다시 선택, 모바일 연속 탭 검사를 추가했습니다. 선택 애니메이션의 정상 이동과 오류를 구분하도록 카메라가 멈춘 뒤 비교합니다. 브라우저 내 비동기 안정화 검사는 `expect.poll`로 결과를 기다리고, 첫 화면의 글꼴·레이어 준비도 확인합니다.
+
+후속 검사에서 단위·컴포넌트 842개, 타입 검사, 변경 파일 lint, 문서 검사와 production build를 통과했습니다. Chromium의 학교 점·학교 차트·시군 선택 18개, Firefox와 WebKit의 학교 점 각 10개 시나리오를 확인했습니다. 첫 Chromium 실행의 클릭 전 화면 안정화 시간 초과 1건은 글꼴 준비 대기와 충분한 안정화 대기를 적용한 최종 실행에서 통과했습니다. 테스트 전용 객체가 없는 production build에서도 Firefox의 평면·입체 지도에서 버튼 해제 이벤트가 window까지 도착하고, 클릭 후 hover에 따른 학교 위치 변화가 0px임을 확인했습니다.
+
+```bash
+PW_PORT=3120 npx playwright test e2e/school-point-details.spec.ts \
+  e2e/select-region.spec.ts e2e/school-chart.spec.ts --workers=1
+PW_PORT=3120 npx playwright test -c playwright.cross-browser.config.ts \
+  e2e/school-point-details.spec.ts --project firefox --project webkit
+```

@@ -266,7 +266,6 @@ export default function DeckMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const hudLayout = useHudLayout(containerRef);
   const deckRef = useRef<DeckGLRef | null>(null);
-  const pointerDownRef = useRef<{ x: number; y: number; id: number } | null>(null);
   const mapReadyRef = useRef(false);
   const lastLabelViewportKey = useRef("");
   const lastLabelUpdateTime = useRef(0);
@@ -565,9 +564,18 @@ export default function DeckMap({
     [onHighlightSchool, setSettingsOpen],
   );
 
-  const nearbySchoolId = useCallback((x: number, y: number, viewport?: Viewport) => {
-    if (!viewport) return null;
+  const nearbySchoolId = useCallback((x: number, y: number, viewport?: Viewport, deck?: Deck | null) => {
     const radius = mobile ? 14 : 9;
+    // Resolve forgiving school hits inside deck.gl's completed click gesture.
+    // Capturing/stopping pointerup would leave its gesture controller pressed,
+    // causing later button-free mouse movements to pan the map.
+    const hit = deck?.pickObject({
+      x, y, radius,
+      layerIds: ["schools", "school-columns", "schools-special"],
+    });
+    const schoolId = (hit?.object as { id?: string } | undefined)?.id;
+    if (schoolId) return schoolId;
+    if (!viewport) return null;
     let closest: { id: string; distance: number } | null = null;
     for (const school of positionedSchools) {
       const [schoolX, schoolY] = viewport.project([school.lng, school.lat]);
@@ -690,7 +698,7 @@ export default function DeckMap({
       // and reselecting that region flies the camera back to its overview.
       // Give the visible school point a forgiving hit area first.
       if (info && (selectedCode !== null || schoolChart !== "auto")) {
-        const schoolId = nearbySchoolId(info.x, info.y, info.viewport);
+        const schoolId = nearbySchoolId(info.x, info.y, info.viewport, info.layer?.context.deck);
         if (schoolId) {
           handleSchoolClick(schoolId);
           return;
@@ -747,7 +755,7 @@ export default function DeckMap({
       });
       if (!info.picked) {
         const schoolId = (selectedCode !== null || schoolChart !== "auto")
-          ? nearbySchoolId(info.x, info.y, info.viewport)
+          ? nearbySchoolId(info.x, info.y, info.viewport, deckRef.current?.deck)
           : null;
         if (schoolId) handleSchoolClick(schoolId);
         else if (selectedCode !== null) onSelect(null);
@@ -1201,33 +1209,6 @@ export default function DeckMap({
       // 사용자 요구(2026-09-21): 지도 위 우클릭은 아무 조작도 아니므로(회전 제거)
       // 브라우저 컨텍스트 메뉴가 뜨지 않게 한다.
       onContextMenu={(event) => event.preventDefault()}
-      onPointerDownCapture={(event) => {
-        pointerDownRef.current = event.button === 0 && event.target instanceof HTMLCanvasElement && event.target.id === "deckgl-overlay"
-          ? { x: event.clientX, y: event.clientY, id: event.pointerId }
-          : null;
-      }}
-      onPointerCancelCapture={() => { pointerDownRef.current = null; }}
-      onPointerUpCapture={(event) => {
-        const start = pointerDownRef.current;
-        pointerDownRef.current = null;
-        if (!start || start.id !== event.pointerId || Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
-        if (!(event.target instanceof HTMLCanvasElement) || event.target.id !== "deckgl-overlay") return;
-        // At the province overview, school dots are densely packed. Keep the
-        // region surface clickable there and reserve the forgiving radius for
-        // a region close-up or an explicit dots/columns view.
-        if (selectedCode === null && schoolChart === "auto") return;
-        const bounds = event.currentTarget.getBoundingClientRect();
-        const hit = deckRef.current?.deck?.pickObject({
-          x: event.clientX - bounds.left,
-          y: event.clientY - bounds.top,
-          radius: mobile ? 14 : 9,
-          layerIds: ["schools", "school-columns", "schools-special"],
-        });
-        const schoolId = (hit?.object as { id?: string } | undefined)?.id;
-        if (!schoolId) return;
-        handleSchoolClick(schoolId);
-        event.stopPropagation();
-      }}
       // CI Linux fix — useFontGate's OWN gate: the font itself finished
       // loading. Decoupled from data-map-ready (deck.gl's first render
       // frame, unrelated to fonts). NOT what e2e waits on before touching
