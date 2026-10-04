@@ -37,7 +37,9 @@ Node.js 22.x와 npm 10 이상을 사용합니다. `.nvmrc`가 22를 지정합니
 4. Deploy를 누르면 끝입니다. 이후 `main`(또는 배포 대상 브랜치)에 푸시할 때마다 Vercel이 자동으로 재배포합니다.
 5. 데이터를 갱신했다면(아래 "데이터 갱신 절차" 참고) 재빌드된 `public/data/**` 를 포함한 커밋을 푸시하는 것만으로 배포본에도 반영됩니다 — 별도의 배포 시점 데이터 빌드 단계는 없습니다(파이프라인은 로컬/CI에서 미리 실행해 결과 JSON을 커밋하는 방식).
 
-카카오톡 등 공유 미리보기에는 1200×630 PNG와 Open Graph 제목·설명을 사용합니다. 다른 지역으로 배포할 때는 `NEXT_PUBLIC_SITE_URL`을 해당 공개 주소로 설정하고, 경계 데이터를 생성한 뒤 `SOCIAL_PROVINCE_NAME`, `SOCIAL_SHORT_NAME`, `SOCIAL_SITE_HOST`를 지정해 `npm run social:build`를 실행하세요. 생성된 `public/social-preview.png`와 `src/app`의 아이콘 파일을 함께 커밋해야 합니다.
+카카오톡 등 공유 미리보기에는 1200×630 PNG와 Open Graph 제목·설명을 사용합니다. 전북 운영 이미지인 [`public/social-preview-v2.png`](../public/social-preview-v2.png)는 야간 대시보드와 어울리는 입체 지도 일러스트입니다. 지도 위 빛과 기둥은 홍보용 표현이며 통계값을 나타내지 않습니다. 생성 도구와 프롬프트는 [제작 기록](social-preview-v2.prompt.txt)에 보관합니다. Open Graph와 Twitter 카드는 `src/app/layout.tsx`의 `socialImage`를 함께 사용하며, 이미지 파일명을 바꿔 이전 이미지의 캐시와 구분합니다. 이미 공유된 게시물의 미리보기는 해당 플랫폼의 캐시 갱신이 필요할 수 있습니다.
+
+다른 지역으로 배포할 때는 `NEXT_PUBLIC_SITE_URL`을 해당 공개 주소로 설정하고, 경계 데이터를 생성한 뒤 `SOCIAL_PROVINCE_NAME`, `SOCIAL_SHORT_NAME`, `SOCIAL_SITE_HOST`를 지정해 `npm run social:build`를 실행하세요. 이 명령은 기존 밝은색 템플릿인 `public/social-preview.png`와 아이콘을 생성하며 전북 운영 이미지 `social-preview-v2.png`를 덮어쓰지 않습니다. 생성된 이미지·아이콘을 커밋하고 `src/app/layout.tsx`의 `socialImage.url`을 해당 이미지 경로로 변경합니다.
 
 ## 데이터 갱신 절차
 

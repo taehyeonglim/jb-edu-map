@@ -1,0 +1,17 @@
+Generated with the built-in image_gen tool on 2026-10-04.
+Reference: public/social-preview.png (previous card and Jeonbuk boundary silhouette).
+Final asset: public/social-preview-v2.png, exported at 1200 x 630 pixels.
+The relief, lights and columns are illustrative artwork, not quantitative data.
+
+Use case: ads-marketing
+Asset type: final social sharing thumbnail / Open Graph image for the Korean education dashboard 전북교육지도, landscape 1200 × 630 (1.9048:1).
+Primary request: Completely redesign the attached old social card into a striking, beautifully art-directed premium dark education data-map cover. This is a finished share image, not a website screenshot.
+Input image: existing card is an edit target and a geographic reference ONLY; preserve the recognizable Jeonbuk province silhouette and its internal district outline topology from its right-hand map. Replace the old light/orange design with the current dashboard visual identity.
+Composition: generous safe margins, confident large Korean typography on the left; a sophisticated shallow isometric 3D relief of the Jeonbuk map on the right, with sufficient separation so no map details collide with the copy. Keep all essential content within the central safe area. The map should be a large beautiful focal object, raised translucent midnight glass district tiles with precise luminous cyan rims, subtle topographic contour lines, scattered warm coral school-location light nodes and a few tasteful slim luminous data columns. The visual is an illustrative education-data map, so do not add fabricated numbers, chart labels, location names or metric claims.
+Background and palette: very dark midnight navy #081421 fading gently into #122438, cyan #43cfe0 and pale cyan #83e6ef edge lighting, restrained coral #f28c62 highlights, white #ebf5fc primary text, cool muted #afc2d0 secondary text. Dim cartographic grid texture only near the map, lots of clear dark negative space behind copy. A faint cyan ambient halo and realistic soft reflection underneath the floating relief. Refined depth and clean editorial hierarchy, crisp not hazy, sophisticated civic technology design.
+Typography: immaculate, genuinely readable Korean geometric sans-serif, bold large title about 80px equivalent at 1200 width, strong letterforms with no distortion. Main title exact text on ONE line: "전북교육지도".
+Small top eyebrow exact text: "전북특별자치도 교육 데이터 지도".
+Two supporting lines exact text: "우리 지역의 학교와 교육 현황을" and "지도에서 살펴보세요".
+A restrained horizontal category line below, exact text: "학교 · 통계 · 교육문제".
+Small but readable lower-left site URL exact text: "jb-edu-map.vercel.app".
+A tiny cyan diamond outline can echo the actual dashboard identity beside the top eyebrow. No unrelated logos, no people, no watermarks, no huge decorative rings, no stock-photo mood, no additional copy. The title must remain dominant and instantly legible when the image is reduced to a small social preview. Render at exactly 1200 × 630 if possible; otherwise preserve this wide aspect ratio.
