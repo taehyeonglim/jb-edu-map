@@ -1,7 +1,7 @@
 import { openPanel, expect, test } from "./fixtures";
 import type { Page } from "@playwright/test";
 
-async function clickOnlySchoolPoint(page: Page, offsetX = 0, input: "mouse" | "touch" = "mouse") {
+async function clickOnlySchoolPoint(page: Page, offsetX = 0, input: "mouse" | "touch" = "mouse", delay = 0) {
   await expect(page.locator('[data-labels-ready="true"]')).toBeAttached({ timeout: 20000 });
   await expect.poll(() => page.evaluate(async () => {
     const deck = window.__jbmap?.deck;
@@ -29,7 +29,7 @@ async function clickOnlySchoolPoint(page: Page, offsetX = 0, input: "mouse" | "t
     return (hit?.object as { id?: string } | undefined)?.id ?? null;
   }, { x: point.x + offsetX, y: point.y })).toBe(point.id);
   if (input === "touch") await page.touchscreen.tap(bounds.x + point.x + offsetX, bounds.y + point.y);
-  else await page.mouse.click(bounds.x + point.x + offsetX, bounds.y + point.y);
+  else await page.mouse.click(bounds.x + point.x + offsetX, bounds.y + point.y, { delay });
   await expect(page).toHaveURL(new RegExp(`school=${point.id}`));
   await expect(page).toHaveURL(/region=52110/);
 }
@@ -100,11 +100,15 @@ test.describe("학교 클릭 후 드래그 종료", () => {
   test.use({ reducedMotion: "no-preference" });
 
   for (const scene of ["flat", "city"]) {
-    for (const offset of [0, 10]) {
-      test(`${scene}: 학교 ${offset ? "점 주변" : "점"} 클릭 후 버튼 없이 움직여도 지도가 고정된다`, async ({ page }) => {
+    for (const { offset, delay, label } of [
+      { offset: 0, delay: 0, label: "점 클릭" },
+      { offset: 10, delay: 0, label: "점 주변 클릭" },
+      { offset: 0, delay: 400, label: "점을 400ms 누른 뒤 놓기" },
+    ]) {
+      test(`${scene}: 학교 ${label} 후 버튼 없이 움직여도 지도가 고정된다`, async ({ page }) => {
         await page.goto(`/?scene=${scene}&schoolChart=dots&region=52110&q=${encodeURIComponent("전주초등학교")}`);
         await expect(page.locator('[data-map-ready="true"]')).toBeAttached({ timeout: 20000 });
-        await clickOnlySchoolPoint(page, offset);
+        await clickOnlySchoolPoint(page, offset, "mouse", delay);
         await expect(page.getByTestId("school-hud")).toContainText("전주초등학교");
         const before = await settledCamera(page);
         const bounds = (await page.locator("#school-map").boundingBox())!;

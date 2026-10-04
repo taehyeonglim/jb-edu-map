@@ -266,6 +266,7 @@ export default function DeckMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const hudLayout = useHudLayout(containerRef);
   const deckRef = useRef<DeckGLRef | null>(null);
+  const clickGestureRef = useRef<{ x: number; y: number; id: number; moved: boolean; handled: boolean } | null>(null);
   const mapReadyRef = useRef(false);
   const lastLabelViewportKey = useRef("");
   const lastLabelUpdateTime = useRef(0);
@@ -746,6 +747,7 @@ export default function DeckMap({
   // miss branch.
   const handleDeckClick = useCallback(
     (info: PickingInfo) => {
+      if (clickGestureRef.current) clickGestureRef.current.handled = true;
       recordE2eEvent({
         type: "deck-click",
         code: (info.object as { properties?: { code?: string } } | undefined)
@@ -1209,6 +1211,31 @@ export default function DeckMap({
       // 사용자 요구(2026-09-21): 지도 위 우클릭은 아무 조작도 아니므로(회전 제거)
       // 브라우저 컨텍스트 메뉴가 뜨지 않게 한다.
       onContextMenu={(event) => event.preventDefault()}
+      onPointerDownCapture={(event) => {
+        clickGestureRef.current = event.isPrimary && event.button === 0 && event.target instanceof HTMLCanvasElement && event.target.id === "deckgl-overlay"
+          ? { x: event.clientX, y: event.clientY, id: event.pointerId, moved: false, handled: false }
+          : null;
+      }}
+      onPointerMoveCapture={(event) => {
+        const gesture = clickGestureRef.current;
+        if (gesture?.id === event.pointerId && Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > 6) gesture.moved = true;
+      }}
+      onPointerCancelCapture={() => { clickGestureRef.current = null; }}
+      onClickCapture={(event) => {
+        const gesture = clickGestureRef.current;
+        clickGestureRef.current = null;
+        if (!gesture || gesture.handled || gesture.moved || interactionBlocked || event.button !== 0) return;
+        if (Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > 6) return;
+        if (!(event.target instanceof HTMLCanvasElement) || event.target.id !== "deckgl-overlay") return;
+        if (selectedCode === null && schoolChart === "auto") return;
+        // mjolnir's short-tap recognizer can miss a slow click or a busy GPU
+        // frame. Native click follows pointerup, so this fallback cannot hide
+        // the controller's release. Completed deck.gl clicks and drags skip it.
+        const bounds = event.currentTarget.getBoundingClientRect();
+        const deck = deckRef.current?.deck;
+        const schoolId = nearbySchoolId(event.clientX - bounds.left, event.clientY - bounds.top, deck?.getViewports()[0], deck);
+        if (schoolId) handleSchoolClick(schoolId);
+      }}
       // CI Linux fix — useFontGate's OWN gate: the font itself finished
       // loading. Decoupled from data-map-ready (deck.gl's first render
       // frame, unrelated to fonts). NOT what e2e waits on before touching
