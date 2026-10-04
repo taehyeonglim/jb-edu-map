@@ -116,17 +116,14 @@ test("학교 규모·작은학교·폐교 주제는 각각의 지도 표현과 U
   await expect(
     page.getByRole("heading", { name: "같은 지역의 학교 규모는 얼마나 다른가?" }),
   ).toBeVisible();
-  await expect(page.getByRole("region", { name: "학교 규모 구간" })).toContainText(
-    "1,000명 이상6개교",
-  );
-  await expect(page.getByRole("region", { name: "두 지역 비교" })).toContainText(
+  await expect(page.getByRole("region", { name: "전주시 학교 규모별 분포" }).getByRole("listitem").filter({ hasText: "1,000명 이상" })).toContainText("6 · 8.0%");
+  await expect(page.getByRole("region", { name: "군산시 학교 규모별 분포" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "두 지역 비교", exact: true })).toContainText(
     "지표전주시군산시",
   );
   await page.getByRole("combobox", { name: "규모 비교 학교급" }).selectOption("mid");
   await expect(page).toHaveURL(/issueLevel=mid/);
-  await expect(page.getByRole("region", { name: "학교 규모 구간" })).toContainText(
-    "61~999명40개교",
-  );
+  await expect(page.getByRole("region", { name: "전주시 학교 규모별 분포" }).getByRole("listitem").filter({ hasText: "61~999명" })).toContainText("40 · 97.6%");
 
   await page.goto(
     "/?view=issues&issue=regional-sustainability&issueMetric=decline-small&region=52720",

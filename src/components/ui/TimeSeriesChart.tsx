@@ -16,12 +16,12 @@ interface Props {
   onShowStudents?: () => void;
 }
 
-const WIDTH = 320;
-const HEIGHT = 126;
-const LEFT = 12;
-const RIGHT = 12;
-const TOP = 14;
-const BOTTOM = 22;
+const WIDTH = 380;
+const HEIGHT = 170;
+const LEFT = 64;
+const RIGHT = 22;
+const TOP = 24;
+const BOTTOM = 26;
 
 export default function TimeSeriesChart({ data, comparison, label, place, unit, format, onShowStudents }: Props) {
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -49,8 +49,13 @@ export default function TimeSeriesChart({ data, comparison, label, place, unit, 
     </section>;
   }
 
-  const min = Math.min(...valid.map((row) => row.value));
-  const max = Math.max(...valid.map((row) => row.value));
+  const dataMin = Math.min(...valid.map((row) => row.value));
+  const dataMax = Math.max(...valid.map((row) => row.value));
+  const padding = (dataMax - dataMin || Math.abs(dataMax) || 1) * 0.1;
+  const min = dataMin >= 0 ? Math.max(0, dataMin - padding) : dataMin - padding;
+  const max = dataMax + padding;
+  const ticks = Array.from({ length: 4 }, (_, index) => min + (max - min) * index / 3);
+  const axisNumber = (value: number) => value.toLocaleString("ko-KR", { maximumFractionDigits: Math.abs(max - min) < 5 ? 2 : 1 });
   const x = (year: number) => LEFT + ((year - first.year) / (last.year - first.year)) * (WIDTH - LEFT - RIGHT);
   const y = (value: number) => max === min ? (TOP + HEIGHT - BOTTOM) / 2
     : HEIGHT - BOTTOM - ((value - min) / (max - min)) * (HEIGHT - TOP - BOTTOM);
@@ -61,7 +66,13 @@ export default function TimeSeriesChart({ data, comparison, label, place, unit, 
     <h3 className="text-sm font-semibold">시계열 추이 · {place}</h3>
     <p className="mt-1 text-xs text-ink-muted">{label} · {first.year}–{last.year} · 연도를 눌러 값을 확인하세요</p>
     {comparison && <div className="mt-2 flex flex-wrap gap-3 text-xs" aria-label="추이 범례">{series.map((item, index) => <span key={index} style={{ color: item.color }}>{item.dashed ? "┄" : "━"} {item.place}</span>)}</div>}
-    <svg role="img" aria-label={aria} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" className="mt-3 h-32 w-full" preserveAspectRatio="none">
+    {min !== 0 && <p className="mt-1 text-[11px] text-ink-muted">세로축 확대 · {unit}</p>}
+    <svg role="img" aria-label={`${aria} · 단위 ${unit}${min !== 0 ? " · 세로축 확대" : ""}`} viewBox={`0 0 ${WIDTH} ${HEIGHT}`} width="100%" className="mt-2 h-auto w-full">
+      <text x={LEFT} y={12} fontSize="11" fill={THEME.inkMuted}>{unit}</text>
+      {ticks.map((tick, index) => <g key={index}>
+        <line x1={LEFT} x2={WIDTH - RIGHT} y1={y(tick)} y2={y(tick)} stroke={THEME.line} strokeDasharray="3 4" />
+        <text x={LEFT - 7} y={y(tick) + 4} textAnchor="end" fontSize="11" fill={THEME.inkMuted}>{axisNumber(tick)}</text>
+      </g>)}
       <line x1={LEFT} x2={WIDTH - RIGHT} y1={HEIGHT - BOTTOM} y2={HEIGHT - BOTTOM} stroke={THEME.line} />
       {series.map((item, index) => <g key={index} aria-label={item.place}>
         {seriesSegments(item.rows).map((segment, segmentIndex) => segment.length > 1 ? <path key={segmentIndex} d={segment.map((row, point) => `${point ? "L" : "M"}${x(row.year)},${y(row.value)}`).join(" ")} fill="none" stroke={item.color} strokeDasharray={item.dashed ? "5 4" : undefined} strokeWidth="2.5" vectorEffect="non-scaling-stroke" /> : null)}
@@ -74,11 +85,13 @@ export default function TimeSeriesChart({ data, comparison, label, place, unit, 
       {delta !== null && <span className="ml-2 text-xs font-normal text-ink-muted">전년 대비 {delta > 0 ? "+" : delta < 0 ? "−" : "±"}{formatNumber(Math.abs(delta))}{changeUnit}</span>}
     </p>
     {comparison && <p className="mt-1 text-xs tabular-nums">{comparison.place} {otherActive?.value == null ? "자료 없음" : `${formatNumber(otherActive.value)}${unit}`}</p>}
-    <div className="mt-3 grid gap-1" style={{ gridTemplateColumns: `repeat(${Math.min(rows.length, 5)}, minmax(0, 1fr))` }} aria-label="연도별 값">
-      {rows.map((row, index) => <button key={row.year} type="button" aria-pressed={row.year === active.year} onClick={() => setSelectedYear(row.year)} className="min-h-12 rounded border border-line bg-surface px-1 py-1 text-center text-xs aria-pressed:border-accent aria-pressed:bg-accent-soft">
-        <span className="block text-ink-muted">{row.year}</span>
-        <strong className="block truncate tabular-nums" title={row.value === null ? "자료 없음" : `${formatNumber(row.value)}${unit}`}>{row.value === null ? "—" : formatNumber(row.value)}</strong>
-        {comparison && <span className="block truncate tabular-nums" style={{ color: THEME.warningText }} title={`${comparison.place}: ${other[index].value === null ? "자료 없음" : `${formatNumber(other[index].value)}${unit}`}`}>{other[index].value === null ? "—" : formatNumber(other[index].value)}</span>}
+    <div className="mt-3 grid gap-1" aria-label="연도별 값">
+      {rows.map((row, index) => <button key={row.year} type="button" aria-label={`${row.year} ${comparison ? `${place} ` : ""}${row.value === null ? "자료 없음" : `${formatNumber(row.value)}${unit}`}${comparison ? ` · ${comparison.place} ${other[index].value === null ? "자료 없음" : `${formatNumber(other[index].value)}${unit}`}` : ""}`} aria-pressed={row.year === active.year} onClick={() => setSelectedYear(row.year)} className="grid min-h-11 grid-cols-[3rem_1fr] items-center gap-2 rounded border border-line bg-surface px-2 py-2 text-left text-xs aria-pressed:border-accent aria-pressed:bg-accent-soft">
+        <span className="text-ink-muted">{row.year}</span>
+        <span className="flex flex-wrap justify-end gap-x-3 gap-y-1">
+          <strong className="tabular-nums">{row.value === null ? "—" : `${formatNumber(row.value)}${unit}`}</strong>
+          {comparison && <span className="tabular-nums" style={{ color: THEME.warningText }} title={comparison.place}>{other[index].value === null ? "—" : `${formatNumber(other[index].value)}${unit}`}</span>}
+        </span>
       </button>)}
     </div>
     <p className="mt-2 text-[11px] text-ink-muted">각 연도 교육통계 기준 값입니다. 빈 연도는 선으로 연결하지 않습니다.</p>

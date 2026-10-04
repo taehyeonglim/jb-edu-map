@@ -19,11 +19,14 @@ import type { EducationIssuesFile, IssueMapModel } from "@/lib/issues/types";
 import type { School } from "@/lib/schools/types";
 import { SCHOOL_LEVEL_LABELS } from "@/lib/schoolVisuals";
 import TimeSeriesChart from "@/components/ui/TimeSeriesChart";
+import { BarChart } from "@/components/ui/AnalysisCharts";
+import { issueMetricUnit } from "@/lib/issues/analysis";
 import { indicatorById } from "@/lib/indicators/registry";
 import { trend as seriesTrend } from "@/lib/stats";
 import { useMapQuery } from "@/lib/state/urlState";
 import { IssueComparison, IssueDetails } from "./IssueDetails";
 import { SchoolDetail } from "./SchoolExplorer";
+import IssueAnalysis from "./IssueAnalysis";
 
 const button =
   "min-h-11 rounded-lg border border-line px-3 py-2 text-xs hover:bg-paper";
@@ -34,18 +37,7 @@ const ISSUE_TREND_INDICATOR: Record<string, string> = {
   "zero-entrants": "zero_entrant_schools",
 };
 export function IssueLegend({ model }: { model: IssueMapModel }) {
-  const unit =
-    ["librarian-schools", "counselor-schools"].includes(model.metric)
-      ? "개교"
-      : isResourceMetric(model.metric)
-      ? model.metric === "ai-focus-schools" ? "개교" : model.metric === "career-regions" ? "지역" : "곳"
-      : model.metric === "small-share"
-      ? "%"
-      : model.metric === "special-classes"
-        ? "학급"
-        : model.metric === "special-students"
-          ? "명"
-          : "개교";
+  const unit = issueMetricUnit(model.metric);
   return (
     <section
       aria-label="교육문제 지도 범례"
@@ -66,9 +58,7 @@ export function IssueLegend({ model }: { model: IssueMapModel }) {
         ))}
       </div>
       <p>
-        {model.metric === "designation" || model.metric === "student-change"
-          ? ""
-          : `단위 ${unit} · `}
+        {unit ? `단위 ${unit} · ` : ""}
         {model.date}
       </p>
     </section>
@@ -167,14 +157,8 @@ export default function IssueExplorer({
   );
   const trendId = ISSUE_TREND_INDICATOR[model.metric];
   const trendDefinition = trendId ? indicatorById(trendId) : null;
-  const specialTrend = ["special-classes", "special-students"].includes(model.metric);
-  const trendRows = specialTrend
-    ? (data.specialTrends ?? []).filter((row) => row.regionCode === scope).map((row) => ({
-        year: row.year,
-        value: model.metric === "special-classes" ? row.regularClasses : row.regularStudents,
-      }))
-    : trendId && bundle.series[trendId]
-      ? seriesTrend(bundle.series[trendId], scope) : [];
+  const trendRows = trendId && bundle.series[trendId]
+    ? seriesTrend(bundle.series[trendId], scope) : [];
   const relatedModels = definition.metrics.map((metric) =>
     buildIssueModel(bundle, data, definition, metric, query.issueLevel),
   );
@@ -222,7 +206,7 @@ export default function IssueExplorer({
         className="rounded-xl border border-line bg-paper p-3"
         aria-live="polite"
       >
-        <p className="text-xs text-ink-muted">{model.title}</p>
+        <p className="text-xs text-ink-muted">{model.metric === "school-size" ? "대상 본교 수 · 규모 분포는 아래에서 비교" : model.title}</p>
         <p className="mt-1 text-lg font-semibold">
           {current
             ? `${regionName(current.code)} · ${current.text}`
@@ -230,19 +214,17 @@ export default function IssueExplorer({
         </p>
         <p className="mt-2 text-xs text-ink-muted">{model.date}</p>
       </div>
-      {(trendDefinition || specialTrend) && <TimeSeriesChart
+      <IssueAnalysis bundle={bundle} data={data} model={model} region={region} compare={query.compareRegion} onMetric={onMetric} />
+      {trendDefinition && <TimeSeriesChart
         key={`${model.metric}:${scope}`}
         data={trendRows}
-        label={specialTrend ? model.title : trendDefinition!.label}
+        comparison={region && query.compareRegion ? { place: regionName(query.compareRegion), data: bundle.series[trendId] ? seriesTrend(bundle.series[trendId], query.compareRegion) : [] } : undefined}
+        label={trendDefinition.label}
         place={region ? regionName(region) : `${ACTIVE_PROFILE.province.shortName} 전체`}
-        unit={specialTrend ? (model.metric === "special-classes" ? "학급" : "명") : trendDefinition!.unit}
-        format={specialTrend ? (value) => value.toLocaleString("ko-KR") : trendDefinition!.format}
+        unit={trendDefinition.unit}
+        format={trendDefinition.format}
       />}
-      <div className="rounded-xl bg-accent-soft p-3 text-sm leading-relaxed"><strong>지도 읽는 법</strong><p className="mt-1">{model.readingGuide}</p></div>
-      {model.metric === "decline-small" && <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={query.zeroEntrants} onChange={e => query.setZeroEntrants(e.target.checked)} />신입생 0명 학교 강조</label>}
-      <p className="text-xs leading-relaxed text-ink-muted">{model.note}</p>
       <IssueComparison bundle={bundle} data={data} model={model} region={region} compare={query.compareRegion} onCompare={query.setCompareRegion} />
-      <IssueDetails bundle={bundle} data={data} model={model} region={region} />
       <section aria-label="교육문제 시군 비교">
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-sm font-semibold">{model.regions.length}개 시군 비교</h3>
@@ -255,7 +237,14 @@ export default function IssueExplorer({
             </button>
           )}
         </div>
-        <ul className="space-y-1">
+        {!["designation", "basic-centers", "career-regions"].includes(model.metric) ? <BarChart
+          title={model.metric === "school-size" ? "지역별 대상 본교 수 (규모 분포와 별도)" : model.title}
+          rows={model.regions.map(row => ({ id: row.code, label: regionName(row.code), value: typeof row.value === "number" ? row.value : null, text: row.text, color: `rgb(${row.color.slice(0, 3).join(",")})` }))}
+          unit={issueMetricUnit(model.metric)}
+          domain={["small-share", "unused-share"].includes(model.metric) ? [0, 100] : undefined}
+          selectedId={region ?? undefined} onSelect={onRegion}
+          note={`${model.date} · 시군을 누르면 해당 지역을 선택합니다.`}
+        /> : <ul className="space-y-1">
           {model.regions.map((row) => (
             <li key={row.code}>
               <button
@@ -276,8 +265,12 @@ export default function IssueExplorer({
               </button>
             </li>
           ))}
-        </ul>
+        </ul>}
       </section>
+      <div className="rounded-xl bg-accent-soft p-3 text-sm leading-relaxed"><strong>지도 읽는 법</strong><p className="mt-1">{model.readingGuide}</p></div>
+      {model.metric === "decline-small" && <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={query.zeroEntrants} onChange={e => query.setZeroEntrants(e.target.checked)} />신입생 0명 학교 강조</label>}
+      <p className="text-xs leading-relaxed text-ink-muted">{model.note}</p>
+      <IssueDetails bundle={bundle} data={data} model={model} region={region} />
       <section
         className="space-y-3 border-t border-line pt-4"
         aria-label="교육문제 지역 상세"
@@ -288,7 +281,7 @@ export default function IssueExplorer({
         <dl className="space-y-2 text-xs">
           {relatedModels.map((related) => (
             <div key={related.metric} className="flex justify-between gap-3">
-              <dt className="text-ink-muted">{related.title}</dt>
+              <dt className="text-ink-muted">{related.metric === "school-size" ? "대상 본교 수" : related.title}</dt>
               <dd className="shrink-0 font-medium">
                 {related.metric === "designation" && !region
                   ? related.provinceText

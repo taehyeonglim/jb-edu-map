@@ -29,9 +29,11 @@ for (const [width, height] of [[1440, 900], [1024, 768], [390, 844], [360, 640]]
       await metrics.getByRole("button", { name: "학급수", exact: true }).click();
       await expect(page).toHaveURL(/indicator=classes_total/);
       await expect(metrics.getByRole("button", { name: "학급수", exact: true })).toHaveAttribute("aria-pressed", "true");
+      await expect(page.getByRole("tabpanel", { name: "시군 통계", exact: true })).toBeVisible();
     }
     await docShot(page, `control-room-${width}`);
     await page.getByRole("button", { name: "학교·통계", exact: true }).click();
+    await page.getByRole("tab", { name: "학교 탐색", exact: true }).click();
     await expect(page.getByRole("searchbox", { name: "학교명 검색" })).toBeVisible();
     expect((await page.locator("#school-map").boundingBox())!.width).toBe(width);
     await page.getByRole("button", { name: "패널 닫기", exact: true }).click();

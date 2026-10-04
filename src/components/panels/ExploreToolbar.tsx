@@ -11,7 +11,7 @@ const serialize = createSerializer(mapQueryParsers);
 const chip =
   "min-h-11 rounded border border-line px-2 text-left text-xs break-words hover:bg-paper";
 
-export default function ExploreToolbar({ title }: { title: string }) {
+export default function ExploreToolbar({ title, compact = false }: { title: string; compact?: boolean }) {
   const query = useMapQuery();
   const [status, setStatus] = useState("");
   const [fallback, setFallback] = useState(false);
@@ -38,7 +38,7 @@ export default function ExploreToolbar({ title }: { title: string }) {
       setStatus("주소를 선택해 복사하세요.");
     }
   };
-  return (
+  const content = (
     <section
       aria-label="현재 탐색 조건"
       className="mb-4 space-y-2 border-b border-line pb-3"
@@ -131,4 +131,5 @@ export default function ExploreToolbar({ title }: { title: string }) {
       )}
     </section>
   );
+  return compact ? <details className="mb-3 text-xs"><summary className="min-h-11 cursor-pointer py-2 text-ink-muted">탐색 조건 · {query.regionCode ? regionName(query.regionCode) : "전체 지역"}{query.search || query.schoolLevel !== "all" ? " · 학교 검색 적용" : ""} · 공유</summary>{content}</details> : content;
 }

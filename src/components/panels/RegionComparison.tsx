@@ -3,6 +3,8 @@
 import type { ComparisonRow } from "@/lib/comparison";
 import { comparisonCsv, downloadCsv } from "@/lib/export";
 import { REGION_CODES, regionName, type RegionCode } from "@/lib/geo/regions";
+import { BarChart } from "@/components/ui/AnalysisCharts";
+import { THEME } from "@/lib/theme";
 
 function ComparisonValue({ text, unit }: { text: string; unit: string }) {
   if (!unit || !text.endsWith(unit)) return <>{text}</>;
@@ -33,6 +35,8 @@ export default function RegionComparison({
   onIndicator?: (id: string) => void;
   conditions: string;
 }) {
+  const selected = rows.find(row => row.id === selectedId);
+  const numeric = selected && selected.id !== "career-regions" && selected.values.every(value => value === null || typeof value === "number");
   return (
     <section
       aria-label="두 지역 비교"
@@ -58,6 +62,10 @@ export default function RegionComparison({
       </label>
       {compare && (
         <>
+          {numeric && selected && <BarChart title={`${selected.label} · 두 지역 비교`} unit={selected.unit}
+            rows={selected.values.map((value, index) => ({ id: index === 0 ? region : compare, label: regionName(index === 0 ? region : compare), value: typeof value === "number" ? value : null, text: selected.texts[index], color: index === 0 ? THEME.accent : THEME.warningText }))}
+            domain={selected.unit === "%" && selected.values.every(value => typeof value !== "number" || value >= 0) ? [0, 100] : undefined}
+            note={`${selected.referenceDate} · 차이 ${selected.differenceText} (${regionName(region)} − ${regionName(compare)})`} />}
           <p className="text-xs leading-relaxed text-ink-muted">
             각 지표의 최신 값 · 차이 = {regionName(region)} −{" "}
             {regionName(compare)}. 비율 차이는 %p입니다.

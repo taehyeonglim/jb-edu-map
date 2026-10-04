@@ -42,12 +42,16 @@ test("원통은 현재 지표에 비례하고 검색·점 전환·뒤로가기�
   expect(errors).toEqual([]);
 });
 
-test("지역 전용 지표와 평면은 점을 유지하고 교육문제는 선택한 값을 쓴다", async ({ page }) => {
+test("지역 전용 지표는 학교 위치를 별도 표시하고 평면·교육문제는 선택한 값을 쓴다", async ({ page }) => {
   await page.goto("/?schoolChart=columns&scene=city&indicator=students_change_5y");
   await openPanel(page);
   await openMapSettings(page);
-  await expect(page.getByTestId("school-chart-legend")).toContainText("학교별 높이 자료가 없어");
+  await expect(page.getByTestId("school-chart-legend")).toContainText("시군 단위로 표시");
   expect(await columns(page)).toHaveLength(0);
+  const hasSchoolPoints = () => page.evaluate(() => (window.__jbmap!.deck.props.layers as unknown as { id: string }[]).some(layer => layer?.id === "schools"));
+  expect(await hasSchoolPoints()).toBe(false);
+  await page.getByRole("button", { name: "학교 위치 보기", exact: true }).click();
+  await expect.poll(hasSchoolPoints).toBe(true);
   await page.goto("/?schoolChart=columns&scene=flat");
   await openPanel(page);
   await openMapSettings(page);

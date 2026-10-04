@@ -11,9 +11,13 @@ import TimeSeriesChart from "@/components/ui/TimeSeriesChart";
 import { PROVINCE_CODE } from "@/lib/geo/regions";
 import { ACTIVE_PROFILE } from "@/lib/profiles";
 import { trend } from "@/lib/stats";
+import { BarChart } from "@/components/ui/AnalysisCharts";
+import { shareNumerator } from "@/lib/analysis";
+import { THEME } from "@/lib/theme";
 
 export interface RegionListProps {
   bundle: Pick<DataBundle, "indicators" | "series">;
+  showTrend?: boolean;
 }
 
 function rgbCss([r, g, b]: readonly number[]): string {
@@ -26,8 +30,8 @@ function rgbCss([r, g, b]: readonly number[]): string {
  * like IndicatorMenu — reads `indicatorId` and writes `region` itself via
  * useMapQuery(), so Dashboard only needs to pass the loaded data bundle.
  */
-export default function RegionList({ bundle }: RegionListProps) {
-  const { indicatorId, setRegion, setIndicator } = useMapQuery();
+export default function RegionList({ bundle, showTrend = true }: RegionListProps) {
+  const { indicatorId, regionCode, setRegion, setIndicator } = useMapQuery();
 
   const def = indicatorById(indicatorId);
   if (!def) throw new Error(`RegionList: unknown indicatorId "${indicatorId}"`);
@@ -38,52 +42,37 @@ export default function RegionList({ bundle }: RegionListProps) {
   const ranks = rank(map);
   const orderedCodes = regionRankList(map);
   const { colorOf } = makeColorScale(def, map);
-  const provinceTrend = bundle.series[indicatorId] ? trend(bundle.series[indicatorId], PROVINCE_CODE) : [];
+  const trendId = indicatorId === "students_change_5y" ? "students_total" : indicatorId;
+  const trendDef = indicatorById(trendId)!;
+  const provinceTrend = bundle.series[trendId] ? trend(bundle.series[trendId], PROVINCE_CODE) : [];
+  const province = map.get(PROVINCE_CODE);
+  const denominators = bundle.indicators.schools_total ? valueMap(bundle.indicators.schools_total) : new Map<string, number | null>();
+  const share = ["small_school_share", "rural_school_share"].includes(indicatorId);
 
   return (
     <div>
-      <div className="mb-4">
+      <p className="mb-2 text-sm text-ink-muted">시군을 클릭하거나 목록에서 선택하세요</p>
+      <BarChart title={`${label} · 시군 비교`} unit={def.unit} selectedId={regionCode ?? undefined} onSelect={code => setRegion(code as NonNullable<typeof regionCode>)}
+        domain={share ? [0, 100] : undefined}
+        reference={def.kind === "ratio" && province != null ? { value: province, label: `${ACTIVE_PROFILE.province.shortName} 전체 집계` } : undefined}
+        rows={orderedCodes.map(code => {
+          const value = map.get(code) ?? null;
+          const denominator = denominators.get(code);
+          const numerator = shareNumerator(value, denominator);
+          return { id: code, label: regionName(code), value, text: value === null ? "자료 없음" : def.format(value), color: indicatorId === "students_change_5y" ? (value !== null && value < 0 ? THEME.warning : THEME.positive) : rgbCss(colorOf(code)), detail: share ? `대상 ${numerator ?? "자료 없음"}개교 / 본교 ${denominator ?? "자료 없음"}개교` : `${ranks.get(code) ?? "–"}위` };
+        })}
+        note={`기준 ${file.referenceDate} · 단위 ${def.unit} · 시군 전체 집계${share ? " · 학교 수는 반올림 전 비율과 본교 수로 산출" : ""}`} />
+      {showTrend && <div className="mt-4">
         <TimeSeriesChart
           key={indicatorId}
           data={provinceTrend}
-          label={label}
+          label={trendDef.label}
           place={`${ACTIVE_PROFILE.province.shortName} 전체`}
-          unit={def.unit}
-          format={def.format}
+          unit={trendDef.unit}
+          format={trendDef.format}
           onShowStudents={indicatorId === "students_change_5y" ? () => setIndicator("students_total") : undefined}
         />
-      </div>
-      <p className="mb-3 text-sm text-ink-muted">시군을 클릭하거나 목록에서 선택하세요</p>
-      <p className="mb-2 text-xs text-ink-muted">{label} 기준</p>
-      <ul className="flex flex-col gap-1">
-        {orderedCodes.map((code) => {
-          const value = map.get(code);
-          const r = ranks.get(code);
-          const [cr, cg, cb] = colorOf(code);
-          return (
-            <li key={code}>
-              <button
-                type="button"
-                onClick={() => setRegion(code)}
-                className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left hover:bg-ink/5"
-              >
-                <span
-                  aria-hidden
-                  className="h-3 w-3 shrink-0 rounded-sm ring-1 ring-inset ring-ink/10"
-                  style={{ backgroundColor: rgbCss([cr, cg, cb]) }}
-                />
-                <span className="flex-1 truncate text-sm text-ink">{regionName(code)}</span>
-                <span className="shrink-0 tabular-nums text-xs text-ink-muted">
-                  {value === null || value === undefined ? "자료 없음" : def.format(value)}
-                </span>
-                <span className="w-8 shrink-0 text-right tabular-nums text-[10px] text-ink-muted">
-                  {r !== undefined ? `${r}위` : "–"}
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+      </div>}
     </div>
   );
 }

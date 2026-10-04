@@ -80,8 +80,9 @@ test.describe("시군 선택", () => {
 
     await expect(page).toHaveURL(/[?&]region=52110(&|$)/);
     await expect(page.getByRole("heading", { name: "전주시", exact: true })).toBeVisible();
-    // RegionList is gone, replaced by the panel.
-    await expect(page.getByText("시군을 클릭하거나 목록에서 선택하세요")).not.toBeVisible();
+    // Regional comparison stays available below the selected region's detail.
+    await expect(page.getByRole("region", { name: /· 시군 비교$/ }).getByRole("button")).toHaveCount(14);
+    await expect(page.getByRole("region", { name: /· 시군 비교$/ }).getByRole("button", { name: /전주시/ })).toHaveAttribute("aria-pressed", "true");
 
     // The flat map's pitch is always zero, so wait for zoom movement to
     // confirm the asynchronous camera transition has actually started.

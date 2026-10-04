@@ -243,9 +243,10 @@ describe("RegionPanel", () => {
     expect(screen.queryByText("추이 없음")).not.toBeInTheDocument();
   });
 
-  it("shows '추이 없음' for an indicator with no series file (students_change_5y)", () => {
+  it("shows the underlying student history for the multi-year change indicator", () => {
     renderSelected(`?region=${REGION}&indicator=students_change_5y`);
-    expect(screen.getByText("추이 없음")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "전주시 학생수 시계열 추이" })).toBeInTheDocument();
+    expect(screen.queryByText("추이 없음")).not.toBeInTheDocument();
   });
 
   it("lists all 18 registry indicators in the 다른 지표 table", () => {

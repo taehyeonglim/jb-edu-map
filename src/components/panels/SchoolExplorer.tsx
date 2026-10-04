@@ -6,6 +6,8 @@ import { downloadCsv, schoolCsv } from "@/lib/export";
 
 import type { MapMetricSpec } from "@/lib/mapMetrics";
 import { chartValueText } from "@/lib/schools/chart";
+import { BarChart, CompositionChart } from "@/components/ui/AnalysisCharts";
+import { schoolDistribution } from "@/lib/analysis";
 import type { School } from "@/lib/schools/types";
 import type { SchoolFilters } from "@/lib/schools/filter";
 import { REGION_CODES, regionName, type RegionCode } from "@/lib/geo/regions";
@@ -175,6 +177,13 @@ export default function SchoolExplorer({
       >
         지도로 건너뛰기
       </button>
+      {metric && metric.kind !== "region" && !metric.regionOverlay && <details className="text-xs">
+        <summary className="min-h-11 cursor-pointer py-2 font-semibold text-accent-text">검색 결과 분포 · {schools.length.toLocaleString("ko-KR")}개교</summary>
+        <div className="mt-2 space-y-3">
+          <CompositionChart title="검색 결과 학교급 구성 · 개교" segments={SCHOOL_LEVEL_ORDER.map(level => ({ id: level, label: SCHOOL_LEVEL_LABELS[level], value: schools.filter(school => school.level === level).length, color: `rgb(${SCHOOL_LEVEL_COLORS[level].slice(0, 3).join(",")})` }))} note="현재 학교명·학교급·시군 조건 · 분교 및 위치 없는 학교 포함" />
+          <BarChart title={`${metric.title} · 학교 수 분포`} rows={schoolDistribution(schools, metric)} unit="개교" note={`${metric.date} · 학교별 수치의 전북 전체 기준 구간${metric.kind === "density" ? " · 밀도 지도의 상대 집중도와 구분" : ""}`} />
+        </div>
+      </details>}
       <div className="space-y-3">
         <label className="block text-xs font-medium">
           학교명 검색

@@ -164,6 +164,7 @@ for (const width of [390, 360])
     await openPanel(page);
     const panel = page.getByRole("dialog", { name: "학교 탐색 및 시군 통계" });
     await expect(panel).toBeVisible();
+    await panel.locator("summary").filter({ hasText: /탐색 조건.*공유/ }).click();
     await expect(
       panel.getByRole("button", { name: "링크 복사" }),
     ).toBeVisible();

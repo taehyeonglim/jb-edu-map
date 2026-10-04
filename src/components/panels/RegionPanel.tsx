@@ -4,6 +4,10 @@ import { useState } from "react";
 
 import TimeSeriesChart from "@/components/ui/TimeSeriesChart";
 import RegionComparison from "./RegionComparison";
+import MetricDetailCharts from "./MetricDetailCharts";
+import RegionList from "./RegionList";
+import type { MapMetricSpec } from "@/lib/mapMetrics";
+import type { EducationIssuesFile } from "@/lib/issues/types";
 import { buildIndicatorComparison } from "@/lib/comparison";
 import type { DataBundle } from "@/lib/data/types";
 import { REGION_CODES, regionName } from "@/lib/geo/regions";
@@ -19,6 +23,8 @@ import { formatDelta, formatShare, formatWithUnit } from "@/lib/tooltipText";
 
 export interface RegionPanelProps {
   showSchools?: boolean;
+  metric?: MapMetricSpec;
+  facts?: EducationIssuesFile | null;
   bundle: Pick<DataBundle, "indicators" | "series" | "schools" | "closedSchools">;
   /** The currently-highlighted school (map point click / this panel's own row click), or null. Owned by Dashboard, mirrored to DeckMap so either side can drive it. */
   highlightedSchoolId: string | null;
@@ -57,7 +63,7 @@ interface OtherIndicatorRow {
  * at all once `regionCode` is set — the `!regionCode` guard below is a
  * defensive fallback, not the primary gate).
  */
-export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSchool, showSchools = true }: RegionPanelProps) {
+export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSchool, showSchools = true, metric, facts }: RegionPanelProps) {
   const { indicatorId, regionCode, setIndicator, setRegion, compareRegion, setCompareRegion } = useMapQuery();
   const [levelFilter, setLevelFilter] = useState<LevelFilter>("all");
   // fix round, review finding #3: reset the 학교급 filter back to "전체"
@@ -119,7 +125,9 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
     .slice()
     .sort((a, b) => b.year - a.year);
 
-  const seriesFile = bundle.series[indicatorId];
+  const trendId = indicatorId === "students_change_5y" ? "students_total" : indicatorId;
+  const trendDef = indicatorById(trendId)!;
+  const seriesFile = bundle.series[trendId];
   const trendRows = seriesFile ? trend(seriesFile, regionCode) : [];
 
   const otherRows: OtherIndicatorRow[] = INDICATORS.map((otherDef) => {
@@ -199,25 +207,28 @@ export default function RegionPanel({ bundle, highlightedSchoolId, onHighlightSc
         <p className="mt-2 text-xs text-ink-muted">{referenceDateLabel(file)} · <a className="underline" href={file.source.url} target="_blank" rel="noreferrer">{file.source.name}</a></p>
       </section>
 
-      <div className="mb-4">
-        <TimeSeriesChart
-          key={`${indicatorId}:${regionCode}`}
-          data={trendRows}
-          comparison={compareRegion ? { place: regionName(compareRegion), data: seriesFile ? trend(seriesFile, compareRegion) : [] } : undefined}
-          label={label}
-          place={regionName(regionCode)}
-          unit={def.unit}
-          format={def.format}
-          onShowStudents={indicatorId === "students_change_5y" ? () => setIndicator("students_total") : undefined}
-        />
-      </div>
-
       <RegionComparison
         region={regionCode} compare={compareRegion} onCompare={setCompareRegion}
         rows={compareRegion ? buildIndicatorComparison(bundle, regionCode, compareRegion) : []}
         selectedId={indicatorId} onIndicator={setIndicator}
         conditions={`선택 지표=${label}; 시군 전체 집계; 지표별 최신 값`}
       />
+
+      <div className="mb-4"><MetricDetailCharts bundle={bundle} indicator={indicatorId} region={regionCode} metric={metric} facts={facts} /></div>
+      <div className="mb-4">
+        <TimeSeriesChart
+          key={`${indicatorId}:${regionCode}`}
+          data={trendRows}
+          comparison={compareRegion ? { place: regionName(compareRegion), data: seriesFile ? trend(seriesFile, compareRegion) : [] } : undefined}
+          label={trendDef.label}
+          place={regionName(regionCode)}
+          unit={trendDef.unit}
+          format={trendDef.format}
+          onShowStudents={indicatorId === "students_change_5y" ? () => setIndicator("students_total") : undefined}
+        />
+      </div>
+
+      <div className="mb-4"><RegionList bundle={bundle} showTrend={false} /></div>
 
       {!compareRegion && <section className="mb-4">
         <p className="mb-1 text-xs text-ink-muted">다른 지표</p>

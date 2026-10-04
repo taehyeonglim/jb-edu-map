@@ -25,7 +25,7 @@ import {
   supportsDensity,
 } from "./layers/metricLayers";
 import MetricLegend from "@/components/panels/MetricLegend";
-import { buildMapMetric, type MapMetricSpec } from "@/lib/mapMetrics";
+import { buildMapMetric, CONTEXT_SCHOOL_COLOR, metricRadius, metricReferenceValues, metricSchoolLabel, metricSchoolLabelCharset, type MapMetricSpec } from "@/lib/mapMetrics";
 import DeckGL from "@deck.gl/react";
 import { ScatterplotLayer } from "@deck.gl/layers";
 import type { DeckGLRef } from "@deck.gl/react";
@@ -258,6 +258,7 @@ export default function DeckMap({
     [],
   );
   const [showSchoolNames, setShowSchoolNames] = useState(true);
+  const [showContextSchools, setShowContextSchools] = useState(false);
   const [settings, setSettings] = useState({ schoolId: highlightedSchoolId, open: false });
   const settingsOpen = settings.schoolId === highlightedSchoolId && settings.open;
   const setSettingsOpen = useCallback((open: boolean) => setSettings({ schoolId: highlightedSchoolId, open }), [highlightedSchoolId]);
@@ -326,11 +327,19 @@ export default function DeckMap({
     }
   }, []);
 
+  const metricModel = useMemo(
+    () =>
+      mapMetric ?? buildMapMetric(bundle, indicatorId, issueModel, schoolFacts),
+    [mapMetric, bundle, indicatorId, issueModel, schoolFacts],
+  );
+
   const mapCharset = useMemo(
     () =>
-      bundle.charset +
-      (issueModel ? issueModel.regions.map((row) => row.text).join("") : ""),
-    [bundle.charset, issueModel],
+      Array.from(new Set(
+        bundle.charset + metricSchoolLabelCharset(metricModel) +
+        (issueModel ? issueModel.regions.map((row) => row.text).join("") : ""),
+      )).join(""),
+    [bundle.charset, issueModel, metricModel],
   );
   const { fontReady, fontFamily } = useFontGate(mapCharset);
   // Mirrored into a ref so handleAfterRender (a stable, []-deps callback —
@@ -522,11 +531,7 @@ export default function DeckMap({
     () => (schools ?? bundle.schools.schools).filter(hasCoordinates),
     [schools, bundle.schools],
   );
-  const metricModel = useMemo(
-    () =>
-      mapMetric ?? buildMapMetric(bundle, indicatorId, issueModel, schoolFacts),
-    [mapMetric, bundle, indicatorId, issueModel, schoolFacts],
-  );
+  const schoolPointsVisible = metricModel.kind !== "region" || showContextSchools;
   const densityVisible =
     schoolChart === "auto" &&
     metricModel.kind === "density" &&
@@ -555,10 +560,10 @@ export default function DeckMap({
     [columnsVisible, chartMetric, chartMax, zoom],
   );
   const schoolLabelsVisible =
-    showSchoolNames && (zoom >= SCHOOL_LABEL_MIN_ZOOM || !!highlightedSchoolId);
+    schoolPointsVisible && showSchoolNames && (zoom >= SCHOOL_LABEL_MIN_ZOOM || !!highlightedSchoolId);
   const schoolHudLabel = useCallback(
-    (school: School) => `${school.name}\n학생 ${school.students === null ? "자료 없음" : `${school.students.toLocaleString("ko-KR")}명`}`,
-    [],
+    (school: School) => metricSchoolLabel(metricModel, school),
+    [metricModel],
   );
   const handleSchoolClick = useCallback(
     (id: string) => { setSettingsOpen(false); onHighlightSchool(id, "map"); },
@@ -566,6 +571,7 @@ export default function DeckMap({
   );
 
   const nearbySchoolId = useCallback((x: number, y: number, viewport?: Viewport, deck?: Deck | null) => {
+    if (!schoolPointsVisible) return null;
     const radius = mobile ? 14 : 9;
     // Resolve forgiving school hits inside deck.gl's completed click gesture.
     // Capturing/stopping pointerup would leave its gesture controller pressed,
@@ -586,7 +592,7 @@ export default function DeckMap({
       }
     }
     return closest?.id ?? null;
-  }, [mobile, positionedSchools]);
+  }, [mobile, positionedSchools, schoolPointsVisible]);
 
   const visibleLabels = useMemo(() => {
     if (!labelViewport || !fontReady)
@@ -865,6 +871,12 @@ export default function DeckMap({
         afterFilterUpdate(() => { void setSchoolChart(value as "auto" | "columns" | "dots"); });
       },
     });
+    if (metricModel.kind === "region") items.push({
+      id: "school-locations",
+      label: "학교 위치 보기",
+      pressed: showContextSchools,
+      onToggle: () => setShowContextSchools((value) => !value),
+    });
     items.push({
       id: "school-names",
       label: "학교명",
@@ -879,6 +891,7 @@ export default function DeckMap({
     });
     return items;
   }, [
+    metricModel.kind, showContextSchools,
     showSchoolNames,
     emdEnabled,
     handleEmdToggle,
@@ -978,7 +991,7 @@ export default function DeckMap({
             },
           })
         : null,
-      makeFlatSchoolsLayer(
+      schoolPointsVisible ? makeFlatSchoolsLayer(
         metricModel.specialEducation
           ? positionedSchools.filter((s) => s.level !== "special")
           : positionedSchools,
@@ -986,7 +999,7 @@ export default function DeckMap({
         handleSchoolClick,
       ).clone({
         getFillColor: (s) => {
-          const c = metricModel.color(s);
+          const c = metricModel.kind === "region" ? CONTEXT_SCHOOL_COLOR : metricModel.color(s);
           return issueModel && selectedCode && s.regionCode !== selectedCode && s.regionCode !== compareCode ? [c[0],c[1],c[2],65] : c;
         },
         getLineColor: (s) => s.id === highlightedSchoolId ? [131,230,239,255] : emphasizeZero && issueModel?.metric === "decline-small" && schoolFacts?.schools[s.id]?.entrants === 0 ? [242,140,98,255] : [8,20,33,255],
@@ -995,15 +1008,7 @@ export default function DeckMap({
           schoolChart === "auto" &&
           !densityVisible &&
           (metricModel.kind === "density" || metricModel.proportional)
-            ? (s) =>
-                Math.max(
-                  5,
-                  18 *
-                    Math.sqrt(
-                      (metricModel.value(s) ?? 0) /
-                        Math.max(1, metricModel.maximum),
-                    ),
-                )
+            ? (s) => metricRadius(metricModel.value(s), metricModel.maximum)
             : 5,
         radiusMaxPixels: 18,
         updateTriggers: {
@@ -1012,8 +1017,8 @@ export default function DeckMap({
           getLineColor: [highlightedSchoolId, emphasizeZero, issueModel, schoolFacts],
           getLineWidth: [highlightedSchoolId, emphasizeZero, issueModel, schoolFacts],
         },
-      }),
-      metricModel.specialEducation
+      }) : null,
+      schoolPointsVisible && metricModel.specialEducation
         ? makeSpecialSchoolLayer(
             positionedSchools,
             metricModel,
@@ -1084,6 +1089,7 @@ export default function DeckMap({
     metricModel,
     compareCode, emphasizeZero, schoolFacts,
     densityVisible,
+    schoolPointsVisible,
     mobile,
     schoolChart,
     columnsVisible,
@@ -1286,6 +1292,12 @@ export default function DeckMap({
         key={highlightedSchoolId ?? "overview"}
         metric={metricModel}
         density={densityVisible}
+        mode={densityVisible ? "density" : columnsVisible ? "columns" : metricModel.kind === "region" ? "region" : "points"}
+        contextualSchools={metricModel.kind === "region" && showContextSchools}
+        sizeSamples={columnsVisible && chartMetric && !chartMetric.heightMode
+          ? metricReferenceValues(chartMax).map((value) => ({ value, size: chartHeight(value, chartMax, zoom) / chartHeight(chartMax, chartMax, zoom) * 48 }))
+          : schoolChart === "auto" && !densityVisible && (metricModel.kind === "density" || metricModel.proportional)
+            ? metricReferenceValues(metricModel.maximum).map((value) => ({ value, size: metricRadius(value, metricModel.maximum) })) : undefined}
         schoolSelected={!!highlightedSchoolId}
         selectedRegionSummary={selectedCode ? `${nameOf(selectedCode)} · ${issueModel ? issueModel.regions.find((r) => r.code === selectedCode)?.text ?? "자료 없음" : map.get(selectedCode) == null ? "자료 없음" : formatWithUnit(def, map.get(selectedCode)! )}` : undefined}
         densityUnavailable={
@@ -1323,7 +1335,7 @@ export default function DeckMap({
                 )}
               </>
             ) : (
-              <p>이 지표는 학교별 높이 자료가 없어 점으로 표시합니다</p>
+              <p>이 지표는 시군 단위로 표시합니다. 학교 위치는 지도 설정에서 켤 수 있습니다.</p>
             )}
           </div>
         )}

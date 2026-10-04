@@ -19,6 +19,8 @@ import { ISSUE_IDS, ISSUE_METRICS, issueById, resolveIssueMetric } from "../issu
 
 export const MAP_VIEWS = ["schools", "issues", "statistics"] as const;
 export type MapPanelView = (typeof MAP_VIEWS)[number];
+/** UI-only request: selecting the same indicator again also reopens its analysis. */
+export const ANALYSIS_REQUEST_EVENT = "edu-map:analysis-request";
 
 import { REGION_CODES, type RegionCode } from "../geo/regions";
 import { DEFAULT_INDICATOR_ID, INDICATOR_IDS } from "../indicators/registry";
@@ -121,6 +123,7 @@ export function useMapQuery(): MapQuery {
     setIssue(id, metric) {
       const next = issueById(id);
       afterFilterUpdate(() => { void setQuery({ view: "issues", issue: next?.id ?? null, issueMetric: next ? resolveIssueMetric(next, metric ?? null) : null, ...(next?.id !== definition?.id ? { q: null, schoolLevel: null } : {}) }, { history: "push", limitUrlUpdates: throttle(0) }); });
+      if (next && typeof window !== "undefined") window.dispatchEvent(new Event(ANALYSIS_REQUEST_EVENT));
     },
     setIssueMetric(metric) {
       if (definition) void setQuery({ issueMetric: resolveIssueMetric(definition, metric) });
@@ -128,7 +131,8 @@ export function useMapQuery(): MapQuery {
     indicatorId: indicator,
     regionCode: region,
     setIndicator(id) {
-      void setQuery({ indicator: id, issue: null, issueMetric: null, ...(definition ? { q: null, schoolLevel: null } : {}) }, { limitUrlUpdates: throttle(0) });
+      void setQuery({ indicator: id, issue: null, issueMetric: null, view: view === "schools" && (q || schoolLevel !== "all") ? "schools" : "statistics", ...(definition ? { q: null, schoolLevel: null } : {}) }, { limitUrlUpdates: throttle(0) });
+      if (typeof window !== "undefined") window.dispatchEvent(new Event(ANALYSIS_REQUEST_EVENT));
     },
     setRegion(code) {
       // History semantics (fix round 1, review finding #2): only a

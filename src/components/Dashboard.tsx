@@ -18,12 +18,13 @@ import { chartValueText } from "@/lib/schools/chart";
 import { buildMapMetric } from "@/lib/mapMetrics";
 import RegionList from "@/components/panels/RegionList";
 import RegionPanel from "@/components/panels/RegionPanel";
+import MetricDetailCharts from "@/components/panels/MetricDetailCharts";
 import TopBar from "@/components/panels/TopBar";
 import { DataProvider, useData, useRetry } from "@/lib/data/DataProvider";
 import type { DataBundle } from "@/lib/data/types";
 import type { RegionCode } from "@/lib/geo/regions";
 import { indicatorById } from "@/lib/indicators/registry";
-import { MAP_VIEWS, useMapQuery } from "@/lib/state/urlState";
+import { ANALYSIS_REQUEST_EVENT, MAP_VIEWS, useMapQuery } from "@/lib/state/urlState";
 import { afterFilterUpdate } from "@/lib/state/filterHistory";
 
 function CenteredMessage({ children }: { children: ReactNode }) {
@@ -129,6 +130,19 @@ function DashboardInner({
   const [collapsed, setCollapsed] = useState(
     tab === "schools" && !initiallyUnlocated,
   );
+  const panelRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const reveal = () => {
+      const content = panelRef.current?.querySelector<HTMLElement>('[role="tabpanel"]');
+      if (content) content.scrollTop = 0;
+      const compact = window.matchMedia("(max-width: 1023px)").matches;
+      if (compact && document.activeElement?.closest('[aria-label="학교 탐색 및 시군 통계"]')) return;
+      setCollapsed(compact);
+      setPanelOpen(false);
+    };
+    window.addEventListener(ANALYSIS_REQUEST_EVENT, reveal);
+    return () => window.removeEventListener(ANALYSIS_REQUEST_EVENT, reveal);
+  }, []);
   const [handledExplore, setHandledExplore] = useState(0);
   if (handledExplore !== exploreRequest) {
     setHandledExplore(exploreRequest);
@@ -136,9 +150,12 @@ function DashboardInner({
     setPanelOpen(typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches);
   }
   const [schoolFocusNonce, setSchoolFocusNonce] = useState(0);
-  const panelRef = useRef<HTMLElement>(null);
   const panelButtonRef = useRef<HTMLButtonElement>(null);
   const panelReturnFocusRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const content = panelRef.current?.querySelector<HTMLElement>('[role="tabpanel"]');
+    if (content) content.scrollTop = 0;
+  }, [indicatorId, issueId, issueMetric]);
   const filteredSchools = useMemo(
     () =>
       filterSchools(issueModel?.schools ?? bundle.schools.schools, {
@@ -353,7 +370,7 @@ function DashboardInner({
             id={`panel-${tab}`}
             aria-labelledby={`tab-${tab}`}
           >
-            <ExploreToolbar title={mapMetric.title} />
+            <ExploreToolbar title={mapMetric.title} compact={tab !== "schools"} />
             {tab === "schools" ? (
               <SchoolExplorer
                 metric={mapMetric}
@@ -447,12 +464,18 @@ function DashboardInner({
                 ) : regionCode ? (
                   <RegionPanel
                     bundle={bundle}
+                    metric={mapMetric}
+                    facts={issueState.status === "ready" ? issueState.data : null}
                     highlightedSchoolId={highlightedSchoolId}
                     onHighlightSchool={selectSchool}
                     showSchools={false}
                   />
                 ) : (
-                  <RegionList bundle={bundle} />
+                  <div className="space-y-4">
+                    <section className="cyber-frame p-3" aria-label="선택 지표 요약"><h2 className="font-semibold">{mapMetric.title}</h2><p className="mt-1 text-lg font-bold tabular-nums">{mapMetric.summary}</p><p className="mt-1 text-xs text-ink-muted">{mapMetric.date}</p></section>
+                    <MetricDetailCharts bundle={bundle} indicator={indicatorId} metric={mapMetric} facts={issueState.status === "ready" ? issueState.data : null} />
+                    <RegionList bundle={bundle} />
+                  </div>
                 )}
                 <footer
                   role="contentinfo"
@@ -516,6 +539,11 @@ function DashboardInner({
           >
             학교·통계
           </button>
+          {!panelOpen && !selectedSchool && <button type="button" className="cyber-analysis-peek cyber-frame lg:hidden" data-map-obstacle="analysis-peek" aria-label="분석 펼치기" onClick={() => { setCollapsed(false); setPanelOpen(true); }}>
+            <span className="block text-xs text-accent-text">{mapMetric.title}</span>
+            <strong className="mt-1 block text-sm">{metricPending ? "자료 불러오는 중…" : mapMetric.summary}</strong>
+            <span className="mt-1 block text-xs text-ink-muted">{mapMetric.date} · 분석 펼치기 ↑</span>
+          </button>}
           {selectedSchool && !hasCoordinates(selectedSchool) && (
             <button
               type="button"

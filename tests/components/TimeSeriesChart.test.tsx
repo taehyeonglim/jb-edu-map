@@ -4,6 +4,13 @@ import { describe, expect, it } from "vitest";
 import TimeSeriesChart from "@/components/ui/TimeSeriesChart";
 
 describe("TimeSeriesChart", () => {
+  it("labels the expanded y-axis and retains full annual values", () => {
+    const { container } = render(<TimeSeriesChart place="전북" label="학생수" unit="명" format={value => value.toLocaleString("ko-KR")} data={[{ year: 2025, value: 174003 }, { year: 2026, value: 165958 }]} />);
+    expect(screen.getByText("세로축 확대 · 명")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "2025 174,003명" })).toBeInTheDocument();
+    expect(container.querySelectorAll("svg line").length).toBeGreaterThanOrEqual(4);
+    expect(container.querySelector(".truncate")).toBeNull();
+  });
   it("compares on one scale and does not claim an annual change across an absent year", async () => {
     const user = userEvent.setup();
     const { container } = render(<TimeSeriesChart place="전주시" label="학생수" unit="명" format={String}

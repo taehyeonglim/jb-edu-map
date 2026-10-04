@@ -5,6 +5,7 @@ import type { DataBundle } from "@/lib/data/types";
 import type { EducationIssuesFile, IssueMapModel } from "@/lib/issues/types";
 import { PROVINCE_CODE, regionName, type RegionCode } from "@/lib/geo/regions";
 import { isResourceMetric } from "@/lib/issues/model";
+import { issueResources } from "@/lib/issues/analysis";
 import { buildIssueComparison } from "@/lib/comparison";
 import RegionComparison from "./RegionComparison";
 import { SCHOOL_LEVEL_LABELS } from "@/lib/schoolVisuals";
@@ -16,9 +17,12 @@ export function IssueComparison({ bundle, data, model, region, compare, onCompar
   region: RegionCode | null; compare: RegionCode | null; onCompare: (code: RegionCode | null) => void;
 }) {
   if (!region) return <p className="text-xs text-ink-muted">시군을 선택하면 다른 지역과 나란히 비교할 수 있습니다.</p>;
+  const rows = compare ? buildIssueComparison(bundle, data, model, region, compare).map(row => row.id === "school-size" ? {
+    ...row, label: "대상 본교 수 (규모 분포와 별도)", note: `${row.note} 규모별 분포는 상단 구성 그래프에서 비교합니다.`,
+  } : row) : [];
   return <RegionComparison
     region={region} compare={compare} onCompare={onCompare}
-    rows={compare ? buildIssueComparison(bundle, data, model, region, compare) : []}
+    rows={rows}
     selectedId={model.metric}
     conditions={`교육문제=${model.issue.title}; 지표=${model.title}; 집계 학교급=${model.issue.id === "school-size" ? SCHOOL_LEVEL_LABELS[model.level ?? "elem"] : "지표별 정의 참조"}; 시군 전체 집계`}
   />;
@@ -29,10 +33,7 @@ export function IssueDetails({ bundle, data, model, region }: {
 }) {
   const [allAssets, setAllAssets] = useState(false);
   if (isResourceMetric(model.metric)) {
-    const rows = (data.resources ?? []).filter((resource) =>
-      resource.issue === model.issue.id &&
-      (resource.metric ?? (resource.issue === "care" ? "care-pilots" : model.metric)) === model.metric &&
-      (!region || resource.regionCode === region));
+    const rows = issueResources(data, model.metric, region);
     return <section aria-label="교육 자원 목록" className="space-y-2 rounded-xl bg-paper p-3">
       <h3 className="text-sm font-semibold">공식 명단에서 확인한 자원</h3>
       <p className="text-xs text-ink-muted">{model.note}</p>
@@ -45,20 +46,6 @@ export function IssueDetails({ bundle, data, model, region }: {
         {resource.capacity !== undefined && <p>정원 {resource.capacity ?? "자료 없음"}명 · 현원 {resource.enrolled ?? "자료 없음"}명</p>}
         {resource.referenceDate && <p className="text-ink-muted">기관 자료 기준 {resource.referenceDate}</p>}
       </li>)}</ul>
-    </section>;
-  }
-  if (model.issue.id === "school-size") {
-    const schools = model.schools.filter(s => !region || s.regionCode === region);
-    const groups = [
-      ["60명 이하", schools.filter(s => s.students !== null && s.students <= 60).length],
-      ["61~999명", schools.filter(s => s.students !== null && s.students > 60 && s.students < 1000).length],
-      ["1,000명 이상", schools.filter(s => s.students !== null && s.students >= 1000).length],
-      ["자료 없음", schools.filter(s => s.students === null).length],
-    ] as const;
-    return <section aria-label="학교 규모 구간" className="space-y-2 rounded-xl bg-paper p-3">
-      <h3 className="text-sm font-semibold">학교 규모별 분포 · 본교</h3>
-      {groups.map(([label, count]) => <div key={label} className="flex justify-between text-sm"><span>{label}</span><strong>{count}개교</strong></div>)}
-      <p className="text-xs text-ink-muted">학생 {schools.some(s => s.students === null) ? "자료 없음" : number(schools.reduce((n,s) => n + s.students!, 0))}명 · 규모 구간은 과밀·부실 판정이 아닙니다.</p>
     </section>;
   }
   if (model.issue.id === "closed-assets") {
